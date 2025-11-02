@@ -10,3 +10,4 @@
 ^inst/app/.RData$
 
 ^LICENSE\.md$
+^\.github$
