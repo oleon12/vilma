@@ -1,0 +1,41 @@
+Package: vilma
+Title: Spatial Phylogenetic Diversity
+Version: 0.1.0
+Authors@R:
+    c(
+      person(given = "Omar Daniel", family = "Leon-Alvarado",
+             email = "leon.alvarado12@gmail.com", role = c("aut","cre"),
+             comment = c(ORCID = "0000-0002-7518-0099")),
+      person(given = "J. Angelo", family = "Soto-Centeno",
+             email = "asoto-centeno@amnh.org", role = "aut",
+             comment = c(ORCID = "0000-0002-1729-1153"))
+    )
+Description: Tools to compute alpha/beta phylogenetic diversity, null models,
+    visualization helpers, and a bundled Shiny app under inst/app.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 4.1)
+Imports:
+    ape,
+    phytools,
+    terra,
+    vegan,
+    leaflet,
+    viridisLite,
+    magrittr,
+    sf,
+    shiny,
+    leafem,
+    methods,
+    htmltools
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    dplyr,
+    raster
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3

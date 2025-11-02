@@ -1,0 +1,12 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^README\.Rmd$
+^docs$
+^_pkgdown\.yml$
+^\.git$
+^\.gitignore$
+^inst/app/.Rhistory$
+^inst/app/.Rproj.user$
+^inst/app/.RData$
+
+^LICENSE\.md$
