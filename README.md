@@ -1,4 +1,4 @@
-# Vilma <img src="/media/omar/Extreme Pro/Projects/vilma/inst/app/www/logo.png" align="right" width="120"/>
+# Vilma <img src="inst/app/www/Logo.png" align="right" width="120"/>
 
 **Vilma** is an R package to quantify and visualize **spatial phylogenetic diversity** across geographic landscapes.  
 It provides a complete workflow to:
