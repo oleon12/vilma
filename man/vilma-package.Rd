@@ -9,12 +9,20 @@
 Functions for PD (Faith), MPD, MNTD, PE, Rao, beta (UniFrac, PhyloSor, phylo.beta),
 and null models. Includes a Shiny app in inst/app.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/oleon12/vilma}
+  \item Report bugs at \url{https://github.com/oleon12/vilma/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Omar Daniel Leon-Alvarado \email{leon.alvarado12@gmail.com} (\href{https://orcid.org/0000-0002-7518-0099}{ORCID})
 
 Authors:
 \itemize{
-  \item J. Angelo Soto-Centeno \email{asoto-centeno@amnh.org} (\href{https://orcid.org/0000-0002-1729-1153}{ORCID})
+  \item J. Angel Soto-Centeno \email{asoto-centeno@amnh.org} (\href{https://orcid.org/0000-0002-1729-1153}{ORCID})
 }
 
 }
