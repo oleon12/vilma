@@ -39,3 +39,5 @@ Suggests:
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+URL: https://github.com/oleon12/vilma
+BugReports: https://github.com/oleon12/vilma/issues
