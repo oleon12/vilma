@@ -20,7 +20,7 @@ Requires `devtools`:
 
 ```r
 install.packages("devtools")
-devtools::install_github("YOURUSER/vilma", build_vignettes = FALSE)
+devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
 
 library(vilma)
 
