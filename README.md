@@ -1,3 +1,11 @@
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/oleon12/vilma/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/oleon12/vilma/actions/workflows/R-CMD-check.yaml)
+[![License](https://img.shields.io/github/license/oleon12/vilma.svg)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/oleon12/vilma?display_name=tag)](https://github.com/oleon12/vilma/releases)
+[![GitHub stars](https://img.shields.io/github/stars/oleon12/vilma?style=social)](https://github.com/oleon12/vilma)
+<!-- badges: end -->
+
+
 # vilma (v1.0.0) <img src="inst/app/www/Logo.png" align="right" width="120"/>
 
 **Vilma** is an R package to quantify and visualize **spatial phylogenetic diversity** across geographic landscapes.  
