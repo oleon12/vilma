@@ -27,9 +27,10 @@ Vilma is designed for biogeography, ecology, and conservation applications, with
 
 ---
 <br>
+
 ## Installation 
 
-### **Development version (recommended)**
+**Development version (recommended)**
 Requires `devtools`:
 
 ```r
@@ -37,6 +38,7 @@ install.packages("devtools")
 devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
 ```
 <br>
+
 ## Shiny App
 
 Vilma can be used through a <b>Shiny interface</b>. This interface was built for users with little experience in R or programming in general. However, the user is required to understand every parameter and index in order to perform an appropriate analysis for their research question. Therefore, we always advise users to keep in mind the principle of <b>GIGO (Garbage In, Garbage Out)</b>. Running the app is very easy: simply open an <i>R</i> or <i>RStudio</i> session and run the following lines of code.
@@ -63,9 +65,11 @@ The idea of this step is to reduce the time and stress associated with creating 
 |<i>Artibeus lituratus</i>|-73.55|5.03|
 |<i>Artibeus jamaicensis</i>|-70.05|2.05|
 |<i>Artibeus obscurus</i>|-71.25|5.93|
+
 <sup>1</sup><i>The column names can be different; the function handles them automatically.</i>
 <sup>2</sup><i>The columns must follow this exact order: Species, Longitude, and Latitude.</i>
 <br>
+
 ```r
 points_to_raster(points, crs = 4326, ext = NULL, res = 1, doRast = TRUE, symmetrical = FALSE) 
 
@@ -75,4 +79,5 @@ dist_ex <- example_dist()
 raster_out <- points_to_raster(points = dist_ex, res = 5)
 print(raster_out)
 view.vilma(raster_out)
-``
+```
+<br>
