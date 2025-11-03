@@ -55,18 +55,26 @@ Vilma is intended to be a pipeline where the user starts by creating a raster fi
 
 <br>
 
+## Interactive view
+
+Although the Shiny app is the most remarkable feature for interactivity, Vilma also provides interactive map visualizations. For every analysis (raster,  &alpha;-diversity, &alpha;-null models, and &beta;), results can be viewed using the <i>view.vilma()</i> function. This function will display a Leaflet map with the raster layers. You can toggle between layers using the Layer Control button <img src="inst/app/www/Layer_Icon.png" width="10"/>. Furthermore, if you move the mouse over any pixel, a pop-up window will appear above the Layer Control button showing the value for that specific pixel.
+
+<br>
+
 ## Rasters
 
 The idea of this step is to reduce the time and stress associated with creating and manipulating raster files for spatial analysis. Many other packages aimed at calculating Phylogenetic Diversity indices use community tables. This approach requires several steps to convert rasters to tables and then back to rasters again, which can be an obstacle for many users. In contrast, the points_to_rasters function requires only a single data frame (or table) with three columns: Species, Longitude, and Latitude (decimal degrees). This data is easy to gather, especially from sources like GBIF. Users can also set up the pixel resolution and CRS. The function return a <i>vilma.dist</i> object
 <br>
+<div align="center">
 |Species|Longitude|Latitude|
 |:---:|:---:|:---:|
 |<i>Artibeus lituratus</i>|-73.45|6.35|
 |<i>Artibeus lituratus</i>|-73.55|5.03|
 |<i>Artibeus jamaicensis</i>|-70.05|2.05|
 |<i>Artibeus obscurus</i>|-71.25|5.93|
+</div>
 
-<sup>1</sup><i>The column names can be different; the function handles them automatically.</i>
+<sup>1</sup><i>The column names can be different; the function handles them automatically.</i><br>
 <sup>2</sup><i>The columns must follow this exact order: Species, Longitude, and Latitude.</i>
 <br>
 
