@@ -22,8 +22,10 @@ It provides a complete workflow to:
 Vilma is designed for biogeography, ecology, and conservation applications, with special emphasis on **integrative phylogenomics + spatial analysis**.
 
 ---
+<i>Created in loving memory of <b>Vilma Alvarado</b> whose kindness and love continue to inspire this work. </i>
+---
 
-## 🚀 Installation
+## Installation
 
 ### **Development version (recommended)**
 Requires `devtools`:
@@ -31,20 +33,16 @@ Requires `devtools`:
 ```r
 install.packages("devtools")
 devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
+```
 
+## Shiny App
+
+Vilma can be used through a <b>Shiny interface</b>. This interface was built for users with little experience in R or programming in general. However, the user is required to understand every parameter and index in order to perform an appropriate analysis for their research question. Therefore, we always advise users to keep in mind the principle of <b>GIGO (Garbage In, Garbage Out)</b>. Running the app is very easy: simply open an <i>R</i> or <i>RStudio</i> session and run the following lines of code.
+
+```r
 library(vilma)
 
 # Launch the analysis app
 run.vilma.app()
-
-# Load data
-dist <- points_to_raster(points, res = 1, crs = 4326)
-
-# Calculate Faith's PD
-pd <- faith.pd(dist, tree)
-
-# Null model example
-pd_null <- faith.pd.null(dist, tree, method = "taxa_label", iterations = 100)
-
-help(package = "vilma")
+```
 
