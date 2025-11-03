@@ -26,8 +26,8 @@ Vilma is designed for biogeography, ecology, and conservation applications, with
 ###### <i>Created in loving memory of <b>Vilma Alvarado</b> whose kindness and love continue to inspire this work. </i>
 
 ---
-
-## Installation </br>
+<br>
+## Installation 
 
 ### **Development version (recommended)**
 Requires `devtools`:
@@ -36,7 +36,7 @@ Requires `devtools`:
 install.packages("devtools")
 devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
 ```
-
+<br>
 ## Shiny App
 
 Vilma can be used through a <b>Shiny interface</b>. This interface was built for users with little experience in R or programming in general. However, the user is required to understand every parameter and index in order to perform an appropriate analysis for their research question. Therefore, we always advise users to keep in mind the principle of <b>GIGO (Garbage In, Garbage Out)</b>. Running the app is very easy: simply open an <i>R</i> or <i>RStudio</i> session and run the following lines of code.
@@ -47,4 +47,32 @@ library(vilma)
 # Launch the analysis app
 run.vilma.app()
 ```
+<br>
 
+Vilma is intended to be a pipeline where the user starts by creating a raster file and then uses a phylogeny to calculate &alpha;-diversity, &alpha;-null models, and &beta;-diversity. However, the user can skip some steps and run only the desired analyses. For the Shiny app, please note that the phylogeny (of class <i>phylo</i>) must be uploaded on the &alpha;-diversity page.
+
+<br>
+
+## Rasters
+
+The idea of this step is to reduce the time and stress associated with creating and manipulating raster files for spatial analysis. Many other packages aimed at calculating Phylogenetic Diversity indices use community tables. This approach requires several steps to convert rasters to tables and then back to rasters again, which can be an obstacle for many users. In contrast, the points_to_rasters function requires only a single data frame (or table) with three columns: Species, Longitude, and Latitude (decimal degrees). This data is easy to gather, especially from sources like GBIF. Users can also set up the pixel resolution and CRS. The function return a <i>vilma.dist</i> object
+<br>
+|Species|Longitude|Latitude|
+|:---:|:---:|:---:|
+|<i>Artibeus lituratus</i>|-73.45|6.35|
+|<i>Artibeus lituratus</i>|-73.55|5.03|
+|<i>Artibeus jamaicensis</i>|-70.05|2.05|
+|<i>Artibeus obscurus</i>|-71.25|5.93|
+<sup>1</sup><i>The column names can be different; the function handles them automatically.</i>
+<sup>2</sup><i>The columns must follow this exact order: Species, Longitude, and Latitude.</i>
+<br>
+```r
+points_to_raster(points, crs = 4326, ext = NULL, res = 1, doRast = TRUE, symmetrical = FALSE) 
+
+# Example
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+print(raster_out)
+view.vilma(raster_out)
+``
