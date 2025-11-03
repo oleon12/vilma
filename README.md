@@ -22,10 +22,12 @@ It provides a complete workflow to:
 Vilma is designed for biogeography, ecology, and conservation applications, with special emphasis on **integrative phylogenomics + spatial analysis**.
 
 ---
-<i>Created in loving memory of <b>Vilma Alvarado</b> whose kindness and love continue to inspire this work. </i>
+
+###### <i>Created in loving memory of <b>Vilma Alvarado</b> whose kindness and love continue to inspire this work. </i>
+
 ---
 
-## Installation
+## Installation </br>
 
 ### **Development version (recommended)**
 Requires `devtools`:
