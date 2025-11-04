@@ -186,3 +186,52 @@ view.vilma(faith_null)
 ```
 
 <br>
+
+## &beta;-Diversity
+
+<br>
+
+Vilma also implements different &beta;-diversity indices. Like the &alpha;-diversity indices, these require a phylogenetic tree and a vilma.dist object. Each function returns a <i>vilma.beta</i> object containing similarity/dissimilarity matrices, rasters, and associated statistics.
+
+Since beta diversity indices produce pair-wise distance matrices, the functions calculate the mean similarity/dissimilarity values and perform a PCoA and NMDS for dimensional reduction. The resulting rasters visualize the mean values, PCoA (axes 1 and 2), and NMDS axes.
+
+<br>
+
+```r
+
+# Beta-MNTD
+beta.mntd(tree, dist, mntd.method = c("exclude","root","node"),
+          abundance = FALSE, exclude.conspecific = FALSE, 
+          normalize = FALSE, scale01 = FALSE)
+
+# Beta-MPD
+beta.mpd(tree, dist, mpd.method = c("exclude","root","node"), 
+         abundance = FALSE, exclude.conspecific = FALSE, 
+         normalize = FALSE, scale01=FALSE)
+
+# Phylo Beta
+phylo.beta(tree, dist, method = c("unweighted", "weighted"), normalize = TRUE)
+
+# PhyloSor
+phylosor.calc(tree, dist, method = c("root","node","exclude"), singleton_overlap = FALSE,
+             abundance = FALSE, normalize = TRUE)
+
+# Rao Q' Beta
+rao.beta(tree, dist, abundance = FALSE, scale01 = TRUE)
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+tree_ex <- example_tree()
+
+beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "wieghted", normalize = TRUE)
+print(beta_out)
+plot(beta_out)
+view.vilma(beta_out)
+
+
+```
+
+<br>
+
+
