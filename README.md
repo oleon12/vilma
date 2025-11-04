@@ -136,6 +136,7 @@ print(mpd_out)
 plot(mpd_out)
 view.vilma(mpd_out)
 ```
+
 <br>
 
 ## Null models (&alpha;-Diversity)
@@ -149,6 +150,7 @@ The null models feature four different sampling options: taxa.label, range, neig
 Null models require a vilma.pd object, a phylogenetic tree, and a vilma.dist object. Each function returns a vilma.null object containing the associated statistics (SES and p-value) in tables, a raster (if the "cell" option was selected), and the original distribution matrix.
 
 <br>
+
 ```r
 faith.pd.null(pd, tree, dist, iterations = 999, method = c("global","cell"), sampling = c("taxa.label","range","neighbor","regional"), n.directions = c("rook","bishop","queen"),regional.weight = c("uniform","frequency","range"))
 
@@ -169,4 +171,5 @@ plot(faith_null)
 view.vilma(faith_null)
 
 ```
+
 <br>
