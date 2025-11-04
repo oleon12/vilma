@@ -121,10 +121,18 @@ pe.calc(tree, dist, RPE = c(TRUE,FALSE), faith.method = c("node","root","exclude
 rao.calc(tree, dist, abundance = FALSE, scale01 = TRUE)
 
 # NRI
-nri.calc <- function(tree, dist, mpd.method = c("root","node","exclude"), abundance = FALSE, iterations = 999, sampling = c("taxa.label","range","neigbor","regional"), n.directions = c("rook","bishop","queen"), regional.weight = c("uniform","frequency","range"))
+nri.calc <- function(tree, dist, mpd.method = c("root","node","exclude"), 
+                     abundance = FALSE, iterations = 999, 
+                     sampling = c("taxa.label","range","neigbor","regional"), 
+                     n.directions = c("rook","bishop","queen"), 
+                     regional.weight = c("uniform","frequency","range"))
 
 #NTI
-nti.calc <- function(tree, dist, mntd.method = c("root","node","exclude"), abundance = FALSE, iterations = 999, sampling = c("taxa.label","range","neigbor","regional"), n.directions = c("rook","bishop","queen"), regional.weight = c("uniform","frequency","range"))
+nti.calc <- function(tree, dist, mntd.method = c("root","node","exclude"), 
+                     abundance = FALSE, iterations = 999, 
+                     sampling = c("taxa.label","range","neigbor","regional"), 
+                     n.directions = c("rook","bishop","queen"), 
+                     regional.weight = c("uniform","frequency","range"))
 
 dist_ex <- example_dist()
 raster_out <- points_to_raster(points = dist_ex, res = 5)
@@ -152,7 +160,10 @@ Null models require a vilma.pd object, a phylogenetic tree, and a vilma.dist obj
 <br>
 
 ```r
-faith.pd.null(pd, tree, dist, iterations = 999, method = c("global","cell"), sampling = c("taxa.label","range","neighbor","regional"), n.directions = c("rook","bishop","queen"),regional.weight = c("uniform","frequency","range"))
+faith.pd.null(pd, tree, dist, iterations = 999, method = c("global","cell"), 
+              sampling = c("taxa.label","range","neighbor","regional"), 
+              n.directions = c("rook","bishop","queen"),
+              regional.weight = c("uniform","frequency","range"))
 
 dist_ex <- example_dist()
 raster_out <- points_to_raster(points = dist_ex, res = 5)
@@ -160,12 +171,14 @@ raster_out <- points_to_raster(points = dist_ex, res = 5)
 tree_ex <- example_tree()
 faith_out <- faith.pd(tree = tree_ex, dist = raster_out, method = "root")
 
-faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, method = "global", sampling = "taxa.label")
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, 
+                            method = "global", sampling = "taxa.label")
 print(faith_null)
 plot(faith_null)
 view.vilma(faith_null)
 
-faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, method = "cell", sampling = "taxa.label")
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, 
+                            method = "cell", sampling = "taxa.label")
 print(faith_null)
 plot(faith_null)
 view.vilma(faith_null)
