@@ -63,7 +63,7 @@ Although the Shiny app is the most remarkable feature for interactivity, Vilma a
 
 ## Rasters
 
-The idea of this step is to reduce the time and stress associated with creating and manipulating raster files for spatial analysis. Many other packages aimed at calculating Phylogenetic Diversity indices use community tables. This approach requires several steps to convert rasters to tables and then back to rasters again, which can be an obstacle for many users. In contrast, the points_to_rasters function requires only a single data frame (or table) with three columns: Species, Longitude, and Latitude (decimal degrees). This data is easy to gather, especially from sources like GBIF. Users can also set up the pixel resolution and CRS. The function return a <i>vilma.dist</i> object
+The idea of this step is to reduce the time and stress associated with creating and manipulating raster files for spatial analysis. Many other packages aimed at calculating Phylogenetic Diversity indices use community tables. This approach requires several steps to convert rasters to tables and then back to rasters again, which can be an obstacle for many users. In contrast, the <i>points_to_rasters</i> function requires only a single data frame (or table) with three columns: Species, Longitude, and Latitude (decimal degrees). This data is easy to gather, especially from sources like GBIF. Users can also set up the pixel resolution and CRS. The function return a <i>vilma.dist</i> object
 <br>
 
 <div align="center">
@@ -75,10 +75,11 @@ The idea of this step is to reduce the time and stress associated with creating 
 |<i>Artibeus jamaicensis</i>|-70.05|2.05|
 |<i>Artibeus obscurus</i>|-71.25|5.93|
 
-</div>
-
 <sup>1</sup><i>The column names can be different; the function handles them automatically.</i><br>
 <sup>2</sup><i>The columns must follow this exact order: Species, Longitude, and Latitude.</i>
+
+</div>
+
 <br>
 
 ```r
@@ -89,6 +90,82 @@ points_to_raster(points, crs = 4326, ext = NULL, res = 1, doRast = TRUE, symmetr
 dist_ex <- example_dist()
 raster_out <- points_to_raster(points = dist_ex, res = 5)
 print(raster_out)
+plot(raster_out)
 view.vilma(raster_out)
+```
+<br>
+
+## &alpha;-Diversity
+
+<br>
+
+This is the most basic analysis. Vilma provides seven different indices based on different approaches (e.g., minimum spanning tree, distance-based). The goal is to increase the number of available indices over time. Each &alpha;-diversity function requires, at a minimum, a vilma.dist object (created with points_to_raster) and a rooted tree with branch lengths. These functions work with both ultrametric and non-ultrametric trees. The result of each function is a vilma.pd object containing: a table exhibiting the Species Richness, Abundance, and PD values for each cell; a set of rasters (the number of which may vary between indices); and the original distribution matrix.
+
+<br>
+```r
+
+# Faith PD
+faith.pd(tree, dist, method = c("root", "node", "exclude"))
+
+# MNTD
+mntd.calc(tree, dist, method = c("root","node","exclude"), abundance = FALSE)
+
+# MPD
+mpd.calc(tree, dist, method = c("root","node","exclude"), abundance = FALSE)
+
+# Phylogenetic Endemisms
+pe.calc(tree, dist, RPE = c(TRUE,FALSE), faith.method = c("node","root","exclude"))
+
+# Rao's Q (PD)
+rao.calc(tree, dist, abundance = FALSE, scale01 = TRUE)
+
+# NRI
+nri.calc <- function(tree, dist, mpd.method = c("root","node","exclude"), abundance = FALSE, iterations = 999, sampling = c("taxa.label","range","neigbor","regional"), n.directions = c("rook","bishop","queen"), regional.weight = c("uniform","frequency","range"))
+
+#NTI
+nti.calc <- function(tree, dist, mntd.method = c("root","node","exclude"), abundance = FALSE, iterations = 999, sampling = c("taxa.label","range","neigbor","regional"), n.directions = c("rook","bishop","queen"), regional.weight = c("uniform","frequency","range"))
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+tree_ex <- example_tree()
+
+mpd_out <- mpd(tree = tree_ex, dist = raster_out, method = "root", abundance = FALSE)
+print(mpd_out)
+plot(mpd_out)
+view.vilma(mpd_out)
+```
+<br>
+
+## Null models (&alpha;-Diversity)
+
+<br>
+
+This is one of the main features of Vilma: the implementation of null models for &alpha;-diversity indices. With the exception of NRI and NTI, all indices have their own null models. The null models offer two different approaches: <b>global</b> and <b>cell</b>. When "global" is selected, the function calculates the SES and p-value for the entire area, while "cell" calculates the <i>SES</i> and <i>p-value</i> for each individual cell. Only the "cell" option returns a raster.
+
+The null models feature four different sampling options: taxa.label, range, neighbor, and regional. For neighbor, the algorithm re-samples the points using three methods: "rook", "bishop", and "queen". For regional, the species pool re-sampling is performed with different weights: "uniform", "frequency", and "range".
+
+Null models require a vilma.pd object, a phylogenetic tree, and a vilma.dist object. Each function returns a vilma.null object containing the associated statistics (SES and p-value) in tables, a raster (if the "cell" option was selected), and the original distribution matrix.
+
+<br>
+```r
+faith.pd.null(pd, tree, dist, iterations = 999, method = c("global","cell"), sampling = c("taxa.label","range","neighbor","regional"), n.directions = c("rook","bishop","queen"),regional.weight = c("uniform","frequency","range"))
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+tree_ex <- example_tree()
+faith_out <- faith.pd(tree = tree_ex, dist = raster_out, method = "root")
+
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, method = "global", sampling = "taxa.label")
+print(faith_null)
+plot(faith_null)
+view.vilma(faith_null)
+
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, method = "cell", sampling = "taxa.label")
+print(faith_null)
+plot(faith_null)
+view.vilma(faith_null)
+
 ```
 <br>
