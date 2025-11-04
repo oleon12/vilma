@@ -102,6 +102,7 @@ view.vilma(raster_out)
 This is the most basic analysis. Vilma provides seven different indices based on different approaches (e.g., minimum spanning tree, distance-based). The goal is to increase the number of available indices over time. Each &alpha;-diversity function requires, at a minimum, a vilma.dist object (created with points_to_raster) and a rooted tree with branch lengths. These functions work with both ultrametric and non-ultrametric trees. The result of each function is a vilma.pd object containing: a table exhibiting the Species Richness, Abundance, and PD values for each cell; a set of rasters (the number of which may vary between indices); and the original distribution matrix.
 
 <br>
+
 ```r
 
 # Faith PD
