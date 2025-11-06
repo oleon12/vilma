@@ -20,6 +20,9 @@
 #' @import methods
 #' @importFrom magrittr %>%
 #' @importFrom htmltools htmlEscape
+#' @importFrom readr read_csv
+#' @importFrom leaflet.extras addDrawToolbar
+
 NULL
 
 utils::globalVariables(c("method"))

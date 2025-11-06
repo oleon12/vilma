@@ -29,7 +29,9 @@ Imports:
     shiny,
     leafem,
     methods,
-    htmltools
+    htmltools,
+    readr,
+    leaflet.extras
 Suggests:
     testthat (>= 3.0.0),
     knitr,
