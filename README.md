@@ -234,4 +234,40 @@ view.vilma(beta_out)
 
 <br>
 
+## Save results
+
+<br>
+
+Vilma provides multiple functions to save all results. Each object type (<i>vilma.dist</i>, <i>vilma.pd</i>, <i>vilma.null</i>, and <i>vilma.beta</i>) has its own dedicated writing function. These functions will save all associated tables, rasters, and statistics for each object. For raster files, three different formats are available: TIF, GRD, and IMG.
+
+<br>
+
+```r
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+write.vilma.dist(vilma.dist = raster_out, file = "raster_dist", 
+                 raster.format = "tif", overwrite = TRUE)
+
+
+tree_ex <- example_tree()
+
+faith_out <- faith.pd(tree = tree_ex, dist = raster_out, method = "root")
+
+write.vilma.pd(vilma.pd = faith_out, file = "raster_faithPD", 
+                 raster.format = "tif", overwrite = TRUE)
+
+
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, 
+                            method = "global", sampling = "taxa.label")
+                            
+write.vilma.null(vilma.null = faith_null, file = "raster_faithPD_null", 
+                 raster.format = "tif", overwrite = TRUE)
+
+
+```
+
+<br>
+
 
