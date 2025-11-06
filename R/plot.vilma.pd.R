@@ -23,47 +23,50 @@
 #' @export
 #' @method plot vilma.pd
 
-plot.vilma.pd <- function(x, ...){
-  
+plot.vilma.pd <- function(x, labels = TRUE, digits = 2, pause = 1, ...) {
   if (!inherits(x, "vilma.pd")) {
     stop("Input must be an object of class 'vilma.pd'.")
   }
   if (is.null(x$rasters) || length(x$rasters) == 0L) {
     stop("No raster data available for plotting.")
   }
-  if (is.null(x$rasters$pd.raster)) {
-    # Keep your original guard text, but allow plotting other rasters too:
-    # Fall back to plotting whatever exists, instead of stopping hard.
-    # If you prefer strict behavior, restore the stop() here.
-    # stop("No raster data available for plotting.")
-    message("Note: 'pd.raster' not found; plotting available rasters in 'x$rasters'.")
-  }
-  
-  .label_cells <- function(r){
-    vals <- try(terra::values(r), silent = TRUE)
+
+  # Exact titles you use
+  title_map <- c(
+    "ab.raster" = "Richness raster",
+    "r.raster"  = "Abundance Raster",
+    "pd.raster" = "PD raster"
+  )
+
+  # Exact plotting order you want
+  order_vec <- c("ab.raster", "r.raster", "pd.raster")
+
+  # Helper: label finite cell values at cell centers
+  .label_cells <- function(r) {
+    vals <- try(terra::values(r, mat = FALSE), silent = TRUE)
     if (inherits(vals, "try-error") || length(vals) == 0) return(invisible())
-    mask <- is.finite(vals)
-    if (!any(mask)) return(invisible())
-    idx  <- which(mask)
-    crds <- try(terra::xyFromCell(r, idx), silent = TRUE)
-    if (inherits(crds, "try-error")) return(invisible())
-    graphics::text(crds[,1], crds[,2], labels = round(vals[idx], 2),
-                   cex = 0.6, col = "white")
+    idx <- which(is.finite(vals))
+    if (!length(idx)) return(invisible())
+    xy <- try(terra::xyFromCell(r, idx), silent = TRUE)
+    if (inherits(xy, "try-error")) return(invisible())
+    graphics::text(xy[,1], xy[,2], labels = round(vals[idx], digits),
+                   cex = 0.7, col = "white")
     invisible()
   }
-  
-  rnames <- names(x$rasters)
-  for (i in seq_along(x$rasters)) {
-    nm <- if (!is.null(rnames) && nzchar(rnames[i])) {
-      if (identical(rnames[i], "ab.raster")) "Abundance Raster" else paste(rnames[i], "Raster")
-    } else {
-      if (i == 1) "Abundance Raster" else paste("Raster", i)
-    }
-    terra::plot(x$rasters[[i]], main = nm)
-    .label_cells(x$rasters[[i]])
-    Sys.sleep(1)
+
+  # Plot each available raster in the strict order
+  for (nm in order_vec) {
+    if (!nm %in% names(x$rasters)) next
+    r <- x$rasters[[nm]]
+    if (terra::nlyr(r) > 1) r <- r[[1]]  # guard: single layer
+
+    terra::plot(r, main = title_map[[nm]], ...)
+    if (isTRUE(labels)) .label_cells(r)
+
+    if (pause > 0) Sys.sleep(pause)
   }
-  
-  invisible(x)  
+
+  invisible(x)
 }
+
 
