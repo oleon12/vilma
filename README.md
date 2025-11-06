@@ -244,14 +244,20 @@ Vilma provides multiple functions to save all results. Each object type (<i>vilm
 
 ```r
 
+
+# Saving the vilma.dist object
+
 dist_ex <- example_dist()
 raster_out <- points_to_raster(points = dist_ex, res = 5)
 
 write.vilma.dist(vilma.dist = raster_out, file = "raster_dist", 
                  raster.format = "tif", overwrite = TRUE)
 
-
 tree_ex <- example_tree()
+
+
+
+# Saving the vilma.pd objecc
 
 faith_out <- faith.pd(tree = tree_ex, dist = raster_out, method = "root")
 
@@ -259,12 +265,21 @@ write.vilma.pd(vilma.pd = faith_out, file = "raster_faithPD",
                  raster.format = "tif", overwrite = TRUE)
 
 
+# Saving the vilma.null object
+
 faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, 
                             method = "global", sampling = "taxa.label")
                             
 write.vilma.null(vilma.null = faith_null, file = "raster_faithPD_null", 
                  raster.format = "tif", overwrite = TRUE)
 
+
+# Saving the vilma.beta object
+
+beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "wieghted", normalize = TRUE)
+
+write.vilma.null(vilma.beta = beta_out, file = "raster_phyloBeta", 
+                 raster.format = "tif", overwrite = TRUE)
 
 ```
 
