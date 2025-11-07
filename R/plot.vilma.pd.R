@@ -23,7 +23,7 @@
 #' @export
 #' @method plot vilma.pd
 
-plot.vilma.pd <- function(x, labels = TRUE, digits = 2, pause = 1, ...) {
+plot.vilma.pd <- function(x, ...) {
   if (!inherits(x, "vilma.pd")) {
     stop("Input must be an object of class 'vilma.pd'.")
   }
@@ -38,7 +38,6 @@ plot.vilma.pd <- function(x, labels = TRUE, digits = 2, pause = 1, ...) {
     "pd.raster" = "PD raster"
   )
 
-  # Exact plotting order you want
   order_vec <- c("ab.raster", "r.raster", "pd.raster")
 
   # Helper: label finite cell values at cell centers
@@ -49,7 +48,7 @@ plot.vilma.pd <- function(x, labels = TRUE, digits = 2, pause = 1, ...) {
     if (!length(idx)) return(invisible())
     xy <- try(terra::xyFromCell(r, idx), silent = TRUE)
     if (inherits(xy, "try-error")) return(invisible())
-    graphics::text(xy[,1], xy[,2], labels = round(vals[idx], digits),
+    graphics::text(xy[,1], xy[,2], labels = round(vals[idx]),
                    cex = 0.7, col = "white")
     invisible()
   }
@@ -58,12 +57,11 @@ plot.vilma.pd <- function(x, labels = TRUE, digits = 2, pause = 1, ...) {
   for (nm in order_vec) {
     if (!nm %in% names(x$rasters)) next
     r <- x$rasters[[nm]]
-    if (terra::nlyr(r) > 1) r <- r[[1]]  # guard: single layer
+    if (terra::nlyr(r) > 1) r <- r[[1]]
 
     terra::plot(r, main = title_map[[nm]], ...)
-    if (isTRUE(labels)) .label_cells(r)
-
-    if (pause > 0) Sys.sleep(pause)
+    .label_cells(r)
+    Sys.sleep(1)  # 1-second pause between plots
   }
 
   invisible(x)
