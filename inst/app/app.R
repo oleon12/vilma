@@ -106,7 +106,7 @@ ui <- page_fluid(
   # ============================ HEADER =============================
   div(class = "vilma-header",
       div(class = "vilma-title", "Vilma: Spatial Phylogenetic Diversity Analyses"),
-      tags$img(src = "logo.png", class = "vilma-logo", alt = "Vilma logo")),
+      tags$img(src = "Logo.png", class = "vilma-logo", alt = "Vilma logo")),
 
   # ============================== PAGES =============================
   div(class = "vilma-page",
