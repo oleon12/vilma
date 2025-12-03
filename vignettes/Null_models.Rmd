@@ -1,0 +1,260 @@
+---
+title: "Null models in vilma"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Null models in vilma}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<br>
+[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [Angel J. Soto-Centeno](https://www.mormoops.com/)²
+
+¹ Department of Earth and Environmental Science, Rutgers University-Newark, NJ, USA.
+
+² Department of Mammalogy, American Museum of Natural History, New York City, NY, USA.
+<br>
+
+---
+
+<br>
+
+Null models are widely used to evaluate whether observed ecological or phylogenetic patterns could arise by chance. They work by generating randomized versions of the community while preserving specific properties—such as richness, species frequencies, or spatial structure—so that deviations between the observed and randomized values can be interpreted as evidence for clustering, overdispersion, or other non-random processes.
+
+In <b>vilma</b>, null models are explicitly designed for spatial phylogenetic analyses. Species identities or spatial distributions are randomized according to four sampling schemes (<b><i>taxa.label</b></i>, <b><i>range</b></i>, <b><i>neighbor</b></i>, and <b><i>regional</b></i>), each preserving different aspects of the original data. These randomizations allow you to compute standardized effect sizes (SES) and p-values for any alpha-diversity index, helping you evaluate whether phylogenetic diversity within each cell or across the landscape is greater or lower than expected under a given ecological or biogeographic constraint.
+
+---
+
+### 1. Data
+<br>
+For this example, you will evaluate the spatial phylogenetic patterns of several <b>terrestrial carnivores</b> from <b>South Africa</b>. First, you will load all the required data for this exercise. The occurrence records were retrieved from <b>GBIF</b>, using a simple filter to remove entries without coordinates and to exclude marine mammals (Otariidae and Phocidae). However, as you will see, there is a small issue in the data—a very common one—that you will fix in the next steps.
+
+This time, you are gonna read the CSV file, but you will transform it into a spatila object. This is becasue you will need to fix some points, and work with spatial objects is more easy than matrices itself. Also, you gonna read the South Africa's boundaries, which gonna help you to see how accurate the points are, and eventually, fix some mistakes.
+
+<br>
+```{r, message=FALSE, warning=FALSE}
+# Call libraries
+library(sf)
+library(terra)
+library(dplyr)
+
+# Read Sout Africa polygon
+sa_pol <- read_sf("../inst/extdata/South_Africa.gpkg")
+
+# or
+# data(sa_pol)
+
+# Reada points
+data_sa <- read.delim("../inst/extdata/Carnivora_SA.csv")
+
+# or
+# data(data_pol)
+
+# Extract columns
+data_sa <- data.frame(Specie = data_sa$species,
+                      Lon = data_sa$decimalLongitude,
+                      Lat = data_sa$decimalLatitude)
+
+# Transform points into a spatal object
+data_sa <- data_sa %>% st_as_sf(coords = c("Lon","Lat"), crs = 4326)
+
+# Match the projection between the polygon and the points
+data_sa <- st_transform(data_sa, st_crs(sa_pol))
+```
+<br>
+
+Now, let’s check whether all occurrences fall within South Africa or if some points lie outside the country. To do this, you will use the <b><i>intersect()</b></i> function and split the data into two subsets: <b><i>occ_inside</b></i> and <b><i>occ_outside</b></i>. Then, you will plot the results using the <b>tmap</b> package. This package is very useful for creating high-quality, publication-ready maps with relatively little code, offering a visual style comparable to ggplot2.
+
+<br>
+```{r, warning=FALSE, message=FALSE, fig.align='center'}
+library(tmap)
+
+# Extract the first column from the st_intersect result. 
+# This is a boolean vector (TRUE (inside), FALSE (outside))
+occ_intersect <- st_intersects(data_sa, st_union(sa_pol), sparse = F)[,1]
+
+# Split the data
+occ_inside <- data_sa[occ_intersect,]
+occ_outside <- data_sa[!occ_intersect,]
+
+# Plot the results
+tm_shape(sa_pol)+ # Plot the polygon
+  tm_polygons()+
+tm_shape(occ_inside)+ # Add inside points
+  tm_dots()+
+tm_shape(occ_outside)+ # Add outside points
+  tm_dots(fill="red")
+```
+<br>
+
+In the plot, you can see a common issue with GBIF data: all of the points that fall outside South Africa lie very close to the country’s border. This often happens because GPS devices, calibration errors, signal drift, and other factors can shift coordinates by several meters. At this stage, you have two options: Remove these points or move them inside the country boundary. In this example, you will adjust the points. To make the correction as accurate and unbiased as possible, you will shift each point to the nearest location within the country’s border.
+
+First, you will create a line between each point and the country border using <b><i>st_nearest_points()</b></i>. This line represents the shortest distance between the occurrence and the polygon boundary. Then, using <b><i>st_cast()</b></i>, you will convert each line into two points: the starting point (the original occurrence) and the ending point (the nearest location on the border). Finally, by using a grouping index, you will extract the second point of each line—the endpoint—which corresponds to the corrected coordinate located inside the country boundaries.
+
+<br>
+```{r, warning=FALSE, message=FALSE, fig.align='center'}
+# Create lines
+nearest_lines <- st_nearest_points(occ_outside, st_union(sa_pol))
+
+# Transform lines into points (start and end)
+all_points <- st_cast(nearest_lines, "POINT")
+
+# Create index ofr each point: 1,1,2,2,3,3...
+point_groups <- rep(1:nrow(occ_outside), each = 2)
+
+# Extract only the second point (end) and transform it into a spatial object
+border_points <- all_points[seq(2, length(all_points), by = 2)] %>%  st_as_sf()
+
+# Plot
+tm_shape(sa_pol)+ # Add polygon
+  tm_polygons()+
+tm_shape(occ_inside)+ # Add inside points
+  tm_dots()+
+tm_shape(occ_outside)+ # Add outside points
+  tm_dots(fill="red")+
+tm_shape(border_points)+ # Add fixed points
+  tm_dots(fill="blue")
+
+# Return spatial points into a data.frame (inside)
+occ_inside <- cbind(st_drop_geometry(occ_inside),st_coordinates(occ_inside))
+
+# Return spatial points into a data.frame (fixed)
+border_points <- cbind(st_drop_geometry(occ_outside), st_coordinates(border_points))
+
+# Join inside and fixed points
+occ_final <- rbind(occ_inside, border_points)
+
+```
+<br>
+
+Given the density of points, it is difficult to see all the differences, but you can still observe how some of the outside points (<b>red</b>) have been moved into the polygon boundaries (<b>blue</b>). Now you are ready to proceed to the next step: reading the phylogenetic tree.
+
+The phylogenetic tree used in this example was retrieved from [VertLife](https://vertlife.org/). The 100 trees obtained from their database were previously transformed into a majority-rule consensus tree using TreeViewer.
+
+<br>
+```{r, message=FALSE, warning=FALSE, fig.align='center'}
+library(ape)
+library(phytools)
+
+# Read tree
+car_tree <- read.nexus("../inst/extdata/Carnivora_SA_tree.nex")
+
+# or
+# data(car_tree)
+
+# Change underscore to space in the species' name
+car_tree$tip.label <- gsub("_"," ", car_tree$tip.label)
+
+plot(car_tree, cex = 0.7)
+
+```
+<br>
+
+---
+
+### 2. Phylogenetic Diversity Index
+<br>
+
+Now the next step is to create the <b><i>vilma.dist</b></i> object. For this exercise, you will generate a raster with a resolution of <b>1 degree</b>, which fits the study area well. To do this, you will use the <b><i>points_to_raster()</b></i> function, and then plot the resulting richness raster using <b>tmap</b>. Remember that you can also use <b><i>view.vilma()</b></i> to create an interactive map.
+
+<br>
+```{r, message=FALSE, warning=FALSE, fig.align='center'}
+library(vilma)
+
+raster_sa <- points_to_raster(points = occ_final, res = 1)
+
+tm_shape(raster_sa$r.raster)+
+  tm_raster()+
+tm_shape(sa_pol)+
+  tm_polygons(fill=NULL, lwd = 2)
+```
+<br>
+
+Now that the <b><i>vilma.dist</b></i> object is ready, you can proceed to calculate a phylogenetic diversity index (PD). Remember that before running any null model, you must first compute an <b>observed PD value</b>; this will serve as the baseline for comparison.
+
+In this example, you will calculate <b>Faith’s Phylogenetic Diversity (PD)</b>, one of the most widely used and historically the first phylogenetic diversity metric proposed. Faith’s PD is defined as the <b>sum of the branch lengths connecting all species in a community</b>, capturing the total amount of evolutionary history represented in that assemblage.
+
+Because some cells contain only a single species, you will use the available "root" method. This method sums the branch lengths from the species’ tip to the root of the tree, and this total distance is used as the PD value for any cell that contains only one species.
+
+<br>
+```{r, warning=FALSE, message=TRUE}
+#pd_sa <- faith.pd(tree = car_tree, dist = raster_sa, method = "root")
+#pd_sa
+```
+<br>
+
+As you can see, the function generates several messages. There are <b>33 species</b> present in the distribution data but not in the phylogeny, and <b>four species</b> in the phylogeny but not in the distribution. In the end, the analysis was performed using only the <b>24 species</b> shared between both datasets. This is expected. Many of the species present in the distribution but absent from the phylogeny correspond to domestic animals (<i>Canis lupus</i>, <i>Felis sylvestris</i>) or wild species lacking phylogenetic information. On the other hand, two of the species present only in the phylogeny are outgroups (<i>Smutsia temminckii</i> and <i>Smutsia gigantea</i>), and the remaining two are very rare species.
+
+This step also acts as a natural filter, helping you control the input data. Only the species present in the phylogeny are ultimately used in the analysis, while the rest are automatically excluded.
+
+Now you can plot the resulting PD raster using <b>tmap</b>, or use <b><i>view.vilma()</b></i> for an interactive visualization.
+
+<br>
+```{r, warning=FALSE, message=FALSE, fig.align='center'}
+#tm_shape(pd_sa$rasters$pd.raster)+
+#  tm_raster()+
+#tm_shape(sa_pol)+
+#  tm_polygons(fill=NULL, lwd = 2)
+```
+<br>
+
+The map reveals clear <b>spatial variation</b> in phylogenetic diversity across South Africa. Higher PD values (darker blues) are concentrated in the southern, eastern, and coastal regions, while lower PD values (lighter blues) occur mainly in the central and northern interior. This pattern indicates that the distribution of evolutionary lineages is <b>not uniform</b> across the country, with certain regions containing a noticeably richer or more evolutionarily diverse carnivore assemblage.
+
+Now, with these results, you can test different null models to evaluate whether the observed spatial patterns of phylogenetic diversity differ significantly from what would be expected under various null model assumptions.
+
+---
+
+### 3. Null models
+<br>
+
+#### 3.1. Global vs Cell methods, and Taxa Labels
+<br>
+
+For all null models, there are two method options: <b>global</b> and <b>cell</b>. In both cases, the randomization occurs either at the phylogenetic level (for taxa.label) or at the spatial level (for range, neighbor, and regional). The key difference between the two methods lies in how the <b>standardized effect sizes (SES)</b> and <b>p-values</b> are calculated.
+
+The <b>global</b> method computes SES and p-values across the <b>entire study area</b>, producing a single statistical summary for the whole dataset. In contrast, the cell method computes SES and p-values <b>independently for each cell</b>, generating spatially explicit rasters of significance values.
+Let’s illustrate the difference between these methods using the <b><i>taxa.label</b></i> sampling approach.
+
+The <b><i>taxa.label</b></i> null model randomizes the phylogeny by shuffling the species names (<b>tip labels</b>) across the tree while keeping the spatial distribution of species unchanged. This tests whether the observed phylogenetic diversity depends on the real evolutionary relationships among species or whether similar patterns would arise if species identities were randomly reassigned. You will use the faith.pd.null() function, and to reduce computation time for this example, you will generate only 200 iterations. Although the recommended minimum for null model analyses is 9999 iterations, this larger number takes considerably longer to compute.
+
+<b>Global</b>
+
+<br>
+```{r, message=FALSE, warning=FALSE}
+# Global method
+#pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+#                            method = "global", sampling = "taxa.label", iterations = 200)
+
+#print(pd_sa_null)
+```
+<br>
+
+The observed mean PD (25,241.5) is slightly higher than the null expectation (mean = 24,532.5), but the standardized effect size (SES = 0.8) is small, and the p-value is greater than 0.05. This indicates that the observed phylogenetic diversity does not differ significantly from what would be expected if species identities were randomly reassigned across the phylogeny.
+
+In other words, under the taxa.label model, the overall PD pattern across South Africa does not show strong evidence of phylogenetic clustering or overdispersion at the global scale.
+
+<br>
+```{r, message=FALSE, warning=FALSE, fig.align='center'}
+#plot(pd_sa_null)
+```
+<br>
+
+<b>Cell</b>
+
+<br>
+```{r, message=FALSE, warning=FALSE}
+# Cell method
+#pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+#                            method = "cell", sampling = "taxa.label", iterations = 200)
+
+#print(pd_sa_null)
+```
+<br>
+
+The cell-based null model reveals substantial spatial variation in the standardized effect sizes (SES) across South Africa. SES values range from –3.0 to 2.0, indicating that some cells have slightly lower PD than expected under random species–phylogeny assignments, while others show modestly higher-than-expected values.
+
+<br>
+```{r, message=FALSE, warning=FALSE, fig.align='center'}
+#plot(pd_sa_null)
+```
+<br>

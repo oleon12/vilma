@@ -1,0 +1,283 @@
+---
+title: "Using vilma with GBIF data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using vilma with GBIF data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+<br>
+[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [Angel J. Soto-Centeno](https://www.mormoops.com/)²
+
+¹ Department of Earth and Environmental Science, Rutgers University-Newark, NJ, USA.
+
+² Department of Mammalogy, American Museum of Natural History, New York City, NY, USA.
+<br>
+
+---
+
+<br>
+One of the goals of <b>Vilma</b> is to make spatial analyses easier to perform. For this reason, the geographic input format is simple and straightforward to obtain. <b>The Global Biodiversity Information Facility</b> (GBIF) is a globally recognized platform and one of the most important biodiversity databases used in ecological and evolutionary studies. From this resource, you can easily download geographic information for any species, collected from multiple sources such as museums or citizen-science platforms like iNaturalist. You may either download data directly from the GBIF website or obtain it using R.
+In this tutorial, you will see a small example showing how to use Vilma with GBIF data.
+
+---
+
+### 1. Data from GBIF
+<br>
+
+In this example, you will work with one of the most common and well-known genera of fruit-eating bats: <i>Artibeus</i>. Species in this genus are large, widespread, and common across many landscapes, including densely populated cities. They occur from Mexico to Argentina, and therefore have abundant spatial and phylogenetic data available. For a spatial phylogenetic diversity analysis, you will need two things: <b>occurrence records</b> and a <b>phylogenetic tree</b>.
+
+Let’s start with the occurrence data. You can obtain GBIF records either through the GBIF website or directly from R. Depending on the number of species and records you wish to analyze, one method may be more convenient than the other. In this example, you will work with data previously downloaded from GBIF, but you will also learn how to download it directly in R.
+
+To retrieve data from GBIF in R, you will need the rgbif package, which handles communication between R and the GBIF API. There are two main functions to download data: <b><i>occ_data()</b></i> and <b><i>occ_search()</b></i>. Here, you will use occ_search(). First, you will download data for a single species and extract the three necessary columns: species, longitude, and latitude. Additional parameters in <b><i>occ_search()</b></i> help filter the results; in this example, only records with coordinates will be downloaded (<b><i>hasCoordinate = TRUE</b></i>).
+
+Once the data is downloaded, you will apply a simple filter to retain only records where the basis of record is <b>"PRESERVED_SPECIMEN"</b>. This helps reduce issues with misidentifications by focusing on specimens curated in museum collections. Although not all museum specimens are perfectly identified, this approach provides a more reliable subset of data.
+
+<br>
+```{r, eval=FALSE, warning=FALSE, message=FALSE}
+# Call the library
+library(rgbif)
+
+# Download the data
+data_gbif <- occ_search(scientificName = "Artibeus lituratus", hasCoordinate = TRUE, limit = 200000)$data
+
+# Filter by "PRESERVED_SPECIMEN"
+data_gbif <- data_gbif[which(data_gbif$basisOfRecord == "PRESERVED_SPECIMEN"),]
+
+# Extract the required columns
+data_gbif <- data.frame(Species = as.factor(data_gbif$species),
+                        Lon = as.numeric(data_gbif$decimalLongitude),
+                        Lat = as.numeric(data_gbif$decimalLatitude))
+```
+<br>
+Great! Now you have the data for the most widespread species in this genus. However, you still need occurrence records for the remaining species. To do this efficiently, you will use a loop to retrieve the data for all other <i>Artibeus</i> species.
+
+First, create a list object containing the names of the additional species. The loop will then repeat the same steps used previously: download the data for each species using <b><i>occ_search()</b></i>, filter the results to keep only <b>"PRESERVED_SPECIMEN"</b> records, extract the required columns, and finally append each temporary data frame (<b><i>tmp_gbif</b></i>) to the main data frame (<b><i>data_gbif</b></i>) using <b><i>rbind()</b></i>.
+
+<br>
+```{r, eval=FALSE, warning=FALSE, message=FALSE}
+# Create species list vector
+sp_list <- c("Artibeus concolor", "Artibeus fimbriatus", "Artibeus fraterculus", "Artibeus hirsutus",
+             "Artibeus inopinatus", "Artibeus jamaicensis", "Artibeus obscurus", "Artibeus planirostris")
+
+# Loop
+for(i in sp_list){
+  
+  tmp_gbif <- occ_search(scientificName = i, hasCoordinate = TRUE, limit = 200000)$data
+  tmp_gbif <- tmp_gbif[which(tmp_gbif$basisOfRecord == "PRESERVED_SPECIMEN"),]
+  
+  
+  tmp_gbif <- data.frame(Species = as.factor(tmp_gbif$species),
+                         Lon = as.numeric(tmp_gbif$decimalLongitude),
+                        Lat = as.numeric(tmp_gbif$decimalLatitude))
+  
+  data_gbif <- rbind(data_gbif, tmp_gbif) # Join data frames
+}
+
+# Save the results
+write.csv(data_gbif, "../inst/extdata/Artibeus_occ.csv", row.names = F, quote = F)
+
+head(data_gbif, 5L)
+
+```
+```{r, echo=FALSE, warning=FALSE}
+data_gbif <- read.csv("../inst/extdata/Artibeus_occ.csv")
+
+#or
+# data(Artibeus_occ)
+# data_gbif <- Artibeus_occ
+
+head(data_gbif, 5L)
+```
+<br>
+
+If you prefer to use the data downloaded directly from the GBIF website, you only need to read it into R with the <b><i>read.delim()</b></i> function and extract the relevant columns. Although GBIF labels the file as a .csv, the fields are always tab-separated, not comma-separated. For this reason, you should use <b><i>read.delim()</b></i>. If you use the base function <b><i>read.csv()</b></i>, the file will not be parsed correctly, and you may encounter multiple column-format issues.
+
+<br>
+```{r, eval=FALSE, warning=FALSE}
+data_gbif <- read.delim("0011971-251120083545085.csv") # CSV from GBIF
+
+data_gbif <- data.frame(Species = data_gbif$species,
+                     Lon = as.numeric(data_gbif$decimalLongitude),
+                     Lat = as.numeric(data_gbif$decimalLatitude))
+```
+<br>
+
+Now, an important reminder: GBIF data often contain errors and inconsistencies. Coordinates may have incorrect signs (negative values reported as positive or vice versa), some records appear as 0, 0, and GPS inaccuracies may place points far from their true locations. In this example, the only filter applied was to restrict the dataset to museum specimens, but in real analyses you must clean your data carefully before using it — not only for Vilma, but for any package, model, or algorithm. Proper data cleaning is essential to avoid bias, misinterpretation, and incorrect spatial or phylogenetic results.
+
+For this example, you can quickly inspect the points using the <b><i>map()</b></i> function and visualize the distribution of the occurrences. As you can see, many points fall outside the natural range of these species, appearing in places such as Africa, Iceland, and Alaska.
+
+<br>
+```{r, message=FALSE, warning=FALSE, fig.align='center'}
+library(maps)
+
+map(database = "world", fill = TRUE, col = "lightgray", bg = "white")
+points(data_gbif$Lon, data_gbif$Lat, pch = 20, col = "red")
+
+```
+<br>
+
+In this case, to keep the example simple (although this is not the best option in real analyses), you will remove the points that fall outside the natural range of the species. The first step is to create the geographic limits, similar to a bounding box, restricting the X and Y coordinates to the area between the southern United States and Argentina. Once these limits are defined, you can subset the dataset to keep only the points that fall within this range.
+
+Now that all points have been checked and are reasonably cleaned, you can proceed to the next part of the analysis.
+
+<br>
+```{r, message=FALSE, fig.align='center'}
+# Limits
+xmin <- -119 # West limit
+xmax <- -30 # East limit
+ymin <- -35 # South limit
+ymax <-  35 # North limit
+
+# Filter
+data_gbif <- subset(data_gbif,
+                    Lon >= xmin & Lon <= xmax &
+                    Lat  >= ymin & Lat  <= ymax)
+
+# Filter
+map(database = "world", fill = TRUE, col = "lightgray", bg = "white")
+points(data_gbif$Lon, data_gbif$Lat, pch = 20, col = "red")
+```
+<br>
+
+---
+
+### 2. Phylogenetic Tree 
+<br>
+Next, you need a phylogenetic tree. Unfortunately, many studies today do not publish their phylogenies in useful or reproducible formats such as Newick or Nexus files, which can make obtaining a proper tree challenging. Sometimes, the only available option is to manually reconstruct a tree from a figure in the article.
+
+To ensure accuracy in this tutorial, you will use a phylogenetic tree obtained from [VertLife](https://vertlife.org/) – Phylogeny Subsets. This NSF-funded project integrates multiple databases to generate phylogenetic trees for any specified list of species. In this case, the tree is generated specifically for the species of interest in the genus <i>Artibeus</i>.
+
+Now, you will read the tree using the <b><i>read.nexus()</b></i> function from the ape package and inspect its structure. The Nexus file contains more than one tree (in this case, 100 trees), so you can generate a consensus tree from them.
+
+<br>
+```{r, warning=FALSE, message=FALSE}
+library(ape)
+library(phytools)
+
+artibeus_tree <- read.nexus("../inst/extdata/Artibeus_tree.nex")
+
+# or
+# data(artibeus_tree)
+
+length(artibeus_tree) # Check number of trees
+```
+```{r, warning=FALSE, message=FALSE, fig.align='center'}
+artibeus_tree <- consensus.edges(artibeus_tree, consensus = "majority")  #Consensus tree
+
+plot(artibeus_tree)
+```
+<br>
+
+---
+
+Now that you have all the necessary data, you must check that the species names match between the occurrence dataset and the phylogenetic tree. This step is essential not only for Vilma, but for any package or method that computes phylogenetic diversity indices. If the names do not match exactly, the analyses will fail or produce incorrect results.
+
+<br>
+```{r, warning=FALSE, message=FALSE}
+intersect(unique(data_gbif$Species), artibeus_tree$tip.label) # Check the intersect, but value is 0 !
+
+unique(data_gbif$Species)
+artibeus_tree$tip.label
+```
+<br>
+
+So, there is no match between the species names! This happens because the genus and species epithet in the phylogenetic tree are separated by an underscore (_) instead of a space. You can fix this mismatch using the <b><i>gsub()</b></i> function, which replaces one pattern with another. This function is extremely useful in many situations, so it is worth learning how it works. After correcting the names and running the <b><i>intersect()</b></i> function again, you will see that all species now match correctly.
+
+<br>
+```{r, warning=FALSE, message=FALSE}
+# New tip.label
+artibeus_tree$tip.label <- gsub("_", " ", artibeus_tree$tip.label) # Replace "_" by " " in $tip.label
+
+intersect(unique(data_gbif$Species), artibeus_tree$tip.label)
+```
+<br>
+
+Note that there is one species in the phylogeny that is missing from the distribution data: <i>Ariteus flavescens</i>. This is fine. This species is the outgroup used to root the tree, so you do not need occurrence records for it.
+
+---
+
+### 3. The vilma.dist object
+<br>
+
+Now that you have both the occurrence data and the phylogenetic tree, you can proceed to the next step: building the <b>vilma.dist</b> object. This object is the foundation for all phylogenetic diversity analyses in Vilma. To create it, you will use the <b><i>points_to_raster()</b></i> function. This function transforms the occurrence records into several spatial objects and combines them into a single S4 <b>vilma.dist</b> object.
+
+First, if you do not have the package installed, the easiest way to get the latest version is through its [GitHub repository](https://github.com/oleon12/vilma). To do this, you will need the devtools package.
+
+<br>
+```{r, eval=FALSE, message=FALSE, warning=FALSE}
+install.packages("devtools")
+
+devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
+```
+<br>
+
+Now you can create the <b>vilma.dist</b> object. The <b><i>points_to_raster()</b></i> function generates a raster with species richness and abundance values per pixel. The user also defines the pixel size; in this example, the raster will have a resolution of 2 degrees. Once the <b>vilma.dist</b> object is created, you can inspect the spatial information it contains using the <b><i>print()</b></i> function.
+
+<br>
+```{r, warning=FALSE, message=FALSE}
+library(terra)
+library(vilma)
+
+raster_out <- points_to_raster(points = data_gbif, res = 2)
+print(raster_out)
+```
+<br>
+
+You can also inspect all the components stored inside the <b>vilma.dist</b> object. The first element is a <b>data frame</b> that contains every occurrence record along with its corresponding raster cell. The object also includes three raster files. The first one (<b>grid</b>) is an empty raster with the predefined resolution, which will be used by the index functions. The second one (<b>r.raster</b>) is the raster with species richness values, and the third one (<b>ab.raster</b>) is the raster with abundance values.
+
+You can visualize any of these rasters using the <b><i>plot()</b></i> function, or generate an interactive map using <b><i>view.vilma()</b></i>.
+
+```{r, message==FALSE, warning=FALSE}
+str(raster_out)
+```
+```{r, message=FALSE, fig.align='center'}
+plot(raster_out$r.raster)
+```
+
+---
+
+### Phylogenetic Diversity Indices
+<br>
+
+Now that you have the <b>vilma.dist</b> object, you are ready to calculate a phylogenetic diversity index. In this example, you will compute <b>Phylogenetic Endemism (PE)</b>. This metric measures the amount of unique evolutionary history restricted to each cell by weighting branch lengths according to the geographic range of the lineages they represent. PE highlights areas that contain evolutionarily distinct or range-restricted lineages and is commonly used to detect centers of paleo- or neo-endemism.
+
+Before continuing, you should be aware that this index uses <b>pairwise distance matrices</b>, which means you need at least two species per community, or in this case, per pixel or cell. However, as you saw in the previous plot, many cells contain only a <b>single species</b>. This is an edge case and can be problematic.
+
+In most packages, these cells are simply removed and their values returned as NA, but Vilma offers three different options to handle this situation and still include evolutionary information for single-species cells.
+
+The first option is <b>"root"</b>, which calculates the distance from the species’ tip to the root of the tree; this distance is then used as the MPD value for that cell. This approach works well for small trees but can become overly sensitive or inflated when using very large phylogenies.
+
+The second option is <b>"node"</b>, which calculates the distance from the tip to the most recent common ancestor (MRCA); this branch length is used as the MPD value for that cell. This method is often more stable for large trees.
+
+Finally, if you prefer, you can remove single-species cells entirely by using the <b>"exclude"</b> method, which sets these cells to NA.
+
+For this example, you will use the root method, as the tree is small.
+
+<br>
+```{r, message=FALSE}
+pd_out <- pe.calc(tree = artibeus_tree, dist = raster_out,faith.method = "root")
+print(pd_out)
+```
+```{r, message=FALSE, fig.align='center'}
+#view.vilma(pd_out)
+plot(pd_out$rasters$pd.raster)
+```
+<br>
+
+That’s it! You have now completed a spatial phylogenetic diversity analysis. From here, you can explore your results, try other indices, save outputs using the <b><i>write.vilma()</b></i> functions, run null models, and even calculate beta-diversity indices.
+Finally, let’s examine the structure of the output object, which in this case is a <b>vilma.pd</b> object.
+
+The <b>vilma.pd</b> object is generated by all alpha-diversity functions. It contains several elements, including:
+
+- <b>distribution:</b> a data frame identical to the one in the vilma.dist object, showing every occurrence and the cell it belongs to.
+- <b>grid:</b> an empty raster with the original resolution defined in the vilma.dist object.
+- <b>pd.table:</b> a data frame summarizing the richness, abundance, and phylogenetic diversity values for each cell.
+- <b>rasters:</b> a list containing the richness, abundance, and phylogenetic diversity rasters.
+- <b>index.info:</b> a vector storing information about the index used.
+ 
+ <br>
+```{r, message=FALSE}
+ str(pd_out)
+```
+ <br>

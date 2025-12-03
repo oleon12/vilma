@@ -84,20 +84,20 @@ faith.pd <- function(tree, dist, method = c("root", "node", "exclude")) {
     stop("Input 'dist' must be an object of class 'vilma.dist'. See 'points_to_raster()' function.")
   }
   
-  if(length(method)>2){
+  # Keep your default behaviour: if user doesn't pass a single value -> "exclude"
+  if (length(method) > 1L) {
     method <- "exclude"
-    message("Using method 'exclude' \n")
+    message("Using method 'exclude'\n")
+  } else {
+    method <- match.arg(method, c("root", "node", "exclude"))
   }
-  
   
   ##############################################################
   #                     DATA PREPARATION                       #
   ##############################################################
   
-  ##### Dist Processing #####
   distM <- dist$distribution
   
-  # 3. Find and use only species that match between tree and dist
   tree.species <- tree$tip.label
   dist.species <- unique(distM$Sp)
   
@@ -105,122 +105,204 @@ faith.pd <- function(tree, dist, method = c("root", "node", "exclude")) {
   missing.in.dist <- setdiff(tree.species, dist.species)
   
   if (length(missing.in.tree) > 0) {
-    message("Note: ", length(missing.in.tree), 
-            " species from 'dist' not found in 'tree': ", 
-            paste(head(missing.in.tree, 5), collapse = ", "),
-            ifelse(length(missing.in.tree) > 5, "...", ""))
+    message(
+      "Note: ", length(missing.in.tree), 
+      " species from 'dist' not found in 'tree': ",
+      paste(head(missing.in.tree, 5), collapse = ", "),
+      ifelse(length(missing.in.tree) > 5, "...", "")
+    )
   }
   
   if (length(missing.in.dist) > 0) {
-    message("Note: ", length(missing.in.dist),
-            " species from 'tree' not found in 'dist': ",
-            paste(head(missing.in.dist, 5), collapse = ", "),
-            ifelse(length(missing.in.dist) > 5, "...", ""))
+    message(
+      "Note: ", length(missing.in.dist),
+      " species from 'tree' not found in 'dist': ",
+      paste(head(missing.in.dist, 5), collapse = ", "),
+      ifelse(length(missing.in.dist) > 5, "...", "")
+    )
   }
   
-  
-  ############################################################### 
- 
-  # Use only intersecting species
+  # Only common species
   common.species <- intersect(tree.species, dist.species)
-  
   if (length(common.species) == 0) {
     stop("No species in common between the tree and distribution data.")
   }
   
   message("Using ", length(common.species), " species in common between tree and distribution.")
-  distM <- distM[distM$Sp %in% common.species, ]
   
-  ###############################################################
-
+  # 1) Drop unused tips ONCE
+  tips.to.drop <- setdiff(tree$tip.label, common.species)
+  if (length(tips.to.drop) > 0) {
+    tree <- drop.tip(tree, tips.to.drop)
+  }
+  tree.species <- tree$tip.label
   
-  #Get unique cells and calculte Richness for each on
+  # 2) Filter distribution to common species
+  distM <- distM[distM$Sp %in% tree.species, , drop = FALSE]
   
-  presabs <- table(distM$Cell, distM$Sp)
-  presabs <- (presabs > 0) *1
-  presabs <- as.matrix(presabs)
-  presabs <- as.matrix(apply(presabs, 1, sum))
+  ##############################################################
+  #        COMMUNITY MATRIX (cells x species) + RICHNESS       #
+  ##############################################################
   
-  Cell <- rownames(presabs)
-  SR <- as.vector(presabs)
+  comm <- table(distM$Cell, distM$Sp)
+  comm[comm > 0] <- 1L
+  comm <- as.matrix(comm)
   
-  pd.res <- data.frame(Cell = Cell,
-                       SR = SR)
-                       
+  # Reorder columns to match tree tip order
+  comm <- comm[, tree.species, drop = FALSE]
+  
+  Cell <- rownames(comm)
+  SR   <- rowSums(comm)
+  
+  pd.res <- data.frame(
+    Cell = Cell,
+    SR   = SR,
+    stringsAsFactors = FALSE
+  )
+  
+  ##############################################################
+  #         PRECOMPUTE TIP–EDGE RELATIONSHIPS (BIG SPEEDUP)    #
+  ##############################################################
+  
+  .build_descendant_matrix <- function(tree) {
+    n_tip  <- length(tree$tip.label)
+    n_edge <- nrow(tree$edge)
+    
+    max_node <- max(tree$edge)
+    parent_edge <- integer(max_node)
+    parent_edge[] <- NA_integer_
+    
+    # parent_edge[child_node] = edge_index
+    for (e in seq_len(n_edge)) {
+      child <- tree$edge[e, 2]
+      parent_edge[child] <- e
+    }
+    
+    # Root node is the one that never appears as a child
+    root_node <- setdiff(tree$edge[, 1], tree$edge[, 2])[1]
+    
+    # Logical matrix: edges x tips
+    D <- matrix(FALSE, nrow = n_edge, ncol = n_tip)
+    
+    for (tip in seq_len(n_tip)) {
+      cur <- tip
+      # mark all edges on path tip -> root
+      while (!is.na(cur) && cur != root_node) {
+        e   <- parent_edge[cur]
+        D[e, tip] <- TRUE
+        cur <- tree$edge[e, 1]
+      }
+    }
+    
+    D
+  }
+  
+  D <- .build_descendant_matrix(tree)
+  edge_lengths <- tree$edge.length
+  
   ##############################################################
   #                      PD CALCULATION                        #
   ##############################################################
   
-  # Handle single-species cells based on method
+  n_cells <- nrow(pd.res)
+  PD      <- numeric(n_cells)
+  names(PD) <- pd.res$Cell
+  
+  single_cells <- pd.res$SR == 1L
+  multi_cells  <- pd.res$SR >  1L
+  
+  # If method == "exclude", we will throw singletons away at the end
   if (method == "exclude") {
-    message("Excluding ", sum(pd.res$SR == 1), " single-species cells.")
-    pd.res <- pd.res[pd.res$SR > 1, ]
+    n_excl <- sum(single_cells)
+    if (n_excl > 0) {
+      message("Excluding ", n_excl, " single-species cells.")
+    }
   }
   
-  PD <- c()  # Pre-allocate for efficiency
+  # Depths only needed if method == "root" for multi-species cells
+  if (method == "root") {
+    depths <- node.depth.edgelength(tree)
+  }
   
-  # Precompute root distances once
-  depths <- node.depth.edgelength(tree)
-  
-  set.seed(123)
-  
-  for(i in 1:length(rownames(pd.res))) {
+  # 1) Multi-species cells: use descendant matrix instead of drop.tip()
+  if (any(multi_cells)) {
+    idx_multi <- which(multi_cells)
     
-    cell.id <- pd.res$Cell[i]
-    sp.list <- unique(distM$Sp[distM$Cell == cell.id])
-    
-    if(length(sp.list) != 1){
-      # Multiple species: calculate full PD
-      tree.subset <- drop.tip(tree, 
-                                   tip = tree$tip.label[!tree$tip.label %in% sp.list])
-      PDcore <- sum(tree.subset$edge.length)
+    for (i in idx_multi) {
+      cell.id <- pd.res$Cell[i]
       
-      #To be consistent with method root for single species cells
-      if(method == "root"){
-        mrca_node <- getMRCA(tree, sp.list)
+      # species present in this cell
+      row_i   <- comm[cell.id, , drop = FALSE]
+      sp_idx  <- which(row_i[1, ] == 1L)
+      sp.list <- tree.species[sp_idx]
+      
+      # branches used by any of the species in this cell
+      used_edges <- rowSums(D[, sp_idx, drop = FALSE]) > 0
+      PDcore     <- sum(edge_lengths[used_edges])
+      
+      if (method == "root") {
+        mrca_node    <- getMRCA(tree, sp.list)
         root_to_mrca <- depths[mrca_node]
-        PD <- c(PD,(PDcore + root_to_mrca))
-      }else{
-        PD <- c(PD, PDcore)
+        PD[i]        <- PDcore + root_to_mrca   # keep your original behaviour
+      } else {
+        PD[i] <- PDcore
       }
-      
-    }else{
-      PD <- c(PD, pd.taxon(tree, sp.list, method))
     }
-}
+  }
   
-  pd.res$PD <- PD
+  # 2) Single-species cells: use your pd.taxon() helper
+  if (any(single_cells) && method != "exclude") {
+    idx_single <- which(single_cells)
+    
+    for (i in idx_single) {
+      cell.id <- pd.res$Cell[i]
+      row_i   <- comm[cell.id, , drop = FALSE]
+      sp_idx  <- which(row_i[1, ] == 1L)
+      sp.list <- tree.species[sp_idx]
+      
+      # one species per cell by construction
+      PD[i] <- pd.taxon(tree, sp.list, method = method)
+    }
+  }
+  
+  # Attach PD to pd.res, dropping singletons if method == "exclude"
+  if (method == "exclude") {
+    keep <- !single_cells
+    pd.res <- pd.res[keep, , drop = FALSE]
+    pd.res$PD <- PD[pd.res$Cell]
+  } else {
+    pd.res$PD <- PD
+  }
   
   ##############################################################
   #                       RASTER CREATION                      #
   ##############################################################
-
-  grid0 <- dist$grid
   
+  grid0 <- dist$grid
   values(grid0) <- NA
   
-  #### Raster ####
-  
-  set.values(grid0, as.numeric(as.character(pd.res$Cell)),  as.numeric(pd.res$PD))
-  
+  set.values(
+    grid0,
+    as.numeric(as.character(pd.res$Cell)),
+    as.numeric(pd.res$PD)
+  )
   
   ##############################################################
   #                        VILMA OBJECT                        #
   ##############################################################
   
-  
   structure(
     list(
       distribution = dist$distribution,
-      grid = dist$grid,
-      pd.table = pd.res,
-      rasters = list(
+      grid         = dist$grid,
+      pd.table     = pd.res,
+      rasters      = list(
         ab.raster = dist$ab.raster,
-        r.raster = dist$r.raster,
+        r.raster  = dist$r.raster,
         pd.raster = grid0
       ),
       calculation.method = method,
-      index = "faith.pd"
+      index              = "faith.pd"
     ),
     class = "vilma.pd"
   )
