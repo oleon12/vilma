@@ -7,6 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include=FALSE}
+ci <- identical(Sys.getenv("CI"), "true")
+run_terra <- !ci
+```
+
 <br>
 [Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [Angel J. Soto-Centeno](https://www.mormoops.com/)²
 
@@ -158,7 +163,7 @@ plot(car_tree, cex = 0.7)
 Now the next step is to create the <b><i>vilma.dist</b></i> object. For this exercise, you will generate a raster with a resolution of <b>1 degree</b>, which fits the study area well. To do this, you will use the <b><i>points_to_raster()</b></i> function, and then plot the resulting richness raster using <b>tmap</b>. Remember that you can also use <b><i>view.vilma()</b></i> to create an interactive map.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center'}
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra}
 library(vilma)
 
 raster_sa <- points_to_raster(points = occ_final, res = 1, crs = 4326)
@@ -177,7 +182,7 @@ In this example, you will calculate <b>Faith’s Phylogenetic Diversity (PD)</b>
 Because some cells contain only a single species, you will use the available "root" method. This method sums the branch lengths from the species’ tip to the root of the tree, and this total distance is used as the PD value for any cell that contains only one species.
 
 <br>
-```{r, warning=FALSE, message=TRUE}
+```{r, warning=FALSE, message=TRUE, , eval=run_terra}
 #pd_sa <- faith.pd(tree = car_tree, dist = raster_sa, method = "root")
 #pd_sa
 ```
@@ -190,7 +195,7 @@ This step also acts as a natural filter, helping you control the input data. Onl
 Now you can plot the resulting PD raster using <b>tmap</b>, or use <b><i>view.vilma()</b></i> for an interactive visualization.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center'}
+```{r, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra}
 #tm_shape(pd_sa$rasters$pd.raster)+
 #  tm_raster()+
 #tm_shape(sa_pol)+
@@ -220,7 +225,7 @@ The <b><i>taxa.label</b></i> null model randomizes the phylogeny by shuffling th
 <b>Global</b>
 
 <br>
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=run_terra}
 # Global method
 #pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
 #                            method = "global", sampling = "taxa.label", iterations = 200)
@@ -234,7 +239,7 @@ The observed mean PD (25,241.5) is slightly higher than the null expectation (me
 In other words, under the taxa.label model, the overall PD pattern across South Africa does not show strong evidence of phylogenetic clustering or overdispersion at the global scale.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center'}
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra}
 #plot(pd_sa_null)
 ```
 <br>
@@ -242,7 +247,7 @@ In other words, under the taxa.label model, the overall PD pattern across South 
 <b>Cell</b>
 
 <br>
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=run_terra}
 # Cell method
 #pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
 #                            method = "cell", sampling = "taxa.label", iterations = 200)
@@ -254,7 +259,7 @@ In other words, under the taxa.label model, the overall PD pattern across South 
 The cell-based null model reveals substantial spatial variation in the standardized effect sizes (SES) across South Africa. SES values range from –3.0 to 2.0, indicating that some cells have slightly lower PD than expected under random species–phylogeny assignments, while others show modestly higher-than-expected values.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center'}
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra}
 #plot(pd_sa_null)
 ```
 <br>
