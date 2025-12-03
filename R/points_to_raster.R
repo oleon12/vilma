@@ -65,7 +65,12 @@
 #' }
 #' @export
 
-points_to_raster <- function(points, crs = 4326, ext = NULL, res = 1, doRast = TRUE, symmetrical = FALSE) {
+points_to_raster <- function(points,
+                             crs = 4326,
+                             ext = NULL,
+                             res = 1,
+                             doRast = TRUE,
+                             symmetrical = FALSE) {
 
   # 1. Input validation - Enhanced checks
   if (!inherits(points, c("matrix", "data.frame"))) {
@@ -91,31 +96,11 @@ points_to_raster <- function(points, crs = 4326, ext = NULL, res = 1, doRast = T
   # Convert to data.frame for safer handling
   points_df <- as.data.frame(points)
 
-  # 3. Process CRS parameter (robust)
-  # If user passes NULL / NA / "" / character(0), fall back to EPSG:4326
-  if (missing(crs) ||
-      is.null(crs) ||
-      (is.numeric(crs) && length(crs) == 1L && is.na(crs)) ||
-      (is.character(crs) && (length(crs) == 0L || crs == ""))) {
-    warning(
-      "No valid CRS provided. Assuming WGS84 (EPSG:4326). ",
-      "Set 'crs' explicitly if this is not correct."
-    )
-    crs <- 4326
-  }
-
+  # 3. Process CRS parameter
   if (is.numeric(crs)) {
     crs_string <- paste0("EPSG:", crs)
   } else {
     crs_string <- crs
-  }
-
-  if (is.null(crs_string) || !nzchar(crs_string)) {
-    warning(
-      "Derived CRS string is empty. Assuming WGS84 (EPSG:4326). ",
-      "Set 'crs' explicitly if this is not correct."
-    )
-    crs_string <- "EPSG:4326"
   }
 
   # --- resolution handling --------------------------------------------------
@@ -131,56 +116,56 @@ points_to_raster <- function(points, crs = 4326, ext = NULL, res = 1, doRast = T
   }
 
   # 4. Create spatial points and calculate extent
-  occ_sf <- sf::st_as_sf(points_df, coords = c("Lon", "Lat"), crs = crs_string)
+  occ_sf <- st_as_sf(points_df, coords = c("Lon", "Lat"), crs = crs_string)
 
-  # Work with a separate extent object to avoid confusion
   if (is.null(ext)) {
-    ext_obj <- terra::ext(occ_sf)
+    ext <- ext(occ_sf)
     # Add small buffer to ensure all points are within the extent
-    ext_obj <- ext_obj + (max(xres, yres) * 0.1)
-  } else {
-    # assume user provided a valid terra extent-like object
-    ext_obj <- ext
+    ext <- ext + (max(xres, yres) * 0.1)   ### NEW: use max res for buffer
   }
 
   # 4.1 Force symmetrical (square) pixels if requested
   if (isTRUE(symmetrical)) {
+    # Make yres match xres (keep user's xres)
     if (!isTRUE(all.equal(xres, yres))) {
       message("Forcing symmetrical pixels: setting yres = xres = ", xres)
     }
     yres <- xres
+
+    # Heads-up for geographic CRS: square degrees != square meters
+    # We detect after grid creation below; message again there.
   }
 
   # 4.2 Snap extent to exact multiples of (xres, yres) so cells are full-sized
-  xmin <- ext_obj[1]; xmax <- ext_obj[2]; ymin <- ext_obj[3]; ymax <- ext_obj[4]
+  xmin <- ext[1]; xmax <- ext[2]; ymin <- ext[3]; ymax <- ext[4]
   nx <- ceiling((xmax - xmin) / xres)
   ny <- ceiling((ymax - ymin) / yres)
   xmax_new <- xmin + nx * xres
   ymax_new <- ymin + ny * yres
-  ext_obj <- terra::ext(xmin, xmax_new, ymin, ymax_new)
+  ext <- ext(xmin, xmax_new, ymin, ymax_new)   ### NEW: snapped extent
 
   # 5. Create raster grid and calculate cell IDs
-  rgrid <- terra::rast(ext_obj, resolution = c(xres, yres), crs = crs_string)
+  rgrid <- rast(ext, resolution = c(xres, yres), crs = crs_string)
 
   # If symmetrical=TRUE and grid is lon/lat, warn that "square" is in degrees
-  if (isTRUE(symmetrical) && isTRUE(terra::is.lonlat(rgrid))) {
+  if (isTRUE(symmetrical) && isTRUE(is.lonlat(rgrid))) {
     message("Note: symmetrical=TRUE in a geographic CRS yields square degrees, not square meters.")
   }
 
-  cellR <- terra::cellFromXY(rgrid, sf::st_coordinates(occ_sf))
+  cellR <- cellFromXY(rgrid, st_coordinates(occ_sf))
   outDist <- cbind(points_df, Cell = cellR)
 
   # 6. Create raster outputs if requested
   if (doRast) {
-    occ_vect <- terra::vect(points_df, geom = c("Lon", "Lat"), crs = crs_string)
+    occ_vect <- vect(points_df, geom = c("Lon", "Lat"), crs = crs_string)
 
     # Abundance raster (count of all records)
-    ab_rast <- terra::rasterize(occ_vect, rgrid, field = "Sp", fun = "count")
+    ab_rast <- rasterize(occ_vect, rgrid, field = "Sp", fun = "count")
 
     # Richness raster (count of unique species)
-    ri_rast <- terra::rasterize(
+    ri_rast <- rasterize(
       occ_vect, rgrid, field = "Sp",
-      fun = function(x) length(unique(stats::na.omit(x)))
+      fun = function(x) length(unique(na.omit(x)))
     )
 
     # Return vilma.dist object with raster data

@@ -215,12 +215,17 @@ devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
 Now you can create the <b>vilma.dist</b> object. The <b><i>points_to_raster()</b></i> function generates a raster with species richness and abundance values per pixel. The user also defines the pixel size; in this example, the raster will have a resolution of 2 degrees. Once the <b>vilma.dist</b> object is created, you can inspect the spatial information it contains using the <b><i>print()</b></i> function.
 
 <br>
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
 library(terra)
 library(vilma)
 
 raster_out <- points_to_raster(points = data_gbif, res = 2, crs = 4326)
 print(raster_out)
+```
+```{r, echo=FALSE}
+library(terra)
+library(vilma)
+data("raster_out", package = "vilma")
 ```
 <br>
 
