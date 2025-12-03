@@ -219,7 +219,7 @@ Now you can create the <b>vilma.dist</b> object. The <b><i>points_to_raster()</b
 library(terra)
 library(vilma)
 
-raster_out <- points_to_raster(points = data_gbif, res = 2)
+raster_out <- points_to_raster(points = data_gbif, res = 2, crs = 4326)
 print(raster_out)
 ```
 <br>

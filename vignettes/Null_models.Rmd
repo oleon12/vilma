@@ -161,7 +161,7 @@ Now the next step is to create the <b><i>vilma.dist</b></i> object. For this exe
 ```{r, message=FALSE, warning=FALSE, fig.align='center'}
 library(vilma)
 
-raster_sa <- points_to_raster(points = occ_final, res = 1)
+raster_sa <- points_to_raster(points = occ_final, res = 1, crs = 4326)
 
 tm_shape(raster_sa$r.raster)+
   tm_raster()+
