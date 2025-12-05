@@ -71,168 +71,185 @@
 #' }
 #' @export
 
-mpd.calc <- function(tree, dist, method = c("root","node","exclude"), abundance = FALSE){
-  
+mpd.calc <- function(tree, dist,
+                     method = c("root", "node", "exclude"),
+                     abundance = FALSE) {
+
   ##############################################################
   #                        VERIFICATION                        #
   ##############################################################
-  
-  if(!inherits(tree, "phylo")){
-    stop("Input 'tree' must be an object of class 'phylo'.")	
+
+  if (!inherits(tree, "phylo")) {
+    stop("Input 'tree' must be an object of class 'phylo'.")
   }
-  
-  if(is.null(tree$edge.length)){
+
+  if (is.null(tree$edge.length)) {
     stop("The phylogenetic tree must have branch lengths.")
   }
-  
-  if(!is.rooted(tree)){
-    if(method %in% c("node","root")){
-      stop("MPD with methods node/root requires a rooted tree.")
-    }	
+
+  if (!is.rooted(tree)) {
+    if (method %in% c("node", "root")) {
+      stop("MPD with methods 'node'/'root' requires a rooted tree.")
+    }
   }
-  
+
   if (!inherits(dist, "vilma.dist")) {
     stop("Input 'dist' must be an object of class 'vilma.dist'. See 'points_to_raster()' function.")
-  } 
-  
-  if(length(method)>2){
+  }
+
+  if (length(method) > 2) {
     method <- "exclude"
     message("Using method 'exclude' \n")
   }
-  
+
   ##############################################################
   #                     DATA PREPARATION                       #
   ##############################################################
-  
+
   distM <- dist$distribution
-  
+
   tree.species <- tree$tip.label
   dist.species <- unique(distM$Sp)
-  
+
   missing.in.tree <- setdiff(dist.species, tree.species)
   missing.in.dist <- setdiff(tree.species, dist.species)
-  
-  if(length(missing.in.tree) > 0){
-    message("Note: ", length(missing.in.tree),
-            "species from 'dist' not found in 'tree': ",
-            paste(head(missing.in.tree, 5), collapse = ","),
-            ifelse(length(missing.in.tree) > 5, "..." , "") )
+
+  if (length(missing.in.tree) > 0) {
+    message(
+      "Note: ", length(missing.in.tree),
+      " species from 'dist' not found in 'tree': ",
+      paste(head(missing.in.tree, 5), collapse = ","),
+      ifelse(length(missing.in.tree) > 5, "...", "")
+    )
   }
-  
+
   common.species <- intersect(tree.species, dist.species)
-  
-  if(length(common.species) == 0){
+
+  if (length(common.species) == 0) {
     stop("No species in common between the tree and distribution data.")
   }
-  
-  message("Using ", length(common.species), " species in common between tree and distribution.")
+
+  message("Using ", length(common.species),
+          " species in common between tree and distribution.")
   distM <- distM[distM$Sp %in% common.species, ]
-  
+
+  # Species richness per cell
   presabs <- table(distM$Cell, distM$Sp)
-  presabs <- (presabs > 0) *1
+  presabs <- (presabs > 0) * 1
   presabs <- as.matrix(presabs)
   presabs <- as.matrix(apply(presabs, 1, sum))
-  
+
   Cell <- rownames(presabs)
-  SR <- as.vector(presabs)
-  
+  SR   <- as.vector(presabs)
+
   pd.res <- data.frame(Cell = Cell,
-                       SR = SR)
-  
+                       SR   = SR)
+
   ##############################################################
   #                      PD CALCULATION                        #
   ##############################################################
-  
-  if(method == "exclude"){
+
+  if (method == "exclude") {
     message("Excluding ", sum(pd.res$SR == 1), " single-species cells.")
     pd.res <- pd.res[pd.res$SR > 1, ]
   }
-  
-  if(abundance == TRUE){
+
+  # Abundance summaries per cell if needed
+  if (abundance) {
     AbCellList <- split(distM$Sp, distM$Cell)
-    AbCellList <- lapply(AbCellList, function(x) table(factor(x, levels = unique(distM$Sp))))
+    AbCellList <- lapply(
+      AbCellList,
+      function(x) table(factor(x, levels = unique(distM$Sp)))
+    )
   }
-  
-  PD <- c() 
-  set.seed(123)
-  
-  for(i in 1:length(rownames(pd.res))){
-    
+
+  # ---- KEY OPTIMIZATION: full-tree cophenetic once ----
+  full_coph <- cophenetic.phylo(tree)
+  # make sure rows/cols are in the same order as tree$tip.label
+  full_coph <- full_coph[tree$tip.label, tree$tip.label]
+  # -----------------------------------------------------
+
+  PD <- numeric(nrow(pd.res))
+
+  for (i in seq_len(nrow(pd.res))) {
+
     cell.id <- pd.res$Cell[i]
     sp.list <- unique(distM$Sp[distM$Cell == cell.id])
-    
-    if(length(sp.list) > 1){
-      
-      tree.subset <- keep.tip(tree,
-                                   tip = tree$tip.label[tree$tip.label %in% sp.list])
-      co.dist <- cophenetic.phylo(tree.subset)
-      
-      if (abundance == TRUE) {
-        ab.list <- AbCellList[[cell.id]][match(sp.list, names(AbCellList[[cell.id]]))]
+
+    if (length(sp.list) > 1) {
+
+      # submatrix for the species in this cell
+      co.dist <- full_coph[sp.list, sp.list, drop = FALSE]
+
+      if (abundance) {
+        # abundance vector for species in this cell
+        ab.list <- AbCellList[[cell.id]][sp.list]
+        ab.list[is.na(ab.list)] <- 0
+
+        # relative abundances
         rel_ab <- ab.list / sum(ab.list)
-        rel_ab <- rel_ab[!duplicated(names(rel_ab))]
 
-        ## --- alignment added (only change) ---
-        rel_ab <- rel_ab[rownames(co.dist)]
-        rel_ab[is.na(rel_ab)] <- 0
-        rel_ab <- rel_ab / sum(rel_ab)
-        ## -------------------------------------
-
-        # Outer product of abundances
+        # outer product of abundances
         weights <- outer(rel_ab, rel_ab)
         diag(weights) <- 0
-  
-        # Weighted MPD: use only upper triangle to avoid double counting
-        num <- sum(co.dist[upper.tri(co.dist)] * weights[upper.tri(weights)])
+
+        # use upper triangle to avoid double counting
+        num <- sum(co.dist[upper.tri(co.dist)] *
+                     weights[upper.tri(weights)])
         den <- sum(weights[upper.tri(weights)])
-  
-        PD <- c(PD, num / den)
-  
-        } else {
-          co.dist <- co.dist[upper.tri(co.dist)]
-          PD <- c(PD, mean(co.dist))
-        }
-      
-    } else {
-      pd_single <- pd.taxon(tree, sp.list, method)
-      if(abundance == TRUE){
-        rel_ab <- AbCellList[[cell.id]][sp.list] / sum(AbCellList[[cell.id]])
-        PD <- c(PD, pd_single * rel_ab)
+
+        PD[i] <- num / den
+
       } else {
-        PD <- c(PD, pd_single)
+        co.dist <- co.dist[upper.tri(co.dist)]
+        PD[i]   <- mean(co.dist)
+      }
+
+    } else {
+      # single-species cell
+      pd_single <- pd.taxon(tree, sp.list, method)
+
+      if (abundance) {
+        rel_ab <- AbCellList[[cell.id]][sp.list] /
+          sum(AbCellList[[cell.id]])
+        PD[i] <- pd_single * rel_ab
+      } else {
+        PD[i] <- pd_single
       }
     }
-    
-  }  # <-- closes the for(i in 1:length(rownames(pd.res)))
-  
+  }
+
   pd.res$PD <- PD
-  
+
   ##############################################################
   #                       RASTER CREATION                      #
-  ##############################################################	
-  
+  ##############################################################
+
   grid0 <- dist$grid
   values(grid0) <- NA
-  set.values(grid0, as.numeric(as.character(pd.res$Cell)), as.numeric(pd.res$PD)) 
-  
+  set.values(grid0,
+             as.numeric(as.character(pd.res$Cell)),
+             as.numeric(pd.res$PD))
+
   ##############################################################
   #                         VILMA OBJECT                       #
   ##############################################################
-  
+
   structure(
     list(
       distribution = dist$distribution,
-      grid = dist$grid,
-      pd.table = pd.res,
-      rasters = list(ab.raster = dist$ab.raster,
-                     r.raster = dist$r.raster,
-                     pd.raster = grid0
+      grid         = dist$grid,
+      pd.table     = pd.res,
+      rasters      = list(
+        ab.raster = dist$ab.raster,
+        r.raster  = dist$r.raster,
+        pd.raster = grid0
       ),
       calculation.method = method,
-      abundance = abundance,
-      index = "mpd.calc"
+      abundance          = abundance,
+      index              = "mpd.calc"
     ),
     class = "vilma.pd"
   )
-  
 }
+

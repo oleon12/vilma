@@ -60,7 +60,7 @@ plot.vilma.pd <- function(x, ...) {
     if (terra::nlyr(r) > 1) r <- r[[1]]
 
     terra::plot(r, main = title_map[[nm]], ...)
-    .label_cells(r)
+    #.label_cells(r)
     Sys.sleep(1)  # 1-second pause between plots
   }
 

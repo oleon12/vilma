@@ -51,11 +51,11 @@ plot.vilma.dist <- function(x, ...){
   
   # Richness
   terra::plot(x$r.raster, main = "Species Richness Raster")
-  .label_cells(x$r.raster)
+  #.label_cells(x$r.raster)
   
   # Abundance
   terra::plot(x$ab.raster, main = "Abundance Raster")
-  .label_cells(x$ab.raster)
+  #.label_cells(x$ab.raster)
   
   invisible(x)
 }

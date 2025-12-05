@@ -73,12 +73,12 @@ plot.vilma.beta <- function(x, ...){
     
     if (have_sim) {
       terra::plot(x$rasters$mean.similarity, main = "Mean similarity per cell")
-      .label_cells(x$rasters$mean.similarity)
+      #.label_cells(x$rasters$mean.similarity)
     }
     
     if (have_diss) {
       terra::plot(x$rasters$mean.dissimilarity, main = "Mean dissimilarity per cell")
-      .label_cells(x$rasters$mean.dissimilarity)
+      #.label_cells(x$rasters$mean.dissimilarity)
     }
   }
   
@@ -86,7 +86,7 @@ plot.vilma.beta <- function(x, ...){
     if (!is.null(x$rasters$mean.unifrac)) {
       par(mar = c(3, 3, 3, 5))
       terra::plot(x$rasters$mean.unifrac, main = "Mean UniFrac per cell")
-      .label_cells(x$rasters$mean.unifrac)
+      #.label_cells(x$rasters$mean.unifrac)
     }
   }
   
@@ -94,7 +94,7 @@ plot.vilma.beta <- function(x, ...){
     if (!is.null(x$rasters$mean.bMPD)) {
       par(mar = c(3, 3, 3, 5))
       terra::plot(x$rasters$mean.bMPD, main = "Mean beta-MPD per cell")
-      .label_cells(x$rasters$mean.bMPD)
+      #.label_cells(x$rasters$mean.bMPD)
     }
   }
   
@@ -102,7 +102,7 @@ plot.vilma.beta <- function(x, ...){
     if (!is.null(x$rasters$mean.bMNTD)) {
       par(mar = c(3, 3, 3, 5))
       terra::plot(x$rasters$mean.bMNTD, main = "Mean beta-MNTD per cell")
-      .label_cells(x$rasters$mean.bMNTD)
+      #.label_cells(x$rasters$mean.bMNTD)
     }
   }
   
@@ -110,7 +110,7 @@ plot.vilma.beta <- function(x, ...){
     if (!is.null(x$rasters$mean.total)) {
       par(mar = c(3, 3, 3, 5))
       terra::plot(x$rasters$mean.total, main = "Mean Phylogenetic beta-Diversity per cell")
-      .label_cells(x$rasters$mean.total)
+      #.label_cells(x$rasters$mean.total)
     }
   }
   
@@ -118,7 +118,7 @@ plot.vilma.beta <- function(x, ...){
     if (!is.null(x$rasters$mean.dissimilarity)) {
       par(mar = c(3, 3, 3, 5))
       terra::plot(x$rasters$mean.dissimilarity, main = "Mean Rao beta-Phylogenetic Diversity per cell")
-      .label_cells(x$rasters$mean.dissimilarity)
+      #.label_cells(x$rasters$mean.dissimilarity)
     }
   }
   

@@ -71,7 +71,7 @@ data_sa <- st_transform(data_sa, st_crs(sa_pol))
 Now, let’s check whether all occurrences fall within South Africa or if some points lie outside the country. To do this, you will use the <b><i>intersect()</b></i> function and split the data into two subsets: <b><i>occ_inside</b></i> and <b><i>occ_outside</b></i>. Then, you will plot the results using the <b>tmap</b> package. This package is very useful for creating high-quality, publication-ready maps with relatively little code, offering a visual style comparable to ggplot2.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center'}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
 library(tmap)
 
 # Extract the first column from the st_intersect result. 
@@ -97,7 +97,7 @@ In the plot, you can see a common issue with GBIF data: all of the points that f
 First, you will create a line between each point and the country border using <b><i>st_nearest_points()</b></i>. This line represents the shortest distance between the occurrence and the polygon boundary. Then, using <b><i>st_cast()</b></i>, you will convert each line into two points: the starting point (the original occurrence) and the ending point (the nearest location on the border). Finally, by using a grouping index, you will extract the second point of each line—the endpoint—which corresponds to the corrected coordinate located inside the country boundaries.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center'}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
 # Create lines
 nearest_lines <- st_nearest_points(occ_outside, st_union(sa_pol))
 
@@ -137,7 +137,7 @@ Given the density of points, it is difficult to see all the differences, but you
 The phylogenetic tree used in this example was retrieved from [VertLife](https://vertlife.org/). The 100 trees obtained from their database were previously transformed into a majority-rule consensus tree using TreeViewer.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center'}
+```{r, message=FALSE, warning=FALSE, fig.align='center', fig.width=7, fig.height=5}
 library(ape)
 library(phytools)
 
@@ -163,7 +163,7 @@ plot(car_tree, cex = 0.7)
 Now the next step is to create the <b><i>vilma.dist</b></i> object. For this exercise, you will generate a raster with a resolution of <b>1 degree</b>, which fits the study area well. To do this, you will use the <b><i>points_to_raster()</b></i> function, and then plot the resulting richness raster using <b>tmap</b>. Remember that you can also use <b><i>view.vilma()</b></i> to create an interactive map.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra}
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
 library(vilma)
 
 raster_sa <- points_to_raster(points = occ_final, res = 1, crs = 4326)
@@ -183,8 +183,8 @@ Because some cells contain only a single species, you will use the available "ro
 
 <br>
 ```{r, warning=FALSE, message=TRUE, , eval=run_terra}
-#pd_sa <- faith.pd(tree = car_tree, dist = raster_sa, method = "root")
-#pd_sa
+pd_sa <- faith.pd(tree = car_tree, dist = raster_sa, method = "root")
+pd_sa
 ```
 <br>
 
@@ -195,11 +195,11 @@ This step also acts as a natural filter, helping you control the input data. Onl
 Now you can plot the resulting PD raster using <b>tmap</b>, or use <b><i>view.vilma()</b></i> for an interactive visualization.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra}
-#tm_shape(pd_sa$rasters$pd.raster)+
-#  tm_raster()+
-#tm_shape(sa_pol)+
-#  tm_polygons(fill=NULL, lwd = 2)
+```{r, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+tm_shape(pd_sa$rasters$pd.raster)+
+  tm_raster()+
+tm_shape(sa_pol)+
+  tm_polygons(fill=NULL, lwd = 2)
 ```
 <br>
 
@@ -222,44 +222,195 @@ Let’s illustrate the difference between these methods using the <b><i>taxa.lab
 
 The <b><i>taxa.label</b></i> null model randomizes the phylogeny by shuffling the species names (<b>tip labels</b>) across the tree while keeping the spatial distribution of species unchanged. This tests whether the observed phylogenetic diversity depends on the real evolutionary relationships among species or whether similar patterns would arise if species identities were randomly reassigned. You will use the faith.pd.null() function, and to reduce computation time for this example, you will generate only 200 iterations. Although the recommended minimum for null model analyses is 9999 iterations, this larger number takes considerably longer to compute.
 
+<br>
+
 <b>Global</b>
 
 <br>
-```{r, message=FALSE, warning=FALSE, eval=run_terra}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 # Global method
-#pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
-#                            method = "global", sampling = "taxa.label", iterations = 200)
+pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "global", sampling = "taxa.label", iterations = 200)
 
-#print(pd_sa_null)
+print(pd_sa_null)
+```
+```{r, message=FALSE, warning=FALSE, eval=run_terra, echo=FALSE}
+invisible(
+  capture.output(
+    pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "global", sampling = "taxa.label", iterations = 200)
+  )
+)
+print(pd_sa_null)
 ```
 <br>
 
-The observed mean PD (25,241.5) is slightly higher than the null expectation (mean = 24,532.5), but the standardized effect size (SES = 0.8) is small, and the p-value is greater than 0.05. This indicates that the observed phylogenetic diversity does not differ significantly from what would be expected if species identities were randomly reassigned across the phylogeny.
+The observed mean PD (25,241.5) is <b>slightly higher</b> than the null expectation (mean = 24,532.5), but the standardized effect size (SES = 0.8) is small, and the p-value is greater than 0.05. This indicates that the observed phylogenetic diversity does not differ significantly from what would be expected if species identities were randomly reassigned across the phylogeny.
 
 In other words, under the taxa.label model, the overall PD pattern across South Africa does not show strong evidence of phylogenetic clustering or overdispersion at the global scale.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra}
-#plot(pd_sa_null)
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+plot(pd_sa_null)
 ```
 <br>
 
 <b>Cell</b>
 
 <br>
-```{r, message=FALSE, warning=FALSE, eval=run_terra}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 # Cell method
-#pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
-#                            method = "cell", sampling = "taxa.label", iterations = 200)
+pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "cell", sampling = "taxa.label", iterations = 200)
 
-#print(pd_sa_null)
+print(pd_sa_null)
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=run_terra}
+# Cell method – hide progress bar in vignette
+invisible(
+  capture.output(
+    pd_sa_null <- faith.pd.null(
+      pd        = pd_sa,
+      tree      = car_tree,
+      dist      = raster_sa,
+      method    = "cell",
+      sampling  = "taxa.label",
+      iterations = 200
+    )
+  )
+)
+
+print(pd_sa_null)
+
 ```
 <br>
 
 The cell-based null model reveals substantial spatial variation in the standardized effect sizes (SES) across South Africa. SES values range from –3.0 to 2.0, indicating that some cells have slightly lower PD than expected under random species–phylogeny assignments, while others show modestly higher-than-expected values.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra}
-#plot(pd_sa_null)
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+plot(pd_sa_null)
 ```
+<br>
+
+The SES heatmap shows clear <b>spatial variation</b> in how phylogenetic diversity deviates from null expectations across the study area. Most cells have SES values close to zero, indicating that their phylogenetic diversity is broadly consistent with random expectations under the taxa.label model.
+
+<br>
+
+#### 3.2. Range sampling
+
+<br>
+
+The <b><i>range sampling</b></i> method randomizes species distributions across the raster while preserving each species’ range size and each cell’s species richness. It is used to test whether observed PD patterns arise from the specific spatial arrangement of species, rather than from simple differences in occupancy or richness.
+
+<br>
+```{r,eval=FALSE}
+pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "cell", sampling = "range", iterations = 200)
+
+print(pd_sa_null)
+```
+```{r, message=FALSE, warning=FALSE, eval=run_terra, echo=FALSE}
+invisible(
+  capture.output(
+    pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "cell", sampling = "range", iterations = 200)
+  )
+)
+
+print(pd_sa_null)
+```
+<br>
+
+Under the range sampling model, observed PD is <b>largely consistent</b> with null expectations, with SES values near zero and very few significant cells. This indicates limited evidence of non-random phylogenetic structure after accounting for species range sizes and cell richness.
+
+<br>
+```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7, fig.height=5}
+plot(pd_sa_null)
+```
+<br>
+
+The SES map for the range sampling model shows mostly neutral values across the landscape, with a mix of slightly positive and negative cells but no strong spatial clustering. This indicates that, after controlling for species range sizes and cell richness, most local variation in PD is close to random expectations.
+
+<br>
+
+#### 3.3. Neighbor sampling
+
+<br>
+
+The <b><i>neighbor sampling</b></i> method randomizes species distributions while preserving species’ range size and cell richness, but restricts swaps to adjacent cells. This can follow three movement rules: <b>queen</b> (8 neighbors), <b>rook</b> (4 orthogonal neighbors), or <b>bishop</b> (4 diagonal neighbors). Although not a mechanistic model of dispersal, this constraint serves as a useful proxy for limited movement or spatial autocorrelation in species distributions.
+
+<br>
+```{r,eval=FALSE}
+pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "cell", sampling = "neighbor", 
+                            iterations = 200, n.directions = "queen")
+
+print(pd_sa_null)
+```
+```{r, message=FALSE, warning=FALSE, eval=run_terra, echo=FALSE}
+invisible(
+  capture.output(
+    pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "cell", sampling = "neighbor", iterations = 200, n.directions = "queen")
+  )
+)
+
+print(pd_sa_null)
+```
+<br>
+
+Under the neighbor sampling model, observed PD values are generally <b>similar</b> to null expectations, with SES values mostly close to zero and only a few significant cells. This suggests that, even when accounting for limited dispersal between adjacent cells, PD patterns show little evidence of strong non-random structure.
+
+<br>
+```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7, fig.height=5}
+plot(pd_sa_null)
+```
+<br>
+
+The SES map for the neighbor sampling model shows small positive and negative deviations scattered across the landscape, with most cells <b>remaining</b> close to zero. This indicates that, even when randomization is constrained to adjacent cells, spatial patterns of PD remain largely random, with only isolated cells showing noticeable departures from expectation.
+
+<br>
+
+#### 3.4. Regional sampling
+
+<br>
+
+The <b><i>regional sampling</b></i> method rebuilds community composition by randomly selecting species from a regional pool rather than preserving original range sizes or cell richness. Species can be selected using three weighting rules: <b>uniform</b> (all species equally likely), <b>frequency</b> (more common species more likely), or <b>range</b> (species with larger ranges more likely). This method tests whether observed PD patterns arise simply from differences in species availability or regional abundance rather than spatial structure.
+
+<br>
+```{r,eval=FALSE}
+pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "cell", sampling = "regional", 
+                            iterations = 200, regional.weight = "uniform")
+
+print(pd_sa_null)
+```
+```{r, message=FALSE, warning=FALSE, eval=run_terra, echo=FALSE}
+invisible(
+  capture.output(
+    pd_sa_null <- faith.pd.null(pd = pd_sa, tree = car_tree, dist = raster_sa,
+                            method = "cell", sampling = "regional", iterations = 200, regional.weight = "uniform")
+  )
+)
+
+print(pd_sa_null)
+```
+<br>
+
+Under the regional sampling model with uniform weights, observed PD values show <b>larger</b> departures from null expectations, with many cells exhibiting significant SES values (56 out of 146). This indicates that when community composition is reshuffled without constraints on range size or species frequencies, spatial patterns of PD become highly non-random, suggesting that much of the observed structure is <b>influenced</b> by the identity of species present rather than by simple species availability.
+
+<br>
+```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7, fig.height=5}
+plot(pd_sa_null)
+```
+<br>
+
+The SES map for the regional model shows widespread and highly variable deviations from null expectations, with many cells displaying extreme positive or negative values. This indicates strong non-random spatial structure when communities are reassembled without constraints.
+
+---
+
+In summary, <b>null models</b> provide an essential framework for evaluating whether observed spatial patterns of phylogenetic diversity arise from deterministic ecological or evolutionary processes rather than the random assembly of species. By comparing observed PD values to expectations generated under different constraints, null models allow researchers to identify <b>non-random structure</b>, assess the influence of species identity and distribution, and disentangle the role of richness, range size, and spatial autocorrelation. The results presented here illustrate that distinct sampling schemes can lead to markedly different inferences about spatial patterns of phylogenetic structure, underscoring the importance of model choice and biological interpretation. Integrating null models into spatial phylogenetic analyses therefore offers a robust and interpretable approach for detecting meaningful patterns in biodiversity data.
+
+<br>
 <br>

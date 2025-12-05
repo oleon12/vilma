@@ -54,19 +54,19 @@ plot.vilma.null <- function(x, ...){
     terra::plot(x$Raster, main = "Null model: SES per Cell")
     
     # Safe cell labeling: use SES values and valid cell ids
-    if (!is.null(x$CellValues) && all(c("Cell","SES") %in% names(x$CellValues))) {
-      cells <- suppressWarnings(as.integer(x$CellValues$Cell))
-      ses   <- suppressWarnings(as.numeric(x$CellValues$SES))
-      ok    <- is.finite(ses) & is.finite(cells) &
-               cells >= 1L & cells <= terra::ncell(x$Raster)
-      if (any(ok)) {
-        crds <- try(terra::xyFromCell(x$Raster, cells[ok]), silent = TRUE)
-        if (!inherits(crds, "try-error")) {
-          graphics::text(crds[,1], crds[,2], labels = round(ses[ok], 2),
-                         cex = 0.6, col = "white")
-        }
-      }
-    }
+    #if (!is.null(x$CellValues) && all(c("Cell","SES") %in% names(x$CellValues))) {
+    #  cells <- suppressWarnings(as.integer(x$CellValues$Cell))
+    #  ses   <- suppressWarnings(as.numeric(x$CellValues$SES))
+    #  ok    <- is.finite(ses) & is.finite(cells) &
+    #           cells >= 1L & cells <= terra::ncell(x$Raster)
+    #  if (any(ok)) {
+    #    crds <- try(terra::xyFromCell(x$Raster, cells[ok]), silent = TRUE)
+    #    if (!inherits(crds, "try-error")) {
+    #      graphics::text(crds[,1], crds[,2], labels = round(ses[ok], 2),
+    #                     cex = 0.6, col = "white")
+    #    }
+    #  }
+    #}
     return(invisible())
   }
   
