@@ -87,17 +87,20 @@ view.vilma.beta <- function(beta){
   cols <- vector("list", length(beta$rasters))
   vals_list <- vector("list", length(beta$rasters))
   for (i in seq_along(beta$rasters)) {
-    vals <- .finvals(beta$rasters[[i]])
+    r_prj <- project(beta$rasters[[i]], "EPSG:4326")
+    vals <- .finvals(r_prj)
     vals_list[[i]] <- vals
-    if (length(vals)) {
-      cols[[i]] <- leaflet::colorNumeric(
-        palette = viridisLite::viridis(256, option = "D"),
-        domain  = vals,
-        na.color = NA,
-        reverse  = FALSE
-      )
+    if(length(vals)){
+      rng <- range(vals, na.rm = TRUE)
+      eps <- (rng[2] - rng[1]) * 1e-8
+      if (!is.finite(eps) || eps == 0) eps <- 1e-8
+  
+      cols[[i]] <- leaflet::colorNumeric(palette  = viridisLite::viridis(256, option = "D"),
+                                         domain   = c(rng[1] - eps, rng[2] + eps),
+                                         na.color = "transparent",
+                                         reverse  = FALSE)
     } else {
-      cols[[i]] <- NULL  # mark as empty; we'll skip it later
+      cols[[i]] <- NULL
     }
   }
 

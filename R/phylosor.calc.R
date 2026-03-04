@@ -79,6 +79,7 @@
 #'   \item \code{pcoa.eig} – PCoA eigenvalues (first two axes).
 #'   \item \code{ndms.stress} – NMDS stress.
 #'   \item \code{calculation.method} – The resolved \code{method}.
+#'   \item \code{algorithm} – the string \code{"PhyloSor"}.
 #' }
 #'
 #' @section Notes:

@@ -82,7 +82,7 @@ write.vilma.dist <- function(vilma.dist, file, raster.format = c("tif","grd","im
   #                     Save files                          #
   ###########################################################
   
-  write.csv(x = vilma.dist$distribution, file = dist.name, quote = FALSE, row.names = FALSE)
+  write.csv(x = vilma.dist$distribution, file = dist.name, row.names = FALSE)
   suppressMessages(writeRaster(x = vilma.dist$r.raster,  filename = r.name, overwrite = overwrite))
   suppressMessages(writeRaster(x = vilma.dist$ab.raster, filename = ab.name, overwrite = overwrite))
   capture.output(print(vilma.dist), file = log.name)

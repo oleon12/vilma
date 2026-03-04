@@ -1,46 +1,46 @@
-#' View \code{vilma.pd} Rasters in an Interactive Leaflet Map
-#' @description
-#' Renders all rasters stored in a \code{vilma.pd} object as toggleable
-#' overlays in a Leaflet map, using \pkg{viridisLite} color ramps and
-#' on-map legends. Pixel values are shown on hover via \pkg{leafem}.
+#' View \code{vilma.region} Rasters in an Interactive Leaflet Map
 #'
-#' @param pd A \code{vilma.pd} object containing a named list \code{pd$rasters}
-#'   of \pkg{terra} \code{SpatRaster} layers. The element
-#'   \code{pd$rasters$ab.raster} is used to compute the initial map center.
+#' Renders all rasters stored in a \code{vilma.region} object as toggleable
+#' overlays in an interactive Leaflet map. Color scales are generated with
+#' \pkg{viridisLite} and per-layer legends are added automatically. Raster
+#' values can be queried on hover via \pkg{leafem}.
+#'
+#' @param region A \code{vilma.region} object containing a named list
+#'   \code{region$raster} of \pkg{terra} \code{SpatRaster} layers (e.g.,
+#'   \code{group.raster} and \code{mean.group.raster}). The function uses
+#'   \code{region$raster$group.raster} to compute the initial map center when
+#'   available; otherwise, it falls back to the first valid raster layer.
 #'
 #' @details
-#' \strong{Verification:} The function checks that \code{pd} is of class
-#' \code{"vilma.pd"} and that \code{pd$rasters} exists and is non-empty.
+#' \strong{Verification:} The function checks that \code{region} is of class
+#' \code{"vilma.region"} and that \code{region$raster} exists and is non-empty.
 #'
-#' \strong{Centering:} The initial view is centered on the midpoint of the
-#' extent of \code{pd$rasters$ab.raster}.
+#' \strong{Centering:} The initial map view is centered on the midpoint of the
+#' extent of \code{region$raster$group.raster} when available. If that layer is
+#' missing or invalid, the first raster layer with a valid extent is used.
 #'
 #' \strong{Color mapping:} For each raster, a numeric color function is created
-#' with \code{viridis(256, option = "D")}, mapped over the raster's value range
-#' (NAs ignored). Legends are added with the raster name as the title.
+#' with \code{viridisLite::viridis(256, option = "D")} mapped over the finite
+#' value range (NAs ignored). Legends are added with the raster name as the title.
 #'
 #' \strong{Interaction:} Raster values are queried on mouse move using
 #' \code{leafem::addImageQuery(project = TRUE)}, displaying a live readout
 #' (rounded to 2 decimals) in the top-right corner.
 #'
-#' \strong{Layers:} Two base maps labeled "Esri" and "Carto" are added and a
-#' layers control allows toggling of raster overlays. By default, all overlays
-#' except the third (if present) are hidden, so the third raster is visible at
-#' load.
+#' \strong{Layers:} Two base maps labeled "Esri" and "Carto" are added, and a
+#' layers control allows toggling raster overlays. If multiple overlays are
+#' available, the function hides all but the first overlay at load.
 #'
 #' @return A \pkg{leaflet} \code{htmlwidget} map.
 #'
 #' @section Performance:
 #' Very large rasters can be slow in browsers. Consider aggregating
-#' (\code{terra::aggregate()}) or tiling before viewing.
+#' (\code{terra::aggregate()}) or reducing resolution prior to viewing.
 #'
 #' @examples
 #' \dontrun{
-#' tree <- example_tree()
-#' dist <- example_dist()
-#' dist <- points_to_raster(dist)
-#' pd <- faith.pd(tree, dist)
-#' view.vilma.pd(pd)
+#' reg <- vilma.regionalize(beta)
+#' view.vilma.region(reg)
 #' }
 #'
 #' @seealso
@@ -48,23 +48,23 @@
 #' \code{\link[leaflet]{addRasterImage}},
 #' \code{\link[leafem]{addImageQuery}},
 #' \code{\link[viridisLite]{viridis}},
-#' \code{\link[terra]{ext}}
+#' \code{\link[terra]{ext}},
+#' \code{\link{vilma.regionalize}}
+#'
 #' @author
 #' Omar Daniel Leon-Alvarado \url{https://leon-alvarado.weebly.com}
 #' J. Angel Soto-Centeno \url{https://www.mormoops.com}
 #'
 #' @export
 
-view.vilma.pd <- function(pd){
-  
-  ################################################################
-  #                         Verification                         #
-  ################################################################
-  if (!inherits(pd, "vilma.pd")) {
-    stop("pd is not a vilma.pd object")
+view.vilma.region <- function(region){
+
+  if(!inherits(region, "vilma.region")){
+    stop("region is not a vilma.region object")
   }
-  if (is.null(pd$rasters) || length(pd$rasters) == 0) {
-    stop("No raster found ")
+  
+  if(is.null(region$raster) || length(region$raster) == 0){
+    stop("No raster layers found")
   }
   
   ################################################################
@@ -78,30 +78,30 @@ view.vilma.pd <- function(pd){
     v[is.finite(v)]
   }
   
-  # Choose center: prefer ab.raster if available and valid, else first valid layer
+  # Choose center: prefer group.raster if available and valid, else first valid layer
   r_center <- NULL
-  if (!is.null(pd$rasters$ab.raster)) {
-    ex_try <- try(terra::ext(pd$rasters$ab.raster), silent = TRUE)
-    if (inherits(ex_try, "SpatExtent")) r_center <- pd$rasters$ab.raster
+  if (!is.null(region$raster$group.raster)) {
+    ex_try <- try(terra::ext(region$raster$group.raster), silent = TRUE)
+    if (inherits(ex_try, "SpatExtent")) r_center <- region$raster$group.raster
   }
   if (is.null(r_center)) {
-    for (r in pd$rasters) {
+    for (r in region$raster) {
       ex_try <- try(terra::ext(r), silent = TRUE)
       if (inherits(ex_try, "SpatExtent")) { r_center <- r; break }
     }
   }
-  if (is.null(r_center)) stop("No valid raster extent found in pd$rasters")
+  if (is.null(r_center)) stop("No valid raster extent found in region$raster")
   
   ############## Find raster center ######################
   ex <- terra::ext(r_center)
   center.x <- as.vector((ex$xmin + ex$xmax) / 2)
-  center.y <- as.vector((ex$ymin + ex$ymax) / 2)
+  center.y <- as.vector((ex$ymin + ex$ymax) / 2) 
   
   ############### Set palettes by Raster #################
-  cols <- vector("list", length(pd$rasters))
-  vals_list <- vector("list", length(pd$rasters))
-  for (i in seq_along(pd$rasters)) {
-    r_prj <- project(pd$rasters[[i]], "EPSG:4326")
+  cols <- vector("list", length(region$raster))
+  vals_list <- vector("list", length(region$raster))
+  for (i in seq_along(region$raster)) {
+    r_prj <- project(region$raster[[i]], "EPSG:4326")
     vals <- .finvals(r_prj)
     vals_list[[i]] <- vals
     
@@ -120,20 +120,20 @@ view.vilma.pd <- function(pd){
   }
   
   # Ensure names
-  nm <- names(pd$rasters)
+  nm <- names(region$raster)
   if (is.null(nm) || any(!nzchar(nm))) {
-    nm <- paste0("layer_", seq_along(pd$rasters))
-    names(pd$rasters) <- nm
+    nm <- paste0("layer_", seq_along(region$raster))
+    names(region$raster) <- nm
   }
-  names(cols) <- names(pd$rasters)
+  names(cols) <- names(region$raster)
   
   ################# Base Map ############################
   map <- leaflet::leaflet(options = leaflet::leafletOptions(minZoom = 3)) %>%
     leaflet::addProviderTiles("Esri",    group = "Esri")  %>%
     leaflet::addProviderTiles("CartoDB", group = "Carto") %>%
     leaflet::setView(lng = center.x, lat = center.y, zoom = 3)
-  
-  ################## Add Rasters ########################
+    
+   ################## Add Rasters ########################
   shown_groups <- character(0)
   for (i in seq_along(cols)) {
     rname <- names(cols)[i]
@@ -151,11 +151,11 @@ view.vilma.pd <- function(pd){
     }
     
     map <- map %>%
-      leaflet::addRasterImage(x = pd$rasters[[i]], group = rname, colors = pal) %>%
+      leaflet::addRasterImage(x = region$raster[[i]], group = rname, colors = pal) %>%
       leaflet::addLegend(pal = pal, values = vals_list[[i]],
                          position = "bottomleft", group = rname,
                          opacity = 1, title = rname) %>%
-      leafem::addImageQuery(x = pd$rasters[[i]], layerId = rname,
+      leafem::addImageQuery(x = region$raster[[i]], layerId = rname,
                             type = "mousemove", project = TRUE, digits = 2,
                             position = "topright", prefix = "Value: ")
     shown_groups <- c(shown_groups, rname)
@@ -179,6 +179,7 @@ view.vilma.pd <- function(pd){
       )
   }
   
-  map
-}
+  map  
 
+
+}

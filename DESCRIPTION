@@ -21,25 +21,39 @@ Imports:
     ape,
     phytools,
     terra,
+    raster,
     vegan,
     leaflet,
     viridisLite,
     magrittr,
     sf,
+    sp,
     shiny,
     leafem,
     methods,
     htmltools,
-    readr,
-    leaflet.extras
+    leaflet.extras,
+    stats,
+    cluster,
+    igraph,
+    foreach,
+    doParallel,
+    maxnet,
+    usdm,
+    adehabitatHR,
+    dismo,
+    randomForest,
+    glmnet,
+    mgcv
 Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
     dplyr,
-    raster,
     tmap,
-    maps
+    maps,
+    ggplot2,
+    mclust
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
