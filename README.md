@@ -17,6 +17,7 @@ It provides a complete workflow to:
 - Calculate **alpha diversity** indices (Faith’s PD, MPD, MNTD, PE, NRI, NTI, RaoQ)
 - Compute **beta diversity** metrics (PhyloBeta, PhyloSor, UniFrac, Rao β, βMPD, βMNTD)
 - Run **null models** with multiple randomization schemes
+- Make spatial regionalization using the **beta diversity** indices
 - Export results and visualize patterns interactively through a built-in **Shiny app**
 
 Vilma is designed for biogeography, ecology, and conservation applications, with special emphasis on **integrative phylogenomics + spatial analysis**.
@@ -231,6 +232,39 @@ view.vilma(beta_out)
 
 
 ```
+<br>
+
+## Regionalization
+
+<br>
+
+Vilma provides bioregionalization options using &beta;-diversity indices. The function <i>vilma.regionalize</i> takes dissimilarity matrices and calculates the optimal number of clusters using different methods (<b>hierarchical cluster</b>, <b>k-medoids</b>, and <b>network-based</b>). Likewise, the function offers k-value optimization to determine the best fit. The function returns two raster layers: I) Groups and II) Mean &beta;-values per group."
+
+<br>
+
+```r
+
+# Beta-MPD
+bmpd_out <- beta.mpd(tree, dist, mpd.method = c("exclude","root","node"), 
+                    abundance = FALSE, exclude.conspecific = FALSE, 
+                    normalize = FALSE, scale01=FALSE)
+
+# Regionalization
+region_h <- vilma.regionalize(beta = bmpd_out, method = "hclust", hmethod = "ward.D2", optimize = TRUE)
+region_pam <- vilma.regionalize(beta = bmpd_out, method = "pam", optimize = TRUE)
+region_net <- vilma.regionalize(beta = bmpd_out, method = "network", optimize = TRUE, net_kernel = "exp", net_algorithm = "louvain")
+
+# Plot
+plot(region_h)
+view.vilma(region_h)
+
+plot(region_pam)
+view.vilma(region_pam)
+
+plot(region_net)
+view.vilma(region_net)
+
+```
 
 <br>
 
@@ -257,7 +291,7 @@ tree_ex <- example_tree()
 
 
 
-# Saving the vilma.pd objecc
+# Saving the vilma.pd object
 
 faith_out <- faith.pd(tree = tree_ex, dist = raster_out, method = "root")
 
@@ -280,6 +314,15 @@ beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "wieghted", n
 
 write.vilma.null(vilma.beta = beta_out, file = "raster_phyloBeta", 
                  raster.format = "tif", overwrite = TRUE)
+
+# Saving the vilma.region object
+
+region_h <- vilma.regionalize(beta = bmpd_out, method = "hclust", hmethod = "ward.D2", optimize = TRUE)
+
+write.vilma.region(vilma.region = region_h, file ="region_groups",
+                   raster.format = "tif", overwrite = TRUE)
+
+
 
 ```
 
