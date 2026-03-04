@@ -24,10 +24,8 @@
 #'
 #' @importFrom leaflet leaflet leafletOptions addProviderTiles setView addRasterImage addLegend addLayersControl colorNumeric hideGroup addControl
 #' @importFrom leafem addImageQuery
-#' @importFrom leaflet.extras addDrawToolbar
 #' @importFrom viridisLite viridis
 #' @importFrom htmltools htmlEscape
-#' @importFrom shiny runApp
 #'
 #' @importFrom maxnet maxnet maxnet.formula
 #' @importFrom dismo randomPoints evaluate threshold
