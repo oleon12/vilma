@@ -24,7 +24,6 @@
 #'
 #' @importFrom leaflet leaflet leafletOptions addProviderTiles setView addRasterImage addLegend addLayersControl colorNumeric hideGroup addControl
 #' @importFrom leafem addImageQuery
-#' @importFrom viridisLite viridis
 #' @importFrom htmltools htmlEscape
 #'
 #' @importFrom maxnet maxnet maxnet.formula
@@ -35,7 +34,7 @@
 #' @importFrom usdm vifstep exclude
 #' @importFrom adehabitatHR mcp
 #'
-#' @importFrom runApp 
+#' @importFrom shiny runApp 
 #'
 #' @importFrom cluster pam silhouette
 #' @importFrom igraph graph_from_adjacency_matrix components cluster_louvain cluster_leiden modularity membership E

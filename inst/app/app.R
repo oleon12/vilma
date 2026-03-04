@@ -1,12 +1,12 @@
+
+required_app_pkgs <- c("leaflet.extras","bslib","readr","later")
+missing <- required_app_pkgs[!vapply(required_app_pkgs, requireNamespace, logical(1), quietly = TRUE)]
+if (length(missing)) {
+  stop("Missing required app packages: ", paste(missing, collapse = ", "))
+}
+
+
 # ========================= app.R (complete) =========================
-library(shiny)
-library(bslib)
-library(readr)
-library(leaflet)
-library(leaflet.extras)
-library(ape)
-library(terra)
-library(later)
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
