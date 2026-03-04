@@ -35,6 +35,8 @@
 #' @importFrom usdm vifstep exclude
 #' @importFrom adehabitatHR mcp
 #'
+#' @importFrom runApp 
+#'
 #' @importFrom cluster pam silhouette
 #' @importFrom igraph graph_from_adjacency_matrix components cluster_louvain cluster_leiden modularity membership E
 #' @importFrom foreach foreach %dopar%
