@@ -46,7 +46,6 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     knitr,
-    bslib,
     later,
     viridisLite,
     readr,
