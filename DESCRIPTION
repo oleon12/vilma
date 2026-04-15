@@ -44,8 +44,8 @@ Imports:
     mgcv,
     shiny
 Suggests:
-    bslib
-    tinytest
+    bslib,
+    tinytest,
     testthat (>= 3.0.0),
     knitr,
     later,
