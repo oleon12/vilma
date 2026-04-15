@@ -1,6 +1,6 @@
 Package: vilma
 Title: Spatial Phylogenetic Diversity
-Version: 0.1.0
+Version: 1.0.0
 Authors@R:
     c(
       person(given = "Omar Daniel", family = "Leon-Alvarado",
@@ -42,9 +42,9 @@ Imports:
     randomForest,
     glmnet,
     mgcv,
-    shiny
+    shiny,
+    bslib
 Suggests:
-    bslib,
     tinytest,
     testthat (>= 3.0.0),
     knitr,
