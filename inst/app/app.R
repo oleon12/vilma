@@ -58,8 +58,8 @@ safely_load_modules <- function() {
 safely_load_modules()
 
 # =============================== UI ================================
-ui <- page_fluid(
-  theme = bs_theme(version = 5),
+ui <- bslib::page_fluid(
+  theme = bslib::bs_theme(version = 5),
   tags$head(
     tags$style(HTML("
       html, body { height:100%; width:100%; margin:0; padding:0; overflow:hidden; }
