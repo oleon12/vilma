@@ -42,7 +42,7 @@ devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
 
 ## Shiny App
 
-Vilma can be used through a <b>Shiny interface</b>. This interface was built for users with little experience in R or programming in general. However, the user is required to understand every parameter and index in order to perform an appropriate analysis for their research question. Therefore, we always advise users to keep in mind the principle of <b>GIGO (Garbage In, Garbage Out)</b>. Running the app is very easy: simply open an <i>R</i> or <i>RStudio</i> session and run the following lines of code.
+Vilma can be used through a <b>Shiny interface</b>. This interface was built for users with little experience in R or programming in general. However, the user must understand all parameters and indices to perform an appropriate analysis for their research question. Therefore, we always advise users to keep in mind the principle of <b>GIGO (Garbage In, Garbage Out)</b>. Running the app is very easy: simply open an <i>R</i> or <i>RStudio</i> session and run the following lines of code.
 
 ```r
 library(vilma)
@@ -58,13 +58,13 @@ Vilma is intended to be a pipeline where the user starts by creating a raster fi
 
 ## Interactive view
 
-Although the Shiny app is the most remarkable feature for interactivity, Vilma also provides interactive map visualizations. For every analysis (raster,  &alpha;-diversity, &alpha;-null models, and &beta;), results can be viewed using the <i>view.vilma()</i> function. This function will display a Leaflet map with the raster layers. You can toggle between layers using the Layer Control button <img src="inst/app/www/Layer_Icon.png" width="15"/>. Furthermore, if you move the mouse over any pixel, a pop-up window will appear above the Layer Control button showing the value for that specific pixel.
+Although the Shiny app is the most remarkable feature for interactivity, Vilma also provides interactive map visualizations. For every analysis (raster,  &alpha;-diversity, &alpha;-null models, and &beta;), results can be viewed using the <i>view.vilma()</i> function. This function displays a Leaflet map with raster layers. You can toggle between layers using the Layer Control button <img src="inst/app/www/Layer_Icon.png" width="15"/>. Furthermore, if you move the mouse over any pixel, a pop-up window will appear above the Layer Control button showing the value for that specific pixel.
 
 <br>
 
 ## Rasters
 
-The idea of this step is to reduce the time and stress associated with creating and manipulating raster files for spatial analysis. Many other packages aimed at calculating Phylogenetic Diversity indices use community tables. This approach requires several steps to convert rasters to tables and then back to rasters again, which can be an obstacle for many users. In contrast, the <i>points_to_rasters</i> function requires only a single data frame (or table) with three columns: Species, Longitude, and Latitude (decimal degrees). This data is easy to gather, especially from sources like GBIF. Users can also set up the pixel resolution and CRS. The function return a <i>vilma.dist</i> object
+The idea of this step is to reduce the time and stress associated with creating and manipulating raster files for spatial analysis. Many other packages aimed at calculating Phylogenetic Diversity indices use community tables. This approach requires several steps to convert rasters to tables and then back to rasters again, which can be an obstacle for many users. In contrast, the <i>points_to_raster</i> function requires only a single data frame (or table) with three columns: Species, Longitude, and Latitude (decimal degrees). This data is easy to gather, especially from sources like GBIF. Users can also set up the pixel resolution and CRS. The function return a <i>vilma.dist</i> object
 <br>
 
 <div align="center">
@@ -100,7 +100,7 @@ view.vilma(raster_out)
 
 <br>
 
-This is the most basic analysis. Vilma provides seven different indices based on different approaches (e.g., minimum spanning tree, distance-based). The goal is to increase the number of available indices over time. Each &alpha;-diversity function requires, at a minimum, a vilma.dist object (created with points_to_raster) and a rooted tree with branch lengths. These functions work with both ultrametric and non-ultrametric trees. The result of each function is a vilma.pd object containing: a table exhibiting the Species Richness, Abundance, and PD values for each cell; a set of rasters (the number of which may vary between indices); and the original distribution matrix.
+This is the most basic analysis. Vilma provides seven indices based on different approaches (e.g., minimum spanning tree and distance-based). The goal is to increase the number of available indices over time. Each &alpha;-diversity function requires, at a minimum, a vilma.dist object (created with points_to_raster) and a rooted tree with branch lengths. These functions work with both ultrametric and non-ultrametric trees. The result of each function is a vilma.pd object containing: a table exhibiting the Species Richness, Abundance, and PD values for each cell; a set of rasters (the number of which may vary between indices); and the original distribution matrix.
 
 <br>
 
@@ -122,16 +122,16 @@ pe.calc(tree, dist, RPE = c(TRUE,FALSE), faith.method = c("node","root","exclude
 rao.calc(tree, dist, abundance = FALSE, scale01 = TRUE)
 
 # NRI
-nri.calc <- function(tree, dist, mpd.method = c("root","node","exclude"), 
-                     abundance = FALSE, iterations = 999, 
-                     sampling = c("taxa.label","range","neigbor","regional"), 
-                     n.directions = c("rook","bishop","queen"), 
-                     regional.weight = c("uniform","frequency","range"))
+nri_out <- nri.calc(tree, dist, mpd.method = c("root","node","exclude"),
+                    abundance = FALSE, iterations = 999, 
+                    sampling = c("taxa.label","range","neighbor","regional"), 
+                    n.directions = c("rook","bishop","queen"), 
+                    regional.weight = c("uniform","frequency","range"))
 
 #NTI
-nti.calc <- function(tree, dist, mntd.method = c("root","node","exclude"), 
+nti_out <- nti.calc(tree, dist, mntd.method = c("root","node","exclude"), 
                      abundance = FALSE, iterations = 999, 
-                     sampling = c("taxa.label","range","neigbor","regional"), 
+                     sampling = c("taxa.label","range","neighbor","regional"), 
                      n.directions = c("rook","bishop","queen"), 
                      regional.weight = c("uniform","frequency","range"))
 
@@ -140,7 +140,7 @@ raster_out <- points_to_raster(points = dist_ex, res = 5)
 
 tree_ex <- example_tree()
 
-mpd_out <- mpd(tree = tree_ex, dist = raster_out, method = "root", abundance = FALSE)
+mpd_out <- mpd.calc(tree = tree_ex, dist = raster_out, method = "root", abundance = FALSE)
 print(mpd_out)
 plot(mpd_out)
 view.vilma(mpd_out)
@@ -152,9 +152,9 @@ view.vilma(mpd_out)
 
 <br>
 
-This is one of the main features of Vilma: the implementation of null models for &alpha;-diversity indices. With the exception of NRI and NTI, all indices have their own null models. The null models offer two different approaches: <b>global</b> and <b>cell</b>. When "global" is selected, the function calculates the SES and p-value for the entire area, while "cell" calculates the <i>SES</i> and <i>p-value</i> for each individual cell. Only the "cell" option returns a raster.
+This is one of Vilma's main features: the implementation of null models for &alpha;-diversity indices. With the exception of NRI and NTI, all indices have their own null models. The null models offer two different approaches: <b>global</b> and <b>cell</b>. When "global" is selected, the function calculates the SES and p-value for the entire area, while "cell" calculates the <i>SES</i> and <i>p-value</i> for each individual cell. Only the "cell" option returns a raster.
 
-The null models feature four different sampling options: taxa.label, range, neighbor, and regional. For neighbor, the algorithm re-samples the points using three methods: "rook", "bishop", and "queen". For regional, the species pool re-sampling is performed with different weights: "uniform", "frequency", and "range".
+The null models feature four different sampling options: taxa.label, range, neighbor, and regional. For the neighbor, the algorithm re-samples the points using three methods: "rook", "bishop", and "queen". For regional, the species-pool resampling is performed with different weights: "uniform", "frequency", and "range".
 
 Null models require a vilma.pd object, a phylogenetic tree, and a vilma.dist object. Each function returns a vilma.null object containing the associated statistics (SES and p-value) in tables, a raster (if the "cell" option was selected), and the original distribution matrix.
 
@@ -225,7 +225,7 @@ raster_out <- points_to_raster(points = dist_ex, res = 5)
 
 tree_ex <- example_tree()
 
-beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "wieghted", normalize = TRUE)
+beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "weighted", normalize = TRUE)
 print(beta_out)
 plot(beta_out)
 view.vilma(beta_out)
@@ -238,7 +238,7 @@ view.vilma(beta_out)
 
 <br>
 
-Vilma provides bioregionalization options using &beta;-diversity indices. The function <i>vilma.regionalize</i> takes dissimilarity matrices and calculates the optimal number of clusters using different methods (<b>hierarchical cluster</b>, <b>k-medoids</b>, and <b>network-based</b>). Likewise, the function offers k-value optimization to determine the best fit. The function returns two raster layers: I) Groups and II) Mean &beta;-values per group."
+Vilma provides bioregionalization options using &beta;-diversity indices. The function <i>vilma.regionalize</i> takes dissimilarity matrices and calculates the optimal number of clusters using different methods (<b>hierarchical cluster</b>, <b>k-medoids</b>, and <b>network-based</b>). Likewise, the function offers k-value optimization to determine the best fit. The function returns two raster layers: I) Groups and II) Mean &beta;-values per group.
 
 <br>
 
@@ -310,9 +310,9 @@ write.vilma.null(vilma.null = faith_null, file = "raster_faithPD_null",
 
 # Saving the vilma.beta object
 
-beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "wieghted", normalize = TRUE)
+beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "weighted", normalize = TRUE)
 
-write.vilma.null(vilma.beta = beta_out, file = "raster_phyloBeta", 
+write.vilma.beta(vilma.beta = beta_out, file = "raster_phyloBeta", 
                  raster.format = "tif", overwrite = TRUE)
 
 # Saving the vilma.region object
