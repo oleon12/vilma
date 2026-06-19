@@ -124,7 +124,7 @@ pol2occ <- function(pols, sp_id, res = c("30s","1m","2.5m","5m"), return_raster 
     # Then, the resolution must be changed
     while(length(valNA) == length(values(r_i))){
       
-      warning(paste0("Polygon of: ", sp_names[i], " is to small for the selected resolution. Resolution reduced to: ", res(re_i)/2))
+      warning(paste0("Polygon of: ", sp_names[i], " is to small for the selected resolution. Resolution reduced to: ", res(r_i)/2))
       
       r_agg <- rast(ext(r_i), 
                     res = res(r_i)/2,
@@ -140,10 +140,10 @@ pol2occ <- function(pols, sp_id, res = c("30s","1m","2.5m","5m"), return_raster 
     ### Occ extraction
     
     if(i == 1){
-      occ_out <- rasterToPoints(r_i, fun = function(x){x==1})[, c(1,2)]
+      occ_out <- rasterToPoints(raster(r_i), fun = function(x){x==1})[, c(1,2)]
       sp_out <- rep(sp_names[i], length(occ_out[,1]))
     }else{
-      occ_t <- rasterToPoints(r_i, fun = function(x){x==1})[, c(1,2)]
+      occ_t <- rasterToPoints(raster(r_i), fun = function(x){x==1})[, c(1,2)]
       occ_out <- rbind(occ_out, occ_t)
       sp_out <- c(sp_out, rep(sp_names[i], length(occ_t[,1])))
     }
@@ -160,16 +160,16 @@ pol2occ <- function(pols, sp_id, res = c("30s","1m","2.5m","5m"), return_raster 
   names(out_r) <- sp_names
   
   if(return_raster == TRUE){
-  
+    
     out <- list(occ = out,
                 rasters= out_r)
-  
+    
     return(out)
-  
+    
   }else{
-  
+    
     return(out)
-  
+    
   }
   
 }

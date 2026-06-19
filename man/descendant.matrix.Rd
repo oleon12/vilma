@@ -64,6 +64,4 @@ table(rowSums(D))  # 1 for terminals; >1 for internal edges
 }
 \seealso{
 \code{ape::is.rooted}, \code{ape::root}, \code{ape::read.tree}
-
-\code{ape::is.rooted}, \code{ape::root}, \code{ape::read.tree}
 }

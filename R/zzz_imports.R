@@ -16,10 +16,10 @@
 #' @importFrom phytools getDescendants
 #' @importFrom vegan monoMDS
 #'
-#' @importFrom terra values `values<-` ncell adjacent xyFromCell project writeRaster set.values
+#' @importFrom terra values `values<-` ncell adjacent xyFromCell project writeRaster set.values resample
 #' @importFrom raster extract getValues raster stack crop mask extend extent res crs xmin xmax ymin ymax rasterToPoints
 #'
-#' @importFrom sf st_buffer st_make_valid
+#' @importFrom sf st_buffer st_make_valid st_geometry
 #' @importFrom sp SpatialPoints CRS proj4string
 #'
 #' @importFrom leaflet leaflet leafletOptions addProviderTiles setView addRasterImage addLegend addLayersControl colorNumeric hideGroup addControl

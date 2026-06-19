@@ -22,6 +22,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Omar Daniel Leon-Alvarado \email{leon.alvarado12@gmail.com} (\href{https://orcid.org/0000-0002-7518-0099}{ORCID})
   \item J. Angel Soto-Centeno \email{asoto-centeno@amnh.org} (\href{https://orcid.org/0000-0002-1729-1153}{ORCID})
 }
 

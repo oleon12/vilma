@@ -46,6 +46,10 @@ Imports:
     bslib
 Suggests:
     tinytest,
+    ggtree,
+    reshape2,
+    patchwork,
+    kableExtra,
     testthat (>= 3.0.0),
     knitr,
     later,
@@ -60,6 +64,6 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 URL: https://github.com/oleon12/vilma
 BugReports: https://github.com/oleon12/vilma/issues
+Config/roxygen2/version: 8.0.0

@@ -1,0 +1,92 @@
+---
+title: "vilma: an R package for spatial phylogenetic diversity analyses with a Shiny interface."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{vilma: an R package for spatial phylogenetic diversity analyses with a Shiny interface.}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+ci <- identical(Sys.getenv("CI"), "true")
+run_terra <- !ci
+```
+
+<br>
+[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [J. Angel Soto-Centeno](https://www.mormoops.com/)²
+
+¹ Department of Earth and Environmental Science, Rutgers University-Newark, NJ, USA.
+
+² Department of Mammalogy, American Museum of Natural History, New York City, NY, USA.
+<br>
+
+---
+
+## About Vilma
+
+`vilma` is an R-based platform designed to quantify and visualize **spatial phylogenetic diversity** across geographic landscapes. It integrates multiple analytical frameworks to examine how evolutionary history and ecological processes shape biodiversity through space and time.
+
+---
+
+### Vilma provides a complete and reproducible workflow to:
+
+* Compute **alpha diversity** indices such as Faith’s PD, MPD, MNTD, PE, Rao’s Q, NRI, and NTI.
+
+* Estimate **beta diversity** metrics, including PhyloSor, UniFrac, Phylobeta weighted and unweighted, betaMPD, and betaMNTD.
+
+* Implement and test **null models** at both regional and local cell-based levels to assess whether observed spatial patterns deviate from random expectations.
+
+* Visualize and export spatially explicit outputs as tables and raster maps for further ecological and evolutionary analyses.
+
+---
+
+Developed as part of an ongoing research project at the **Department of Mammalogy, American Museum of Natural History**, and the **Department of Earth and Environmental Sciences, Rutgers University–Newark**, `vilma` provides a flexible framework to investigate phylogenetic structure, endemism, and connectivity in ecological and evolutionary studies.
+
+---
+
+<br>
+</figure><figure style="text-align: center; margin: 0 auto;">
+  <img src="../inst/app/www/vilma_pixel.png"
+       alt="vilma"
+       style="display: block; margin: 0 auto; max-width: 100%; width: 500px;" />
+  <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
+    <i>Created in loving memory of **Vilma Alvarado**, whose kindness and love continue to inspire this work.</i>
+  </figcaption>
+</figure>
+<br>
+
+---
+
+### Installation 
+
+**Development version (recommended)**
+Requires `devtools`:
+
+```r
+install.packages("devtools")
+devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
+```
+<br>
+
+### Shiny App
+
+Vilma can be used through a <b>Shiny interface</b>. This interface was built for users with little experience in R or programming in general. However, the user must understand all parameters and indices to perform an appropriate analysis for their research question. Therefore, we always advise users to keep in mind the principle of <b>GIGO (Garbage In, Garbage Out)</b>. Running the app is very easy: simply open an <i>R</i> or <i>RStudio</i> session and run the following lines of code.
+
+```r
+library(vilma)
+
+# Launch the analysis app
+run.vilma.app()
+```
+<br>
+
+Vilma is intended to be a pipeline where the user starts by creating a raster file and then uses a phylogeny to calculate &alpha;-diversity, &alpha;-null models, and &beta;-diversity. However, the user can skip some steps and run only the desired analyses. For the Shiny app, please note that the phylogeny (of class <i>phylo</i>) must be uploaded on the &alpha;-diversity page.
+
+<br>
+
+### Interactive view
+
+Although the Shiny app is the most remarkable feature for interactivity, Vilma also provides interactive map visualizations. For every analysis (raster,  &alpha;-diversity, &alpha;-null models, and &beta;), results can be viewed using the <i>view.vilma()</i> function. This function displays a Leaflet map with raster layers. You can toggle between layers using the Layer Control button <img src="../inst/app/www/Layer_Icon.png" width="15"/>. Furthermore, if you move the mouse over any pixel, a pop-up window will appear above the Layer Control button showing the value for that specific pixel.
+
+<br>
+

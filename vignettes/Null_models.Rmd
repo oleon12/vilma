@@ -13,7 +13,7 @@ run_terra <- !ci
 ```
 
 <br>
-[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [Angel J. Soto-Centeno](https://www.mormoops.com/)²
+[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [J. Angel Soto-Centeno](https://www.mormoops.com/)²
 
 ¹ Department of Earth and Environmental Science, Rutgers University-Newark, NJ, USA.
 
@@ -26,13 +26,20 @@ run_terra <- !ci
 
 Null models are widely used to evaluate whether observed ecological or phylogenetic patterns could arise by chance. They work by generating randomized versions of the community while preserving specific properties—such as richness, species frequencies, or spatial structure—so that deviations between the observed and randomized values can be interpreted as evidence for clustering, overdispersion, or other non-random processes.
 
-In <b>vilma</b>, null models are explicitly designed for spatial phylogenetic analyses. Species identities or spatial distributions are randomized according to four sampling schemes (<b><i>taxa.label</b></i>, <b><i>range</b></i>, <b><i>neighbor</b></i>, and <b><i>regional</b></i>), each preserving different aspects of the original data. These randomizations allow you to compute standardized effect sizes (SES) and p-values for any alpha-diversity index, helping you evaluate whether phylogenetic diversity within each cell or across the landscape is greater or lower than expected under a given ecological or biogeographic constraint.
+In `vilma`, null models are explicitly designed for spatial phylogenetic analyses. Species identities or spatial distributions are randomized according to four sampling schemes (`taxa.label`, `range`, `neighbor`, and `regional`), each preserving different aspects of the original data. These randomizations allow you to compute standardized **effect sizes** (SES) and **p-values** for any alpha-diversity index, helping you evaluate whether phylogenetic diversity within each cell or across the landscape is greater or lower than expected under a given ecological or biogeographic constraint.
+
+<br>
+
+<figure style="text-align: center;">
+  <img src="../inst/app/www/Fig_2.png" width="600" alt="Descriptive caption text" />
+  <figcaption>Available null models in vilma</figcaption>
+</figure>
 
 ---
 
 ### 1. Data
 <br>
-For this example, you will evaluate the spatial phylogenetic patterns of several <b>terrestrial carnivores</b> from <b>South Africa</b>. First, you will load all the required data for this exercise. The occurrence records were retrieved from <b>GBIF</b>, using a simple filter to remove entries without coordinates and to exclude marine mammals (Otariidae and Phocidae). However, as you will see, there is a small issue in the data—a very common one—that you will fix in the next steps.
+For this example, you will evaluate the spatial phylogenetic patterns of several <b>terrestrial carnivores</b> from <b>South Africa</b>. First, you will load all the required data for this exercise. The occurrence records were retrieved from [<b>GBIF</b>](https://doi.org/10.15468/dl.28qzb7), using a simple filter to remove entries without coordinates and to exclude marine mammals (Otariidae and Phocidae). However, as you will see, there is a small issue in the data—a very common one—that you will fix in the next steps.
 
 This time, you are gonna read the CSV file, but you will transform it into a spatila object. This is becasue you will need to fix some points, and work with spatial objects is more easy than matrices itself. Also, you gonna read the South Africa's boundaries, which gonna help you to see how accurate the points are, and eventually, fix some mistakes.
 
@@ -68,7 +75,7 @@ data_sa <- st_transform(data_sa, st_crs(sa_pol))
 ```
 <br>
 
-Now, let’s check whether all occurrences fall within South Africa or if some points lie outside the country. To do this, you will use the <b><i>intersect()</b></i> function and split the data into two subsets: <b><i>occ_inside</b></i> and <b><i>occ_outside</b></i>. Then, you will plot the results using the <b>tmap</b> package. This package is very useful for creating high-quality, publication-ready maps with relatively little code, offering a visual style comparable to ggplot2.
+Now, let’s check whether all occurrences fall within South Africa or if some points lie outside the country. To do this, you will use the `intersect` function and split the data into two subsets: <b><i>occ_inside</b></i> and <b><i>occ_outside</b></i>. Then, you will plot the results using the `tmap` package. This package is very useful for creating high-quality, publication-ready maps with relatively little code, offering a visual style comparable to `ggplot2`.
 
 <br>
 ```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
@@ -94,7 +101,7 @@ tm_shape(occ_outside)+ # Add outside points
 
 In the plot, you can see a common issue with GBIF data: all of the points that fall outside South Africa lie very close to the country’s border. This often happens because GPS devices, calibration errors, signal drift, and other factors can shift coordinates by several meters. At this stage, you have two options: Remove these points or move them inside the country boundary. In this example, you will adjust the points. To make the correction as accurate and unbiased as possible, you will shift each point to the nearest location within the country’s border.
 
-First, you will create a line between each point and the country border using <b><i>st_nearest_points()</b></i>. This line represents the shortest distance between the occurrence and the polygon boundary. Then, using <b><i>st_cast()</b></i>, you will convert each line into two points: the starting point (the original occurrence) and the ending point (the nearest location on the border). Finally, by using a grouping index, you will extract the second point of each line—the endpoint—which corresponds to the corrected coordinate located inside the country boundaries.
+First, you will create a line between each point and the country border using `st_nearest_points`. This line represents the shortest distance between the occurrence and the polygon boundary. Then, using `st_cast`, you will convert each line into two points: the starting point (the original occurrence) and the ending point (the nearest location on the border). Finally, by using a grouping index, you will extract the second point of each line—the endpoint—which corresponds to the corrected coordinate located inside the country boundaries.
 
 <br>
 ```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
@@ -160,7 +167,7 @@ plot(car_tree, cex = 0.7)
 ### 2. Phylogenetic Diversity Index
 <br>
 
-Now the next step is to create the <b><i>vilma.dist</b></i> object. For this exercise, you will generate a raster with a resolution of <b>1 degree</b>, which fits the study area well. To do this, you will use the <b><i>points_to_raster()</b></i> function, and then plot the resulting richness raster using <b>tmap</b>. Remember that you can also use <b><i>view.vilma()</b></i> to create an interactive map.
+Now the next step is to create the `vilma.dist` object. For this exercise, you will generate a raster with a resolution of <b>1 degree</b>, which fits the study area well. To do this, you will use the `points_to_raster` function, and then plot the resulting richness raster using `tmap`. Remember that you can also use `view.vilma` to create an interactive map.
 
 <br>
 ```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
@@ -175,14 +182,14 @@ tm_shape(sa_pol)+
 ```
 <br>
 
-Now that the <b><i>vilma.dist</b></i> object is ready, you can proceed to calculate a phylogenetic diversity index (PD). Remember that before running any null model, you must first compute an <b>observed PD value</b>; this will serve as the baseline for comparison.
+Now that the `vilma.dist` object is ready, you can proceed to calculate a phylogenetic diversity index (PD). Remember that before running any null model, you must first compute an <b>observed PD value</b>; this will serve as the baseline for comparison.
 
 In this example, you will calculate <b>Faith’s Phylogenetic Diversity (PD)</b>, one of the most widely used and historically the first phylogenetic diversity metric proposed. Faith’s PD is defined as the <b>sum of the branch lengths connecting all species in a community</b>, capturing the total amount of evolutionary history represented in that assemblage.
 
-Because some cells contain only a single species, you will use the available "root" method. This method sums the branch lengths from the species’ tip to the root of the tree, and this total distance is used as the PD value for any cell that contains only one species.
+Because some cells contain only a single species, you will use the available `root` method. This method sums the branch lengths from the species’ tip to the root of the tree, and this total distance is used as the PD value for any cell that contains only one species.
 
 <br>
-```{r, warning=FALSE, message=TRUE, , eval=run_terra}
+```{r, warning=FALSE, message=TRUE, eval=run_terra}
 pd_sa <- faith.pd(tree = car_tree, dist = raster_sa, method = "root")
 pd_sa
 ```
@@ -192,7 +199,7 @@ As you can see, the function generates several messages. There are <b>33 species
 
 This step also acts as a natural filter, helping you control the input data. Only the species present in the phylogeny are ultimately used in the analysis, while the rest are automatically excluded.
 
-Now you can plot the resulting PD raster using <b>tmap</b>, or use <b><i>view.vilma()</b></i> for an interactive visualization.
+Now you can plot the resulting PD raster using `tmap`, or use `view.vilma` for an interactive visualization.
 
 <br>
 ```{r, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
@@ -215,12 +222,12 @@ Now, with these results, you can test different null models to evaluate whether 
 #### 3.1. Global vs Cell methods, and Taxa Labels
 <br>
 
-For all null models, there are two method options: <b>global</b> and <b>cell</b>. In both cases, the randomization occurs either at the phylogenetic level (for taxa.label) or at the spatial level (for range, neighbor, and regional). The key difference between the two methods lies in how the <b>standardized effect sizes (SES)</b> and <b>p-values</b> are calculated.
+For all null models, there are two method options: `global` and `cell`. In both cases, the randomization occurs either at the phylogenetic level (for `taxa.label`) or at the spatial level (for `range`, `neighbor`, and `regional`). The key difference between the two methods lies in how the <b>standardized effect sizes (SES)</b> and <b>p-values</b> are calculated.
 
-The <b>global</b> method computes SES and p-values across the <b>entire study area</b>, producing a single statistical summary for the whole dataset. In contrast, the cell method computes SES and p-values <b>independently for each cell</b>, generating spatially explicit rasters of significance values.
-Let’s illustrate the difference between these methods using the <b><i>taxa.label</b></i> sampling approach.
+The `global` method computes SES and p-values across the <b>entire study area</b>, producing a single statistical summary for the whole dataset. In contrast, the `cell` method computes SES and p-values <b>independently for each cell</b>, generating spatially explicit rasters of significance values.
+Let’s illustrate the difference between these methods using the `taxa.label` sampling approach.
 
-The <b><i>taxa.label</b></i> null model randomizes the phylogeny by shuffling the species names (<b>tip labels</b>) across the tree while keeping the spatial distribution of species unchanged. This tests whether the observed phylogenetic diversity depends on the real evolutionary relationships among species or whether similar patterns would arise if species identities were randomly reassigned. You will use the faith.pd.null() function, and to reduce computation time for this example, you will generate only 200 iterations. Although the recommended minimum for null model analyses is 9999 iterations, this larger number takes considerably longer to compute.
+The `taxa.label` null model randomizes the phylogeny by shuffling the species names (<b>tip labels</b>) across the tree while keeping the spatial distribution of species unchanged. This tests whether the observed phylogenetic diversity depends on the real evolutionary relationships among species or whether similar patterns would arise if species identities were randomly reassigned. You will use the `faith.pd.null` function, and to reduce computation time for this example, you will generate only 200 iterations. Although the recommended minimum for null model analyses is 9999 iterations, this larger number takes considerably longer to compute.
 
 <br>
 
@@ -301,7 +308,7 @@ The SES heatmap shows clear <b>spatial variation</b> in how phylogenetic diversi
 
 <br>
 
-The <b><i>range sampling</b></i> method randomizes species distributions across the raster while preserving each species’ range size and each cell’s species richness. It is used to test whether observed PD patterns arise from the specific spatial arrangement of species, rather than from simple differences in occupancy or richness.
+The `range sampling` method randomizes species distributions across the raster while preserving each species’ range size and each cell’s species richness. It is used to test whether observed PD patterns arise from the specific spatial arrangement of species, rather than from simple differences in occupancy or richness.
 
 <br>
 ```{r,eval=FALSE}
@@ -338,7 +345,7 @@ The SES map for the range sampling model shows mostly neutral values across the 
 
 <br>
 
-The <b><i>neighbor sampling</b></i> method randomizes species distributions while preserving species’ range size and cell richness, but restricts swaps to adjacent cells. This can follow three movement rules: <b>queen</b> (8 neighbors), <b>rook</b> (4 orthogonal neighbors), or <b>bishop</b> (4 diagonal neighbors). Although not a mechanistic model of dispersal, this constraint serves as a useful proxy for limited movement or spatial autocorrelation in species distributions.
+The `neighbor sampling` method randomizes species distributions while preserving species’ range size and cell richness, but restricts swaps to adjacent cells. This can follow three movement rules: `queen` (8 neighbors), `rook` (4 orthogonal neighbors), or `bishop` (4 diagonal neighbors). Although not a mechanistic model of dispersal, this constraint serves as a useful proxy for limited movement or spatial autocorrelation in species distributions.
 
 <br>
 ```{r,eval=FALSE}
@@ -376,7 +383,7 @@ The SES map for the neighbor sampling model shows small positive and negative de
 
 <br>
 
-The <b><i>regional sampling</b></i> method rebuilds community composition by randomly selecting species from a regional pool rather than preserving original range sizes or cell richness. Species can be selected using three weighting rules: <b>uniform</b> (all species equally likely), <b>frequency</b> (more common species more likely), or <b>range</b> (species with larger ranges more likely). This method tests whether observed PD patterns arise simply from differences in species availability or regional abundance rather than spatial structure.
+The `regional sampling` method rebuilds community composition by randomly selecting species from a regional pool rather than preserving original range sizes or cell richness. Species can be selected using three weighting rules: `uniform` (all species equally likely), `frequency` (more common species more likely), or `range` (species with larger ranges more likely). This method tests whether observed PD patterns arise simply from differences in species availability or regional abundance rather than spatial structure.
 
 <br>
 ```{r,eval=FALSE}
@@ -413,4 +420,13 @@ The SES map for the regional model shows widespread and highly variable deviatio
 In summary, <b>null models</b> provide an essential framework for evaluating whether observed spatial patterns of phylogenetic diversity arise from deterministic ecological or evolutionary processes rather than the random assembly of species. By comparing observed PD values to expectations generated under different constraints, null models allow researchers to identify <b>non-random structure</b>, assess the influence of species identity and distribution, and disentangle the role of richness, range size, and spatial autocorrelation. The results presented here illustrate that distinct sampling schemes can lead to markedly different inferences about spatial patterns of phylogenetic structure, underscoring the importance of model choice and biological interpretation. Integrating null models into spatial phylogenetic analyses therefore offers a robust and interpretable approach for detecting meaningful patterns in biodiversity data.
 
 <br>
+
+### 4. Conclusion
+
+In this tutorial, you learned how to use null models in vilma to evaluate whether observed phylogenetic diversity patterns differ from random expectations. Starting from occurrence data, a phylogenetic tree, and a vilma.dist object, you calculated observed Faith’s PD and then compared those values against different null-model scenarios.
+
+You explored the difference between global and cell methods, as well as four randomization schemes: taxa.label, range, neighbor, and regional. Each null model preserves different properties of the data, such as species identities, range sizes, cell richness, spatial adjacency, or regional species availability. Because of this, each model answers a slightly different biological question.
+
+Overall, this tutorial shows that null models are essential for interpreting phylogenetic diversity patterns. They help determine whether observed PD values reflect non-random ecological or evolutionary structure, or whether they can be explained by richness, range size, spatial autocorrelation, or random species assembly.
+
 <br>
