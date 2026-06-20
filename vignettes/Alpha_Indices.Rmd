@@ -8,10 +8,18 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-ci <- identical(Sys.getenv("CI"), "true")
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
 
-run_terra <- !ci
-run_leaflet <- !ci
+# By default, do not run optional spatial maps or heavy calculations.
+# This keeps R CMD check stable across machines.
+run_terra <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
+run_leaflet <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
+run_heavy <- identical(Sys.getenv("VILMA_RUN_HEAVY"), "true")
 ```
 
 <br>
@@ -105,7 +113,6 @@ library(sf)
 library(terra)
 library(dplyr)
 library(ggtree)
-library(tmap)
 library(ggplot2)
 library(patchwork)
 library(reshape2)
@@ -176,7 +183,8 @@ prim_occ <- st_transform(prim_occ, st_crs(ma_pol))
 Now, using the spatial object and the mainland polygon, you will intersect both layers to identify which occurrence records fall **inside** and **outside** the mainland. Once the records have been classified, plot the results using `tmap` to visually inspect their locations.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval = run_terra}
+library(tmap)
 
 # Extract the first column from the st_intersect result. 
 # This is a boolean vector (TRUE (inside), FALSE (outside))
@@ -200,7 +208,9 @@ Now, let's fix those outside points. First, you will create a line between each 
 
 <br>
 
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+library(tmap)
+
 # Create lines
 nearest_lines <- st_nearest_points(occ_outside, st_union(ma_pol))
 

@@ -8,8 +8,18 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-ci <- identical(Sys.getenv("CI"), "true")
-run_terra <- !ci
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+
+# By default, do not run optional spatial maps or heavy calculations.
+# This keeps R CMD check stable across machines.
+run_terra <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
+run_leaflet <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
+run_heavy <- identical(Sys.getenv("VILMA_RUN_HEAVY"), "true")
 ```
 
 <br>
