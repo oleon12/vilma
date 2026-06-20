@@ -196,33 +196,31 @@ Now, let's fix those outside points. First, you will create a line between each 
 # Create lines
 nearest_lines <- st_nearest_points(occ_outside, st_union(ma_pol))
 
-# Transform lines into points (start and end)
+# Transform lines into points
 all_points <- st_cast(nearest_lines, "POINT")
 
-# Create index ofr each point: 1,1,2,2,3,3...
-point_groups <- rep(1:nrow(occ_outside), each = 2)
+# Extract only the second point of each pair
+border_points <- all_points[seq(2, length(all_points), by = 2)] %>% st_as_sf()
 
-# Extract only the second point (end) and transform it into a spatial object
-border_points <- all_points[seq(2, length(all_points), by = 2)] %>%  st_as_sf()
+# Create and print the map before converting objects to data.frame
+fixed_points_map <- 
+  tm_shape(ma_pol) +
+    tm_polygons() +
+  tm_shape(occ_inside) +
+    tm_dots() +
+  tm_shape(occ_outside) +
+    tm_dots(fill = "red") +
+  tm_shape(border_points) +
+    tm_dots(fill = "blue")
 
-# Plot
-tm_shape(ma_pol)+ # Add polygon
-  tm_polygons()+
-tm_shape(occ_inside)+ # Add inside points
-  tm_dots()+
-tm_shape(occ_outside)+ # Add outside points
-  tm_dots(fill="red")+
-tm_shape(border_points)+ # Add fixed points
-  tm_dots(fill="blue")
+print(fixed_points_map)
 
-# Return spatial points into a data.frame (inside)
-occ_inside <- cbind(st_drop_geometry(occ_inside),st_coordinates(occ_inside))
-
-# Return spatial points into a data.frame (fixed)
-border_points <- cbind(st_drop_geometry(occ_outside), st_coordinates(border_points))
+# Return spatial points into data.frames
+occ_inside_df <- cbind(st_drop_geometry(occ_inside), st_coordinates(occ_inside))
+border_points_df <- cbind(st_drop_geometry(occ_outside), st_coordinates(border_points))
 
 # Join inside and fixed points
-occ_final <- rbind(occ_inside, border_points)
+occ_final <- rbind(occ_inside_df, border_points_df)
 
 ```
 <br>
@@ -273,12 +271,14 @@ Now that the occurrence data and phylogeny are ready to use, you will start with
 For the pixel resolution, the function only accepts values in **decimal degrees**. For example, if you plan to use the results together with WorldClim or CHELSA variables at **30-arc-second** resolution, you should use **0.008333 degrees**. The same logic applies to the other common resolutions: 2.5 arc-minutes = 0.041667, 5 arc-minutes = 0.083333, and 10 arc-minutes = 0.166667. Once you create the vilma.dist object, you can check the results using the function **plot** or **view.vilma** for an interactive view.
 
 <br>
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r}
 library(vilma)
 
 # Create the vilma.dist object, for more information try ?points_to_raster
 prim_dist <- points_to_raster(points = occ_final, res = 0.8)
+```
 
+```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
 # See the results
 view.vilma(prim_dist)
 
@@ -450,7 +450,8 @@ print(prim_phys)
 # Calculate the betaMPD
 invisible(
   capture.output(
-    prim_phys <- phylo.beta(tree = prim_tree, dist = prim_dist, method = "unweighted")
+    prim_phys <- phylosor.calc(tree = prim_tree, dist = prim_dist, singleton_overlap = FALSE, 
+                           method = "root", abundance = FALSE, normalize = FALSE)
 
             )
   )
