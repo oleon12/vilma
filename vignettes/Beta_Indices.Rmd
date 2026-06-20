@@ -9,9 +9,12 @@ vignette: >
 
 ```{r setup, include=FALSE}
 ci <- identical(Sys.getenv("CI"), "true")
+checking <- identical(Sys.getenv("NOT_CRAN"), "true") ||
+  nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
 
-run_terra <- !ci
-run_leaflet <- !ci
+run_terra <- !(ci || checking)
+run_leaflet <- FALSE
+run_heavy <- FALSE
 ```
 
 <br>
@@ -168,7 +171,7 @@ prim_occ <- st_transform(prim_occ, st_crs(ma_pol))
 Now, using the spatial object and the mainland polygon, you will intersect both layers to identify which occurrence records fall **inside** and **outside** the mainland. Once the records have been classified, plot the results using `tmap` to visually inspect their locations.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
 
 # Extract the first column from the st_intersect result. 
 # This is a boolean vector (TRUE (inside), FALSE (outside))
@@ -196,31 +199,33 @@ Now, let's fix those outside points. First, you will create a line between each 
 # Create lines
 nearest_lines <- st_nearest_points(occ_outside, st_union(ma_pol))
 
-# Transform lines into points
+# Transform lines into points (start and end)
 all_points <- st_cast(nearest_lines, "POINT")
 
-# Extract only the second point of each pair
-border_points <- all_points[seq(2, length(all_points), by = 2)] %>% st_as_sf()
+# Create index ofr each point: 1,1,2,2,3,3...
+point_groups <- rep(1:nrow(occ_outside), each = 2)
 
-# Create and print the map before converting objects to data.frame
-fixed_points_map <- 
-  tm_shape(ma_pol) +
-    tm_polygons() +
-  tm_shape(occ_inside) +
-    tm_dots() +
-  tm_shape(occ_outside) +
-    tm_dots(fill = "red") +
-  tm_shape(border_points) +
-    tm_dots(fill = "blue")
+# Extract only the second point (end) and transform it into a spatial object
+border_points <- all_points[seq(2, length(all_points), by = 2)] %>%  st_as_sf()
 
-print(fixed_points_map)
+# Plot
+tm_shape(ma_pol)+ # Add polygon
+  tm_polygons()+
+tm_shape(occ_inside)+ # Add inside points
+  tm_dots()+
+tm_shape(occ_outside)+ # Add outside points
+  tm_dots(fill="red")+
+tm_shape(border_points)+ # Add fixed points
+  tm_dots(fill="blue")
 
-# Return spatial points into data.frames
-occ_inside_df <- cbind(st_drop_geometry(occ_inside), st_coordinates(occ_inside))
-border_points_df <- cbind(st_drop_geometry(occ_outside), st_coordinates(border_points))
+# Return spatial points into a data.frame (inside)
+occ_inside <- cbind(st_drop_geometry(occ_inside),st_coordinates(occ_inside))
+
+# Return spatial points into a data.frame (fixed)
+border_points <- cbind(st_drop_geometry(occ_outside), st_coordinates(border_points))
 
 # Join inside and fixed points
-occ_final <- rbind(occ_inside_df, border_points_df)
+occ_final <- rbind(occ_inside, border_points)
 
 ```
 <br>
@@ -315,7 +320,7 @@ prim_bmpd <- beta.mpd(tree = prim_tree, dist = prim_dist, mpd.method = "root",
 print(prim_bmpd)
 ```
 
-```{r, fig.align='center', fig.dpi=230, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, warning=FALSE, message=FALSE, eval = run_heavy}
 
 # Calculate the betaMPD
 invisible(
@@ -358,7 +363,7 @@ prim_bmntd <- beta.mntd(tree = prim_tree, dist = prim_dist, mntd.method = "root"
 print(prim_bmntd)
 ```
 
-```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE, eval = run_heavy}
 
 # Calculate the betaMPD
 invisible(
@@ -401,13 +406,12 @@ prim_phyb <- phylo.beta(tree = prim_tree, dist = prim_dist, method = "unweighted
 print(prim_phyb)
 ```
 
-```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE, eval = run_heavy}
 
 # Calculate the betaMPD
 invisible(
   capture.output(
     prim_phyb <- phylo.beta(tree = prim_tree, dist = prim_dist, method = "unweighted")
-
             )
   )
 
@@ -445,7 +449,7 @@ prim_phys <- phylosor.calc(tree = prim_tree, dist = prim_dist, singleton_overlap
 print(prim_phys)
 ```
 
-```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE, eval = run_heavy}
 
 # Calculate the betaMPD
 invisible(
@@ -487,7 +491,7 @@ prim_raob <- rao.beta(tree = prim_tree, dist = prim_dist, abundance = FALSE, sca
 print(prim_raob)
 ```
 
-```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE, eval = run_heavy}
 
 # Calculate the betaMPD
 invisible(
@@ -527,7 +531,7 @@ prim_uni <- unifrac.calc(tree = prim_tree, dist = prim_dist, method = "weighted"
 print(prim_uni)
 ```
 
-```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, message=FALSE, warning=FALSE, eval = run_heavy}
 
 # Calculate the betaMPD
 invisible(
