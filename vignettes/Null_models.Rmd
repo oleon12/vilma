@@ -15,11 +15,12 @@ knitr::opts_chunk$set(
   message = FALSE
 )
 
-# By default, do not run optional spatial maps or heavy calculations.
-# This keeps R CMD check stable across machines.
-run_terra <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
-run_leaflet <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
-run_heavy <- identical(Sys.getenv("VILMA_RUN_HEAVY"), "true")
+ci <- identical(Sys.getenv("CI"), "true")
+checking <- nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))
+
+run_terra <- !(ci || checking)
+run_leaflet <- !(ci || checking)
+run_heavy <- !(ci || checking)
 ```
 
 <br>
