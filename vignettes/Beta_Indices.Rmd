@@ -175,9 +175,7 @@ prim_occ <- st_transform(prim_occ, st_crs(ma_pol))
 Now, using the spatial object and the mainland polygon, you will intersect both layers to identify which occurrence records fall **inside** and **outside** the mainland. Once the records have been classified, plot the results using `tmap` to visually inspect their locations.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
-library(tmap)
-
+```{r, warning=FALSE, message=FALSE}
 # Extract the first column from the st_intersect result. 
 # This is a boolean vector (TRUE (inside), FALSE (outside))
 occ_intersect <- st_intersects(prim_occ, st_union(ma_pol), sparse = F)[,1]
@@ -185,6 +183,10 @@ occ_intersect <- st_intersects(prim_occ, st_union(ma_pol), sparse = F)[,1]
 # Split the data
 occ_inside <- prim_occ[occ_intersect,]
 occ_outside <- prim_occ[!occ_intersect,]
+```
+
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+library(tmap)
 
 # Plot the results
 tm_shape(ma_pol)+ # Plot the polygon
@@ -200,7 +202,7 @@ Now, let's fix those outside points. First, you will create a line between each 
 
 <br>
 
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r, warning=FALSE, message=FALSE}
 library(terra)
 
 # Create lines
@@ -214,6 +216,10 @@ point_groups <- rep(1:nrow(occ_outside), each = 2)
 
 # Extract only the second point (end) and transform it into a spatial object
 border_points <- all_points[seq(2, length(all_points), by = 2)] %>%  st_as_sf()
+```
+
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+library(terra)
 
 # Plot
 tm_shape(ma_pol)+ # Add polygon
@@ -224,7 +230,9 @@ tm_shape(occ_outside)+ # Add outside points
   tm_dots(fill="red")+
 tm_shape(border_points)+ # Add fixed points
   tm_dots(fill="blue")
+```
 
+```{r, warning=FALSE, message=FALSE}
 # Return spatial points into a data.frame (inside)
 occ_inside <- cbind(st_drop_geometry(occ_inside),st_coordinates(occ_inside))
 

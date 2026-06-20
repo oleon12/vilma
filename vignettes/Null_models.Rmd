@@ -8,8 +8,18 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-ci <- identical(Sys.getenv("CI"), "true")
-run_terra <- !ci
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+
+# By default, do not run optional spatial maps or heavy calculations.
+# This keeps R CMD check stable across machines.
+run_terra <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
+run_leaflet <- identical(Sys.getenv("VILMA_RUN_MAPS"), "true")
+run_heavy <- identical(Sys.getenv("VILMA_RUN_HEAVY"), "true")
 ```
 
 <br>
@@ -78,24 +88,25 @@ data_sa <- st_transform(data_sa, st_crs(sa_pol))
 Now, let’s check whether all occurrences fall within South Africa or if some points lie outside the country. To do this, you will use the `intersect` function and split the data into two subsets: <b><i>occ_inside</b></i> and <b><i>occ_outside</b></i>. Then, you will plot the results using the `tmap` package. This package is very useful for creating high-quality, publication-ready maps with relatively little code, offering a visual style comparable to `ggplot2`.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
+```{r split-inside-outside-points-null, warning=FALSE, message=FALSE}
+# Extract the first column from the st_intersects result.
+# TRUE = inside the polygon; FALSE = outside the polygon.
+occ_intersect <- st_intersects(data_sa, st_union(sa_pol), sparse = FALSE)[, 1]
+
+# Keep spatial objects as sf objects
+occ_inside_sf <- data_sa[occ_intersect, ]
+occ_outside_sf <- data_sa[!occ_intersect, ]
+```
+
+```{r plot-inside-outside-points-null, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
 library(tmap)
 
-# Extract the first column from the st_intersect result. 
-# This is a boolean vector (TRUE (inside), FALSE (outside))
-occ_intersect <- st_intersects(data_sa, st_union(sa_pol), sparse = F)[,1]
-
-# Split the data
-occ_inside <- data_sa[occ_intersect,]
-occ_outside <- data_sa[!occ_intersect,]
-
-# Plot the results
-tm_shape(sa_pol)+ # Plot the polygon
-  tm_polygons()+
-tm_shape(occ_inside)+ # Add inside points
-  tm_dots()+
-tm_shape(occ_outside)+ # Add outside points
-  tm_dots(fill="red")
+tm_shape(sa_pol) +
+  tm_polygons() +
+tm_shape(occ_inside_sf) +
+  tm_dots() +
+tm_shape(occ_outside_sf) +
+  tm_dots(fill = "red")
 ```
 <br>
 
@@ -104,39 +115,45 @@ In the plot, you can see a common issue with GBIF data: all of the points that f
 First, you will create a line between each point and the country border using `st_nearest_points`. This line represents the shortest distance between the occurrence and the polygon boundary. Then, using `st_cast`, you will convert each line into two points: the starting point (the original occurrence) and the ending point (the nearest location on the border). Finally, by using a grouping index, you will extract the second point of each line—the endpoint—which corresponds to the corrected coordinate located inside the country boundaries.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
-# Create lines
-nearest_lines <- st_nearest_points(occ_outside, st_union(sa_pol))
+```{r fix-outside-points-data-null, warning=FALSE, message=FALSE}
+# Create lines from outside points to the nearest polygon boundary
+nearest_lines <- st_nearest_points(occ_outside_sf, st_union(sa_pol))
 
-# Transform lines into points (start and end)
+# Transform lines into points
 all_points <- st_cast(nearest_lines, "POINT")
 
-# Create index ofr each point: 1,1,2,2,3,3...
-point_groups <- rep(1:nrow(occ_outside), each = 2)
+# Extract only the second point of each pair
+border_points_sf <- all_points[seq(2, length(all_points), by = 2)] %>%
+  st_as_sf()
 
-# Extract only the second point (end) and transform it into a spatial object
-border_points <- all_points[seq(2, length(all_points), by = 2)] %>%  st_as_sf()
+# Convert spatial points into data frames
+occ_inside_df <- cbind(
+  st_drop_geometry(occ_inside_sf),
+  st_coordinates(occ_inside_sf)
+)
 
-# Plot
-tm_shape(sa_pol)+ # Add polygon
-  tm_polygons()+
-tm_shape(occ_inside)+ # Add inside points
-  tm_dots()+
-tm_shape(occ_outside)+ # Add outside points
-  tm_dots(fill="red")+
-tm_shape(border_points)+ # Add fixed points
-  tm_dots(fill="blue")
+border_points_df <- cbind(
+  st_drop_geometry(occ_outside_sf),
+  st_coordinates(border_points_sf)
+)
 
-# Return spatial points into a data.frame (inside)
-occ_inside <- cbind(st_drop_geometry(occ_inside),st_coordinates(occ_inside))
-
-# Return spatial points into a data.frame (fixed)
-border_points <- cbind(st_drop_geometry(occ_outside), st_coordinates(border_points))
-
-# Join inside and fixed points
-occ_final <- rbind(occ_inside, border_points)
-
+# Join inside and corrected points
+occ_final <- rbind(occ_inside_df, border_points_df)
 ```
+
+```{r plot-fixed-points-null, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+library(tmap)
+
+tm_shape(sa_pol) +
+  tm_polygons() +
+tm_shape(occ_inside_sf) +
+  tm_dots() +
+tm_shape(occ_outside_sf) +
+  tm_dots(fill = "red") +
+tm_shape(border_points_sf) +
+  tm_dots(fill = "blue")
+```
+
 <br>
 
 Given the density of points, it is difficult to see all the differences, but you can still observe how some of the outside points (<b>red</b>) have been moved into the polygon boundaries (<b>blue</b>). Now you are ready to proceed to the next step: reading the phylogenetic tree.
@@ -170,15 +187,21 @@ plot(car_tree, cex = 0.7)
 Now the next step is to create the `vilma.dist` object. For this exercise, you will generate a raster with a resolution of <b>1 degree</b>, which fits the study area well. To do this, you will use the `points_to_raster` function, and then plot the resulting richness raster using `tmap`. Remember that you can also use `view.vilma` to create an interactive map.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+```{r create-raster-sa, message=FALSE, warning=FALSE}
 library(vilma)
 
 raster_sa <- points_to_raster(points = occ_final, res = 1, crs = 4326)
 
-tm_shape(raster_sa$r.raster)+
-  tm_raster()+
-tm_shape(sa_pol)+
-  tm_polygons(fill=NULL, lwd = 2)
+print(raster_sa)
+```
+
+```{r plot-raster-sa, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+library(tmap)
+
+tm_shape(raster_sa$r.raster) +
+  tm_raster() +
+tm_shape(sa_pol) +
+  tm_polygons(fill = NULL, lwd = 2)
 ```
 <br>
 
@@ -189,8 +212,9 @@ In this example, you will calculate <b>Faith’s Phylogenetic Diversity (PD)</b>
 Because some cells contain only a single species, you will use the available `root` method. This method sums the branch lengths from the species’ tip to the root of the tree, and this total distance is used as the PD value for any cell that contains only one species.
 
 <br>
-```{r, warning=FALSE, message=TRUE, eval=run_terra}
+```{r calculate-faith-pd-sa, warning=FALSE, message=TRUE}
 pd_sa <- faith.pd(tree = car_tree, dist = raster_sa, method = "root")
+
 pd_sa
 ```
 <br>
@@ -202,11 +226,13 @@ This step also acts as a natural filter, helping you control the input data. Onl
 Now you can plot the resulting PD raster using `tmap`, or use `view.vilma` for an interactive visualization.
 
 <br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
-tm_shape(pd_sa$rasters$pd.raster)+
-  tm_raster()+
-tm_shape(sa_pol)+
-  tm_polygons(fill=NULL, lwd = 2)
+```{r plot-faith-pd-sa, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+library(tmap)
+
+tm_shape(pd_sa$rasters$pd.raster) +
+  tm_raster() +
+tm_shape(sa_pol) +
+  tm_poly
 ```
 <br>
 
