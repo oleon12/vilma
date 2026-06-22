@@ -159,6 +159,8 @@ library(vilma)
 # Transform the rastes
 trimeresurus_rast <- rast2occ(enmRasters = list_of_rasters)
 
+# Check the results
+head(trimeresurus_rast, 5L)
 ```
 
 ```{r, message=FALSE, warning=FALSE, eval=run_heavy, echo=FALSE}
@@ -168,12 +170,10 @@ invisible(
   )
 )
 
-```
-
-```{r, message=FALSE, warning=FALSE}
 # Check the results
 head(trimeresurus_rast, 5L)
 ```
+
 <br>
 
 ### 4. vilma analysis

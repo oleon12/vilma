@@ -10,107 +10,109 @@ rast2occ(enmRasters, occ, includeSkipped = TRUE)
 \item{enmRasters}{Binary ENM rasters to convert. Can be one of the following:
 \itemize{
 \item A \code{vilma.ENM} object (output from \code{\link{vilma.ENM}})
-\item A \code{RasterStack} or \code{RasterBrick} containing binary layers
+\item A \code{RasterStack} (or \code{RasterBrick}) containing binary layers
 \item A \code{SpatRaster} (from the \pkg{terra} package)
-\item A named \code{list} of \code{RasterLayer} objects
+\item A \code{list} of raster objects (each element must be a \code{Raster*}
+or \code{SpatRaster})
 }
-All layers must be named with species identifiers that match (at least partially)
-those in the \code{occ} data frame.}
+\strong{All layers or list elements must have names} – these are used as
+species identifiers. For non‑list inputs, names must match (at least partially)
+those in the \code{occ} data frame when \code{includeSkipped = TRUE}.}
 
 \item{occ}{A data frame of original occurrence records with exactly three columns.
 The function expects either \code{Sp}, \code{Lon}, \code{Lat} or
 \code{Sp}, \code{Longitude}, \code{Latitude}. Coordinates must be in decimal degrees.
-This is used primarily when \code{includeSkipped = TRUE} to append records for
-species not represented in the binary rasters.}
+\strong{Note:} This argument is \emph{required} as a formal parameter, but is
+\strong{only used} when \code{enmRasters} is a single raster object (not a list).
+For list inputs, \code{occ} is ignored.}
 
 \item{includeSkipped}{Logical. Default = \code{TRUE}. If \code{TRUE}, the function
 appends original occurrence records for species that are present in \code{occ}
-but absent from \code{enmRasters} (e.g., species skipped during ENM fitting due
-to insufficient data). If \code{FALSE}, only the points derived from the binary
-rasters are returned.}
+but absent from \code{enmRasters} (e.g., species skipped during ENM fitting).
+This option only applies when \code{enmRasters} is \strong{not} a list; for list
+inputs, this parameter has no effect.}
 }
 \value{
-A data frame with three columns (standardized to \code{Sp}, \code{Lon},
-\code{Lat}) containing:
+A data frame containing occurrence points. The column names depend on the input:
 \itemize{
-\item Points extracted from binary rasters (one point per cell with value 1)
-\item Optionally, original occurrence records for skipped species
+\item If \code{enmRasters} is a \strong{list}: always columns \code{Sp}, \code{Lon}, \code{Lat}.
+\item If \code{enmRasters} is a \strong{Other object}: columns are renamed
+to match the column names of \code{occ} (either \code{Sp}, \code{Lon}, \code{Lat} or
+\code{Sp}, \code{Longitude}, \code{Latitude}).
 }
-Column names are standardized to match the input \code{occ} format.
+In both cases, the data frame contains one row per cell with value 1, plus optionally
+original records for skipped species (only in the single‑raster mode).
 }
 \description{
-Converts binary ensemble niche model (ENM) rasters (with values 1 and 0) into
+Converts binary ensemble niche model (ENM) rasters (values 1 and 0) into
 occurrence points by extracting one point for every cell with a value of 1.
-The function handles various input types including \code{vilma.ENM} objects,
-RasterStacks, SpatRasters, or lists of rasters. Optionally, it can include
-original occurrence records for species that were skipped during modeling.
+The function handles various input types and behaves differently depending
+on whether \code{enmRasters} is a list or a single raster object.
 }
 \details{
-The function performs the following steps:
+The function operates in two distinct modes:
 \enumerate{
-\item Validates input formats and column names.
-\item Identifies common species between \code{enmRasters} and \code{occ}, as well
-as species present only in \code{occ} (if \code{includeSkipped = TRUE}).
-\item For each raster layer in \code{enmRasters}, extracts the coordinates of
-all cells with value 1 using \code{\link[raster]{rasterToPoints}}.
-\item Combines all extracted points into a single data frame with three columns:
-species name, longitude, and latitude.
+\item \strong{List input:} When \code{enmRasters} is a list, the function:
+\itemize{
+\item Validates that every element is a raster object.
+\item Iterates over each element, extracts points from cells with value 1
+using \code{\link[raster]{rasterToPoints}}.
+\item Returns a data frame with fixed column names \code{Sp}, \code{Lon},
+\code{Lat} (these are \emph{not} standardised to the column names of \code{occ}).
+\item Does \emph{not} use \code{occ} or \code{includeSkipped} – skipped species
+are not appended.
+}
+\item \strong{Other input:} When \code{enmRasters} is a \code{RasterStack},
+\code{RasterBrick}, \code{SpatRaster}, or \code{vilma.ENM} object (the latter is
+treated as a \code{RasterStack}), the function:
+\itemize{
+\item Validates the column names of \code{occ}.
+\item Identifies common species between raster layers and \code{occ}, and
+species present only in \code{occ} (if \code{includeSkipped = TRUE}).
+\item Extracts points from each layer (each layer is treated as a separate species).
+\item Returns a data frame with columns renamed to match the column names of \code{occ}
+(i.e., \code{Sp}, \code{Lon}, \code{Lat} or \code{Sp}, \code{Longitude}, \code{Latitude}).
 \item If \code{includeSkipped = TRUE}, appends the original occurrence records
-for species not represented in the binary rasters.
+for species not found in the rasters.
+}
 }
 }
 \note{
 \itemize{
 \item The function assumes that binary rasters contain only values 0 and 1,
-where 1 indicates predicted presence and 0 indicates absence.
-\item For large rasters with many presence cells, the output data frame can
-become very large (potentially millions of rows). Ensure sufficient memory
-is available.
-\item When \code{includeSkipped = TRUE}, the function checks for species
-present in \code{occ} but missing from \code{enmRasters}. If none are found,
-a message informs the user.
-\item A progress bar shows extraction status when processing multiple rasters.
+where 1 indicates predicted presence.
+\item For large rasters with many presence cells, the output can be very large.
+\item Names are required for \code{enmRasters} – if missing, the function stops.
+\item When \code{enmRasters} is a list, elements may have different extents,
+projections, or origins; they are not stacked, so no alignment is forced.
+\item A progress bar is shown during point extraction for both modes.
 }
 }
 \examples{
 \dontrun{
-# Example 1: Convert vilma.ENM output to occurrence points
-# First, run vilma.ENM to get binary predictions
+# Example 1: Convert a RasterStack (non‑list) with skipped species
 out <- vilma.ENM(occ = occ_data, envs = envs, ...)
-
-# Convert binary rasters to points, including skipped species
 new_occ <- rast2occ(enmRasters = out, 
                     occ = occ_data, 
                     includeSkipped = TRUE)
+head(new_occ)  # Column names match occ_data
 
-# Check results
-head(new_occ)
-cat("Total points extracted:", nrow(new_occ))
-cat("Species included:", unique(new_occ$Sp))
-
-# Example 2: Convert a list of binary rasters without original data
-# Suppose you have a named list of binary rasters
+# Example 2: Convert a list of rasters (occ is ignored)
 binary_list <- list(Species_A = raster_a, Species_B = raster_b)
-
-# Convert to points (skipped species not included as occ is NULL/missing)
-# Note: occ is still required for column name standardization
+# occ must still be supplied (even though it is not used)
 dummy_occ <- data.frame(Sp = "dummy", Lon = 0, Lat = 0)
-points_only <- rast2occ(enmRasters = binary_list, 
+points_list <- rast2occ(enmRasters = binary_list, 
                         occ = dummy_occ, 
                         includeSkipped = FALSE)
+# Output columns are always Sp, Lon, Lat
+colnames(points_list)  # "Sp" "Lon" "Lat"
 
-# Example 3: Extract points and visualize
+# Example 3: Visualise extracted points
 library(sp)
-library(raster)
-
 new_points <- rast2occ(out, occ_data)
-
-# Convert to SpatialPoints for mapping
 coordinates(new_points) <- ~ Lon + Lat
 proj4string(new_points) <- CRS("+proj=longlat +datum=WGS84")
-
-# Plot original vs extracted points
-plot(envs[[1]], main = "Original occurrences (red) vs Extracted points (blue)")
+plot(envs[[1]], main = "Original (red) vs Extracted (blue)")
 points(occ_data[, c("Lon", "Lat")], col = "red", cex = 0.7)
 points(new_points, col = "blue", cex = 0.3, pch = 3)
 }
@@ -118,6 +120,6 @@ points(new_points, col = "blue", cex = 0.3, pch = 3)
 }
 \seealso{
 \code{\link{vilma.ENM}} for generating binary ENM rasters,
-\code{\link[raster]{rasterToPoints}} for the underlying point extraction,
+\code{\link[raster]{rasterToPoints}} for the underlying extraction,
 \code{\link[raster]{xyFromCell}} for alternative coordinate extraction.
 }
