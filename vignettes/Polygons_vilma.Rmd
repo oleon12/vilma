@@ -187,7 +187,7 @@ First 10 features:
 st_write(combined_sf, "Trimeresurus_polygons.gpkg")
 ```
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-combined_sf <- read_sf("/media/omar/Extreme Pro/Projects/vilma/inst/extdata/Trimeresurus_polygons.gpkg")
+combined_sf <- read_sf("../inst/extdata/Trimeresurus_polygons.gpkg")
 ```
 <br>
 
