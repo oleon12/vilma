@@ -289,6 +289,7 @@ Before calculating the index, the phylogenetic tree must be loaded and, if neces
 
 ```{r, message=FALSE, warning=FALSE}
 library(ape)
+library(phytools)
 library(ggtree)
 
 # Read the phylogenetic tree
