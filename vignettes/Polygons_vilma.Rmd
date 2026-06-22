@@ -60,7 +60,7 @@ First, you need to set the working directory where all shapefile components are 
 Once the `.shp` files have been identified, you can transform the resulting vector into a list using `as.list`. This step is useful because lists are easier to handle when working with multiple files, especially when you need to apply the same function to each shapefile.
 
 <br>
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval=FALSE}
 library(dplyr)
 
 # Set working directory
@@ -71,7 +71,13 @@ folder_files <- dir()
 
 # Check the files 
 head(folder_files, 5L)
+```
 
+```{}
+[1] "Trimeresurus_albolabris.dbf" "Trimeresurus_albolabris.prj" "Trimeresurus_albolabris.shp" "Trimeresurus_albolabris.shx" "Trimeresurus_albolabris.tif"
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, eval=FALSE}
 # Get the .shp files only
 shp_files <- folder_files[grep(".shp", folder_files)] %>% as.list() # Find the .shp and turn it into a list.
 
@@ -80,6 +86,22 @@ head(shp_files, 5L)
 
 ```
 
+```{}
+[[1]]
+[1] "Trimeresurus_albolabris.shp"
+
+[[2]]
+[1] "Trimeresurus_andalasensis.shp"
+
+[[3]]
+[1] "Trimeresurus_andersonii.shp"
+
+[[4]]
+[1] "Trimeresurus_arunachalensis.shp"
+
+[[5]]
+[1] "Trimeresurus_barati.shp"
+```
 <br>
 
 
@@ -102,38 +124,21 @@ list_of_sf <- lapply(shp_files, function(x){ geom <- st_read(x, quiet = TRUE) %>
 str(list_of_sf)
 ```
 
-```{r, warning=FALSE, message=FALSE, echo=FALSE}
-
-path_t <- "/media/omar/Extreme Pro/Projects/vilma_doc/Trimeresurus/"
-
-shp_files <- paste0(path_t, shp_files)
-
-library(sf)
-invisible(
-capture.output(
-list_of_sf <- lapply(shp_files, function(x){ geom <- st_read(x, quiet = TRUE) %>% st_union() # Step 1
-                                             species_name <- gsub(".shp", "", x)             # Step 2
-                                             st_sf( species = species_name, geometry = geom) # Step 3
-                                            })
-)
-)
-
-str(list_of_sf, list.len = 2, max.level = 1)
+```{}
+List of 52
+ $ :Classes ‘sf’ and 'data.frame':	1 obs. of  2 variables:
+  ..- attr(*, "sf_column")= chr "geometry"
+  ..- attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA
+  .. ..- attr(*, "names")= chr "species"
+ $ :Classes ‘sf’ and 'data.frame':	1 obs. of  2 variables:
+  ..- attr(*, "sf_column")= chr "geometry"
+  ..- attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA
+  .. ..- attr(*, "names")= chr "species"
+  [list output truncated]
 ```
 <br>
 
 Now, you have a list of 52 objects of clase `sf` and `data.frame`. This objects are compossed by spatial objects (`sf`) and a data frame with the information of every polygon. In this case the data frame is one row, as we want only one feature by species, and two columns, species and geometry. This type objects are very useful and easy to manage, the are polygons that have a similar logic to the of a data.frame.
-
-<br>
-```{r, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra}
-library(tmap)
-
-# Check one of the polygons
-tm_shape(list_of_sf[[1]])+ # Plot the polygon
-  tm_polygons()
-
-```
-<br>
 
 Now, you need to combine all species polygons into a single object. To do this, you will use the function `do.call`, which joins all elements of the list into one `sf` object. In this case, the objects are combined using the same column structure: the species name and the geometry column.
 
@@ -148,7 +153,7 @@ combined_sf <- do.call(rbind, list_of_sf)
 # Check the result
 print(combined_sf)
 ```
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, eval=FALSE}
 
 # Combie all polygons into one single object
 combined_sf <- do.call(rbind, list_of_sf)
@@ -156,9 +161,33 @@ combined_sf$species <- gsub("/media/omar/Extreme Pro/Projects/vilma_doc/Trimeres
 # Check the result
 print(combined_sf)
 ```
+
+```{}
+Simple feature collection with 53 features and 1 field
+Geometry type: GEOMETRY
+Dimension:     XY
+Bounding box:  xmin: -84.72307 ymin: -10.94186 xmax: 127.4907 ymax: 34.26
+Geodetic CRS:  WGS 84
+First 10 features:
+                       species                       geometry
+1      Trimeresurus_albolabris MULTIPOLYGON (((112.2433 -8...
+2    Trimeresurus_andalasensis MULTIPOLYGON (((100.9539 -1...
+3      Trimeresurus_andersonii MULTIPOLYGON (((92.52126 10...
+4  Trimeresurus_arunachalensis POLYGON ((92.77333 27.26852...
+5          Trimeresurus_barati MULTIPOLYGON (((99.98022 -2...
+6      Trimeresurus_borneensis MULTIPOLYGON (((110.0867 1....
+7     Trimeresurus_brongersmai MULTIPOLYGON (((98.8953 -0....
+8         Trimeresurus_cantori MULTIPOLYGON (((93.39808 8....
+9   Trimeresurus_cardamomensis POLYGON ((102.3667 13.27672...
+10     Trimeresurus_erythrurus POLYGON ((90.09582 22.4443,...
+```
+
 ```{r, eval=FALSE}
 # Write to GeoPackage
 st_write(combined_sf, "Trimeresurus_polygons.gpkg")
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+combined_sf <- read_sf("/media/omar/Extreme Pro/Projects/vilma/inst/extdata/Trimeresurus_polygons.gpkg")
 ```
 <br>
 
@@ -188,6 +217,8 @@ These raster layers can be useful for other types of spatial analyses. Therefore
 
 <br>
 ```{r, eval=run_terra}
+library(tmap)
+
 # Check one of the rasters
 tm_shape(trimeresurus_out$rasters[[1]])+
   tm_raster()+
