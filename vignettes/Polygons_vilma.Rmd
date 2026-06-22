@@ -23,15 +23,13 @@ run_leaflet <- !(ci || checking)
 run_heavy <- !(ci || checking)
 ```
 
-<br>
-[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [J. Angel Soto-Centeno](https://www.mormoops.com/)²
+<br> [Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [J. Angel Soto-Centeno](https://www.mormoops.com/)²
 
 ¹ Department of Earth and Environmental Science, Rutgers University-Newark, NJ, USA.
 
-² Department of Mammalogy, American Museum of Natural History, New York City, NY, USA.
-<br>
+² Department of Mammalogy, American Museum of Natural History, New York City, NY, USA. <br>
 
----
+------------------------------------------------------------------------
 
 Although `vilma` is mainly designed to work with occurrence records, such as those obtained from GBIF, occurrences are not the only type of spatial information that can be used in biodiversity analyses. It is also common to work with polygons that represent species distributions or geographic ranges. For example, one widely used source of distribution polygons is the International Union for Conservation of Nature Red List (IUCN Red List).
 
@@ -44,22 +42,29 @@ For this exercise, the selected dataset consists of species distribution polygon
 The first step is to identify the directory where the polygon files are stored. Then, you will list the files in that directory and select only the files with the `.shp` extension, which contain the polygon geometries needed for the analysis.
 
 <br>
-</figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/Trimeresurus_folder.png"
-       alt="Fig. 1"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
-  <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
-    <i><b>Figure 1.</b> Folder with the polygons files used in this excercise.</i>
-  </figcaption>
-</figure>
-<br>
 
+</figure>
+
+<figure style="text-align: center; margin: 0 auto;">
+
+<img src="../inst/app/www/Trimeresurus_folder.png" alt="Fig. 1" style="display: block; margin: 0 auto; max-width: 100%; width: 700px;"/>
+
+<figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
+
+<i><b>Figure 1.</b> Folder with the polygons files used in this excercise.</i>
+
+</figcaption>
+
+</figure>
+
+<br>
 
 First, you need to set the working directory where all shapefile components are stored. Then, use the `dir` function to list the files in that directory and `grep` to select only the files with the `.shp` extension. These are the files that contain the polygon geometries.
 
 Once the `.shp` files have been identified, you can transform the resulting vector into a list using `as.list`. This step is useful because lists are easier to handle when working with multiple files, especially when you need to apply the same function to each shapefile.
 
 <br>
+
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, eval=FALSE}
 library(dplyr)
 
@@ -73,7 +78,7 @@ folder_files <- dir()
 head(folder_files, 5L)
 ```
 
-```{}
+```         
 [1] "Trimeresurus_albolabris.dbf" "Trimeresurus_albolabris.prj" "Trimeresurus_albolabris.shp" "Trimeresurus_albolabris.shx" "Trimeresurus_albolabris.tif"
 ```
 
@@ -86,7 +91,7 @@ head(shp_files, 5L)
 
 ```
 
-```{}
+```         
 [[1]]
 [1] "Trimeresurus_albolabris.shp"
 
@@ -102,14 +107,15 @@ head(shp_files, 5L)
 [[5]]
 [1] "Trimeresurus_barati.shp"
 ```
-<br>
 
+<br>
 
 ### 2. Read and merge the polygons
 
 Many polygons files will be MULITPOLYGONS, this means that one SHP file can have more than one polygon or feature, so you need to fix this and treat all polygons as single feature. Here, you will use the function lapply, which is a type of loop. This function will do three different steps: 1) Read the shp file with the function `st_read`, the will merge are polygons into a single feature with `st_union`. 2) You gonna get the name of the species removing the subfix .shp using `gsub`, finally create a `sf` object for every species which will contain the species name and the polygon geometry
 
 <br>
+
 ```{r, eval=FALSE}
 
 library(sf)
@@ -124,18 +130,19 @@ list_of_sf <- lapply(shp_files, function(x){ geom <- st_read(x, quiet = TRUE) %>
 str(list_of_sf)
 ```
 
-```{}
+```         
 List of 52
- $ :Classes ‘sf’ and 'data.frame':	1 obs. of  2 variables:
+ $ :Classes ‘sf’ and 'data.frame':  1 obs. of  2 variables:
   ..- attr(*, "sf_column")= chr "geometry"
   ..- attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA
   .. ..- attr(*, "names")= chr "species"
- $ :Classes ‘sf’ and 'data.frame':	1 obs. of  2 variables:
+ $ :Classes ‘sf’ and 'data.frame':  1 obs. of  2 variables:
   ..- attr(*, "sf_column")= chr "geometry"
   ..- attr(*, "agr")= Factor w/ 3 levels "constant","aggregate",..: NA
   .. ..- attr(*, "names")= chr "species"
   [list output truncated]
 ```
+
 <br>
 
 Now, you have a list of 52 objects of clase `sf` and `data.frame`. This objects are compossed by spatial objects (`sf`) and a data frame with the information of every polygon. In this case the data frame is one row, as we want only one feature by species, and two columns, species and geometry. This type objects are very useful and easy to manage, the are polygons that have a similar logic to the of a data.frame.
@@ -145,6 +152,7 @@ Now, you need to combine all species polygons into a single object. To do this, 
 At the end of this step, you will have a single object that is both an `sf` object and a `data.frame`, containing all species and their corresponding polygon geometries. You can also save this object in GeoPackage (`.gpkg`) format, which is useful for storing spatial data and reusing it in future analyses.
 
 <br>
+
 ```{r, message=FALSE, warning=FALSE, eval=FALSE}
 
 # Combie all polygons into one single object
@@ -153,6 +161,7 @@ combined_sf <- do.call(rbind, list_of_sf)
 # Check the result
 print(combined_sf)
 ```
+
 ```{r, message=FALSE, warning=FALSE, echo=FALSE, eval=FALSE}
 
 # Combie all polygons into one single object
@@ -162,7 +171,7 @@ combined_sf$species <- gsub("/media/omar/Extreme Pro/Projects/vilma_doc/Trimeres
 print(combined_sf)
 ```
 
-```{}
+```         
 Simple feature collection with 53 features and 1 field
 Geometry type: GEOMETRY
 Dimension:     XY
@@ -186,9 +195,13 @@ First 10 features:
 # Write to GeoPackage
 st_write(combined_sf, "Trimeresurus_polygons.gpkg")
 ```
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(sf)
+
 combined_sf <- read_sf("../inst/extdata/Trimeresurus_polygons.gpkg")
 ```
+
 <br>
 
 ## 3. Transform to Occ
@@ -216,6 +229,7 @@ Now, you can see that the resulting object is a list containing two main element
 These raster layers can be useful for other types of spatial analyses. Therefore, if you want to save them for later use, you can use the following lines of code.
 
 <br>
+
 ```{r, eval=run_terra}
 library(tmap)
 
@@ -240,6 +254,7 @@ for(i in seq_along(r_names)){
 }
 
 ```
+
 <br>
 
 ### 4. vilma analysis
@@ -249,16 +264,19 @@ Now, you can proceed with the `vilma` workflow. The first step is to create the 
 It is also important to note that the resolution used in `pol2occ` is different from the resolution used to create the `vilma.dist` object. The raster generated by `pol2occ` is used only to extract occurrence-like points from the polygons. In contrast, the raster created by `points_to_raster` defines the spatial grid used for the final phylogenetic diversity analyses in `vilma`.
 
 <br>
+
 ```{r, eval=run_heavy}
 library(vilma)
 
 # Create the vilma.dist object
 trim_dist <- points_to_raster(points = trimeresurus_out$occ, res = 2)
 ```
+
 ```{r,fig.align='center', fig.dpi=230, eval=run_leaflet}
 #Check the result
 view.vilma(trim_dist)
 ```
+
 <br>
 
 ### 4.1. Index calculation
@@ -268,6 +286,7 @@ As a final step, once the `vilma.dist` object has been created, you can calculat
 Before calculating the index, the phylogenetic tree must be loaded and, if necessary, rooted. Here, the tree is read from the package example data and rooted using midpoint rooting. The tree is then plotted to visually inspect its structure before running the diversity analysis.
 
 <br>
+
 ```{r, message=FALSE, warning=FALSE}
 library(ape)
 library(ggtree)
@@ -287,21 +306,26 @@ p <- ggtree(tree_trim) +
 # Display the plot
 print(p)
 ```
+
 <br>
 
 After checking the tree, the next step is to calculate the index. In this example, `faith.pd()` is used to calculate Faith’s Phylogenetic Diversity for each cell in the `vilma.dist` object. The argument `tree` receives the rooted phylogeny, `dist` receives the spatial distribution object, and `method = "root"` indicates how single-species cells are handled.
 
 <br>
+
 ```{r, eval=run_heavy}
 # Calculate Faith's Phylogenetic Diversity
 trim_pd <- faith.pd( tree = tree_trim, dist = trim_dist, method = "root")
 ```
+
 <br>
 
 Finally, the resulting `vilma.pd` object can be visualized using `view.vilma()`. This function displays the spatial pattern of the calculated index as an interactive map.
 
 <br>
+
 ```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
 view.vilma(trim_pd)
 ```
+
 <br>
