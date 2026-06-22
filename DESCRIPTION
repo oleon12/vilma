@@ -10,8 +10,10 @@ Authors@R:
              email = "asoto-centeno@amnh.org", role = "aut",
              comment = c(ORCID = "0000-0002-1729-1153"))
     )
-Description: Tools to compute alpha/beta phylogenetic diversity, null models,
-    visualization helpers, and a bundled Shiny app under inst/app.
+Description: Tools for calculating, visualizing, and exporting spatial
+    phylogenetic diversity patterns. The package supports alpha and beta
+    phylogenetic diversity indices, spatial null models, regionalization
+    analyses, interactive maps, raster outputs, and a bundled Shiny app.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -60,7 +62,8 @@ Suggests:
     tmap,
     maps,
     ggplot2,
-    mclust
+    mclust,
+    pkgdown
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)

@@ -85,8 +85,6 @@ head(folder_files, 5L)
 ```
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE, eval=FALSE}
-
-
 # Get the .shp files only
 rast_files <- folder_files[grep(".tif", folder_files)] %>% as.list()
 
@@ -122,7 +120,6 @@ Then, the names of the raster objects are defined using the file names. To do th
 <br>
 
 ```{r, eval=FALSE}
-
 library(terra)
 
 # Read the raster files
@@ -163,15 +160,15 @@ trimeresurus_rast <- rast2occ(enmRasters = list_of_rasters)
 head(trimeresurus_rast, 5L)
 ```
 
-```{r, message=FALSE, warning=FALSE, eval=run_heavy, echo=FALSE}
-invisible(
-  capture.output(
-    trimeresurus_rast <- rast2occ(enmRasters = list_of_rasters)
-  )
-)
+```{}
+> head(trimeresurus_rast, 5L)
+                       Sp      Lon      Lat
+1 Trimeresurus_albolabris 98.04167 28.90833
+2 Trimeresurus_albolabris 98.05833 28.90833
+3 Trimeresurus_albolabris 98.07500 28.90833
+4 Trimeresurus_albolabris 98.09167 28.90833
+5 Trimeresurus_albolabris 98.10833 28.90833
 
-# Check the results
-head(trimeresurus_rast, 5L)
 ```
 
 <br>
@@ -184,6 +181,10 @@ It is important to note that the resolution of the input rasters does not need t
 
 
 <br>
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+trimeresurus_ras <- read.csv("../inst/extdata/Trimeresurus_occ.csv")
+```
+
 ```{r, eval=run_heavy}
 library(vilma)
 
