@@ -359,7 +359,7 @@ One common issue with Faith’s PD is that this index is often strongly **correl
 
 <br>
 
-```{r, warning=F, fig.align='center', fig.dpi=230}
+```{r, warning=F, fig.align='center', fig.dpi=230, eval = run_heavy}
 
 # Check pearson correlation
 cor.test(prim_pd$pd.table$SR, prim_pd$pd.table$PD, method = "pearson")
@@ -443,7 +443,7 @@ Now, you can visually compare how these indices differ from each other and how e
 
 <br>
 
-```{r,message=FALSE, warning=FALSE, fig.align='center', fig.width=7}
+```{r,message=FALSE, warning=FALSE, fig.align='center', fig.width=7, eval = run_heavy}
 # Plot the PD data
 pd <- ggplot(data = prim_pd$pd.table)+
   geom_point(aes(x = PD, y = SR))+
@@ -558,7 +558,7 @@ prim_nti <- nti.calc(tree = prim_tree, dist = prim_dist, mntd.method = "root", a
 print(prim_nti)
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.dpi=230, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, fig.align='center', fig.dpi=230, message=FALSE, warning=FALSE, eval = run_heavy}
 # Calculate the NTI index using root method
 invisible(
   capture.output(
@@ -588,7 +588,7 @@ prim_nri <- nri.calc(tree = prim_tree, dist = prim_dist, mpd.method = "root", ab
 print(prim_nri)
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.dpi=230, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, fig.align='center', fig.dpi=230, message=FALSE, warning=FALSE, eval = run_heavy}
 invisible(
   capture.output( 
     prim_nri <- suppressMessages(nri.calc(tree = prim_tree, dist = prim_dist, mpd.method = "root", abundance = FALSE, iterations = 10, sampling = "taxa.label"))
@@ -620,7 +620,7 @@ To better understand the behavior of the indices, you will perform a simple but 
 
 <br>
 
-```{r, message=FALSE, warning=FALSE, fig.align='center', fig.width=7, fig.height=7}
+```{r, message=FALSE, warning=FALSE, fig.align='center', fig.width=7, fig.height=7, eval = run_heavy}
 
 # Create the table with the indices values
 index_values <- data.frame(SR = prim_pd$pd.table$SR,

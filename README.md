@@ -34,14 +34,16 @@ Developed as part of an ongoing research project at the **Department of Mammalog
 ---
 
 <br>
-</figure><figure style="text-align: center; margin: 0 auto;">
+
+<div align="center">
   <img src="man/figures/vilma_pixel.png"
        alt="vilma"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 500px;" />
-  <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
-    <i>Created in loving memory of **Vilma Alvarado**, whose kindness and love continue to inspire this work.</i>
-  </figcaption>
-</figure>
+       width="500">
+  <p>
+    <em>Created in loving memory of <strong>Vilma Alvarado</strong>, whose kindness and love continue to inspire this work.</em>
+  </p>
+</div>
+
 <br>
 
 ---
