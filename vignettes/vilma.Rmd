@@ -33,18 +33,18 @@ run_heavy <- !(ci || checking)
 
 ---
 
-**Vilma** is an R package for quantifying and visualizing **spatial phylogenetic diversity** across geographic landscapes.  
+**Vilma** is an open-source R package and Shiny application for transforming species occurrence records into reproducible maps of **evolutionary biodiversity** across geographic landscapes.  
 
 It provides a complete workflow to:
 
-- Convert species occurrences into spatial grids
-- Calculate **alpha diversity** indices (Faith’s PD, MPD, MNTD, PE, NRI, NTI, RaoQ)
-- Compute **beta diversity** metrics (PhyloBeta, PhyloSor, UniFrac, Rao β, βMPD, βMNTD)
-- Run **null models** with multiple randomization schemes
-- Make spatial regionalization using the **beta diversity** indices
-- Export results and visualize patterns interactively through a built-in **Shiny app**
+- Convert species occurrences into spatial distribution grids
+- Calculate **alpha phylogenetic diversity** indices, including Faith’s PD, MPD, MNTD, PE, NRI, NTI, and RaoQ
+- Compute **beta phylogenetic diversity** metrics, including Phylobeta, PhyloSor, UniFrac, Rao β, βMPD, and βMNTD
+- Run **spatial null models** using multiple randomization schemes to evaluate whether observed patterns deviate from random expectations
+- Make spatial regionalization using **beta diversity** indices
+- Export results as tables and raster layers, and visualize spatial patterns interactively through a built-in **Shiny app**
 
-Vilma is designed for biogeography, ecology, and conservation applications, with special emphasis on **integrative phylogenomics + spatial analysis**.
+Vilma is designed for biogeography, ecology, biodiversity informatics, education, and conservation applications, with special emphasis on connecting **occurrence data + phylogenies + spatial analysis** to generate interpretable biodiversity products.
 
 ---
 

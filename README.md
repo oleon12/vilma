@@ -13,19 +13,15 @@
 
 ## About vilma (1.0.0)
 
-`vilma` is an R-based platform designed to quantify and visualize **spatial phylogenetic diversity** across geographic landscapes. It integrates multiple analytical frameworks to examine how evolutionary history and ecological processes shape biodiversity through space and time.
+`vilma`is an open-source R package and Shiny application designed to transform species occurrence records into reproducible maps of evolutionary biodiversity across geographic landscapes. It integrates occurrence data, phylogenetic trees, spatial grids, diversity indices, null models, and visualization tools to help users move from raw biodiversity records to interpretable ecological and conservation insights.
 
----
+Vilma provides a complete and reproducible workflow to:
 
-### Vilma provides a complete and reproducible workflow to:
-
-* Compute **alpha diversity** indices such as Faith’s PD, MPD, MNTD, PE, Rao’s Q, NRI, and NTI.
-
-* Estimate **beta diversity** metrics, including PhyloSor, UniFrac, Phylobeta weighted and unweighted, betaMPD, and betaMNTD.
-
-* Implement and test **null models** at both regional and local cell-based levels to assess whether observed spatial patterns deviate from random expectations.
-
-* Visualize and export spatially explicit outputs as tables and raster maps for further ecological and evolutionary analyses.
+* Convert species occurrence records into spatial distribution grids.
+* Compute alpha phylogenetic diversity indices such as Faith’s PD, MPD, MNTD, PE, Rao’s Q, NRI, and NTI.
+* Estimate beta phylogenetic diversity metrics, including PhyloSor, UniFrac, Phylobeta weighted and unweighted, betaMPD, and betaMNTD.
+* Implement and test spatial null models at both regional and local cell-based levels to assess whether observed spatial patterns deviate from random expectations.
+* Visualize and export spatially explicit outputs as static maps, interactive maps, tables, and raster layers for further ecological, evolutionary, and conservation analyses..
 
 ---
 
