@@ -274,7 +274,7 @@ library(vilma)
 trim_dist <- points_to_raster(points = trimeresurus_out$occ, res = 2)
 ```
 
-```{r,fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r,fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 #Check the result
 view.vilma(trim_dist)
 ```
@@ -320,7 +320,7 @@ Finally, the resulting `vilma.pd` object can be visualized using `view.vilma()`.
 
 <br>
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 view.vilma(trim_pd)
 ```
 

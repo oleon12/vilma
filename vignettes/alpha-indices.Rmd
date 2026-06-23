@@ -193,7 +193,7 @@ occ_inside <- prim_occ[occ_intersect,]
 occ_outside <- prim_occ[!occ_intersect,]
 ```
 
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_terra}
 library(tmap)
 
 # Plot the results
@@ -225,7 +225,7 @@ point_groups <- rep(1:nrow(occ_outside), each = 2)
 border_points <- all_points[seq(2, length(all_points), by = 2)] %>%  st_as_sf()
 ```
 
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_terra}
 library(tmap)
 
 # Plot
@@ -308,7 +308,7 @@ prim_dist <- points_to_raster(points = occ_final, res = 0.8)
 
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # See the results
 view.vilma(prim_dist)
 
@@ -347,7 +347,7 @@ prim_pd <- faith.pd(tree = prim_tree, dist = prim_dist, method = "root")
 print(prim_pd)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map
 
 view.vilma(prim_pd)
@@ -359,7 +359,7 @@ One common issue with Faith’s PD is that this index is often strongly **correl
 
 <br>
 
-```{r, warning=F, fig.align='center', fig.dpi=230, eval = run_heavy}
+```{r, warning=F, fig.align='center', fig.width=7.2, fig.height=5.2, eval = run_heavy}
 
 # Check pearson correlation
 cor.test(prim_pd$pd.table$SR, prim_pd$pd.table$PD, method = "pearson")
@@ -401,7 +401,7 @@ prim_mpd <- mpd.calc(tree = prim_tree, dist = prim_dist, method = "root", abunda
 print(prim_mpd)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map
 view.vilma(prim_mpd)
 ```
@@ -432,7 +432,7 @@ prim_mntd <- mntd.calc(tree = prim_tree, dist = prim_dist, method = "root", abun
 print(prim_mntd)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map
 view.vilma(prim_mntd)
 ```
@@ -498,7 +498,7 @@ prim_pe <- pe.calc(tree = prim_tree, dist = prim_dist, RPE = TRUE, faith.method 
 print(prim_pe)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map
 view.vilma(prim_pe)
 ```
@@ -527,7 +527,7 @@ prim_rao <- rao.calc(tree = prim_tree, dist = prim_dist, abundance = FALSE, scal
 print(prim_rao)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map
 view.vilma(prim_rao)
 ```
@@ -575,7 +575,7 @@ print(prim_nti)
 view.vilma(prim_nti)
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.dpi=230, message=FALSE, warning=FALSE, eval=run_leaflet}
+```{r, echo=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, message=FALSE, warning=FALSE, eval=run_leaflet}
 # Check the NTI interactive map
 view.vilma(prim_nti)
 ```
@@ -605,7 +605,7 @@ view.vilma(prim_nri)
 
 ```
 
-```{r, echo=FALSE, fig.align='center', fig.dpi=230, message=FALSE, warning=FALSE, eval=run_leaflet}
+```{r, echo=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, message=FALSE, warning=FALSE, eval=run_leaflet}
 # Check the NRI interactive map
 view.vilma(prim_nri)
 ```

@@ -57,9 +57,9 @@
 <li><h6 class="dropdown-header" data-toc-skip>Overview</h6></li>
     <li><a class="dropdown-item" href="../articles/vilma.html">Getting started with vilma</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Input data</h6></li>
+    <li><a class="dropdown-item" href="../articles/vilma-gbif.html">Using GBIF data</a></li>
     <li><a class="dropdown-item" href="../articles/rasters-vilma.html">Preparing raster data</a></li>
     <li><a class="dropdown-item" href="../articles/polygons-vilma.html">Preparing polygon data</a></li>
-    <li><a class="dropdown-item" href="../articles/vilma-gbif.html">Using GBIF data</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Analyses</h6></li>
     <li><a class="dropdown-item" href="../articles/alpha-indices.html">Alpha phylogenetic diversity</a></li>
     <li><a class="dropdown-item" href="../articles/null-models.html">Null models</a></li>
@@ -72,9 +72,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><h6 class="dropdown-header" data-toc-skip>Input workflows</h6></li>
+    <li><a class="dropdown-item" href="../articles/vilma-gbif.html">GBIF occurrence records</a></li>
     <li><a class="dropdown-item" href="../articles/rasters-vilma.html">Occurrence points to rasters</a></li>
     <li><a class="dropdown-item" href="../articles/polygons-vilma.html">Polygons to occurrence matrices</a></li>
-    <li><a class="dropdown-item" href="../articles/vilma-gbif.html">GBIF occurrence records</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>Diversity workflows</h6></li>
     <li><a class="dropdown-item" href="../articles/alpha-indices.html">Alpha diversity indices</a></li>
     <li><a class="dropdown-item" href="../articles/null-models.html">Spatial null models</a></li>
@@ -213,7 +213,7 @@ relatively little code, offering a visual style comparable to
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_symbols.html" class="external-link">tm_dots</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">occ_outside_sf</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_symbols.html" class="external-link">tm_dots</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/plot-inside-outside-points-null-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"><br></p>
+<p><img src="null-models_files/figure-html/plot-inside-outside-points-null-1.png" class="r-plt" alt="" width="691.2" style="display: block; margin: auto;"><br></p>
 <p>In the plot, you can see a common issue with GBIF data: all of the
 points that fall outside South Africa lie very close to the country’s
 border. This often happens because GPS devices, calibration errors,
@@ -268,7 +268,7 @@ boundaries.</p>
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_symbols.html" class="external-link">tm_dots</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">border_points_sf</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_symbols.html" class="external-link">tm_dots</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/plot-fixed-points-null-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="null-models_files/figure-html/plot-fixed-points-null-1.png" class="r-plt" alt="" width="691.2" style="display: block; margin: auto;"></p>
 <p><br></p>
 <p>Given the density of points, it is difficult to see all the
 differences, but you can still observe how some of the outside points
@@ -333,7 +333,7 @@ richness raster using <code>tmap</code>. Remember that you can also use
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">sa_pol</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_polygons.html" class="external-link">tm_polygons</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="cn">NULL</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/plot-raster-sa-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"><br></p>
+<p><img src="null-models_files/figure-html/plot-raster-sa-1.png" class="r-plt" alt="" width="691.2" style="display: block; margin: auto;"><br></p>
 <p>Now that the <code>vilma.dist</code> object is ready, you can proceed
 to calculate a phylogenetic diversity index (PD). Remember that before
 running any null model, you must first compute an <b>observed PD
@@ -404,7 +404,7 @@ use <code>view.vilma</code> for an interactive visualization.</p>
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_raster.html" class="external-link">tm_raster</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span><span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_shape.html" class="external-link">tm_shape</a></span><span class="op">(</span><span class="va">sa_pol</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://r-tmap.github.io/tmap/reference/tm_polygons.html" class="external-link">tm_polygons</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="cn">NULL</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/plot-faith-pd-sa-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"><br></p>
+<p><img src="null-models_files/figure-html/plot-faith-pd-sa-1.png" class="r-plt" alt="" width="691.2" style="display: block; margin: auto;"><br></p>
 <p>The map reveals clear <b>spatial variation</b> in phylogenetic
 diversity across South Africa. Higher PD values (darker blues) are
 concentrated in the southern, eastern, and coastal regions, while lower
@@ -485,7 +485,7 @@ clustering or overdispersion at the global scale.</p>
 <p><br></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd_sa_null</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"><br></p>
+<p><img src="null-models_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="691.2" style="display: block; margin: auto;"><br></p>
 <p><b>Cell</b></p>
 <p><br></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
@@ -513,7 +513,7 @@ others show modestly higher-than-expected values.</p>
 <p><br></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd_sa_null</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"><br></p>
+<p><img src="null-models_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="691.2" style="display: block; margin: auto;"><br></p>
 <p>The SES heatmap shows clear <b>spatial variation</b> in how
 phylogenetic diversity deviates from null expectations across the study
 area. Most cells have SES values close to zero, indicating that their
@@ -556,7 +556,7 @@ sizes and cell richness.</p>
 <p><br></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd_sa_null</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="672"><br></p>
+<p><img src="null-models_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="691.2"><br></p>
 <p>The SES map for the range sampling model shows mostly neutral values
 across the landscape, with a mix of slightly positive and negative cells
 but no strong spatial clustering. This indicates that, after controlling
@@ -602,7 +602,7 @@ show little evidence of strong non-random structure.</p>
 <p><br></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd_sa_null</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="672"><br></p>
+<p><img src="null-models_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="691.2"><br></p>
 <p>The SES map for the neighbor sampling model shows small positive and
 negative deviations scattered across the landscape, with most cells
 <b>remaining</b> close to zero. This indicates that, even when
@@ -653,7 +653,7 @@ simple species availability.</p>
 <p><br></p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd_sa_null</span><span class="op">)</span></span></code></pre></div>
-<p><img src="null-models_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="672"><br></p>
+<p><img src="null-models_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="691.2"><br></p>
 <p>The SES map for the regional model shows widespread and highly
 variable deviations from null expectations, with many cells displaying
 extreme positive or negative values. This indicates strong non-random

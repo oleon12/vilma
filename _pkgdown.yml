@@ -34,9 +34,9 @@ home:
         text: |
           <ul class="list-unstyled">
             <li><a href="articles/vilma.html">Get started with vilma</a></li>
+            <li><a href="articles/vilma-gbif.html">Using GBIF data</a></li>
             <li><a href="articles/rasters-vilma.html">Preparing raster data</a></li>
             <li><a href="articles/polygons-vilma.html">Preparing polygon data</a></li>
-            <li><a href="articles/vilma-gbif.html">Using GBIF data</a></li>
             <li><a href="articles/alpha-indices.html">Alpha diversity indices</a></li>
             <li><a href="articles/null-models.html">Null models</a></li>
             <li><a href="articles/beta-indices.html">Beta diversity indices</a></li>
@@ -74,12 +74,12 @@ navbar:
         - text: "Getting started with vilma"
           href: "articles/vilma.html"
         - text: "Input data"
+        - text: "Using GBIF data"
+          href: "articles/vilma-gbif.html"
         - text: "Preparing raster data"
           href: "articles/rasters-vilma.html"
         - text: "Preparing polygon data"
           href: "articles/polygons-vilma.html"
-        - text: "Using GBIF data"
-          href: "articles/vilma-gbif.html"
         - text: "Analyses"
         - text: "Alpha phylogenetic diversity"
           href: "articles/alpha-indices.html"
@@ -94,12 +94,12 @@ navbar:
       text: "Tutorials"
       menu:
         - text: "Input workflows"
+        - text: "GBIF occurrence records"
+          href: "articles/vilma-gbif.html"
         - text: "Occurrence points to rasters"
           href: "articles/rasters-vilma.html"
         - text: "Polygons to occurrence matrices"
           href: "articles/polygons-vilma.html"
-        - text: "GBIF occurrence records"
-          href: "articles/vilma-gbif.html"
         - text: "Diversity workflows"
         - text: "Alpha diversity indices"
           href: "articles/alpha-indices.html"
@@ -122,11 +122,11 @@ articles:
       - vilma
 
   - title: "Preparing spatial input data"
-    desc: "Tutorials for transforming occurrence records, rasters, polygons, and GBIF downloads into objects that can be used by vilma."
+    desc: "Tutorials for transforming occurrence records from GBIF downloads, rasters, and polygons into objects that can be used by vilma."
     contents:
+      - vilma-gbif
       - rasters-vilma
       - polygons-vilma
-      - vilma-gbif
 
   - title: "Phylogenetic diversity analyses"
     desc: "Tutorials for alpha diversity, beta diversity, null models, and spatial regionalization analyses."

@@ -186,7 +186,7 @@ occ_inside <- prim_occ[occ_intersect,]
 occ_outside <- prim_occ[!occ_intersect,]
 ```
 
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_terra}
 library(tmap)
 
 # Plot the results
@@ -219,7 +219,7 @@ point_groups <- rep(1:nrow(occ_outside), each = 2)
 border_points <- all_points[seq(2, length(all_points), by = 2)] %>%  st_as_sf()
 ```
 
-```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_terra}
 library(terra)
 
 # Plot
@@ -299,7 +299,7 @@ library(vilma)
 prim_dist <- points_to_raster(points = occ_final, res = 0.8)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # See the results
 view.vilma(prim_dist)
 
@@ -350,7 +350,7 @@ invisible(
 print(prim_bmpd)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map (see the different available layers)
 view.vilma(prim_bmpd)
 ```
@@ -394,7 +394,7 @@ invisible(
 print(prim_bmntd)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map (see the different available layers)
 view.vilma(prim_bmntd)
 ```
@@ -435,7 +435,7 @@ invisible(
 print(prim_phyb)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map (see the different available layers)
 view.vilma(prim_phyb)
 ```
@@ -480,7 +480,7 @@ invisible(
 print(prim_phys)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map (see the different available layers)
 view.vilma(prim_phys)
 ```
@@ -520,7 +520,7 @@ invisible(
 print(prim_raob)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map (see the different available layers)
 view.vilma(prim_raob)
 ```
@@ -560,7 +560,7 @@ invisible(
 print(prim_uni)
 ```
 
-```{r, fig.align='center', fig.dpi=230, eval=run_leaflet}
+```{r, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_leaflet}
 # Check the interactive map (see the different available layers)
 view.vilma(prim_uni)
 ```

@@ -10,15 +10,15 @@ Start here for a general overview of the vilma workflow.
 
 ### Preparing spatial input data
 
-Tutorials for transforming occurrence records, rasters, polygons, and
-GBIF downloads into objects that can be used by vilma.
+Tutorials for transforming occurrence records from GBIF downloads,
+rasters, and polygons into objects that can be used by vilma.
 
+- [Using vilma with GBIF
+  data](https://oleon12.github.io/vilma/articles/vilma-gbif.md):
 - [Rasters in
   vilma](https://oleon12.github.io/vilma/articles/rasters-vilma.md):
 - [Polygons in
   vilma](https://oleon12.github.io/vilma/articles/polygons-vilma.md):
-- [Using vilma with GBIF
-  data](https://oleon12.github.io/vilma/articles/vilma-gbif.md):
 
 ### Phylogenetic diversity analyses
 

@@ -99,7 +99,7 @@ occ_inside_sf <- data_sa[occ_intersect, ]
 occ_outside_sf <- data_sa[!occ_intersect, ]
 ```
 
-```{r plot-inside-outside-points-null, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r plot-inside-outside-points-null, warning=FALSE, message=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_terra}
 library(tmap)
 
 tm_shape(sa_pol) +
@@ -142,7 +142,7 @@ border_points_df <- cbind(
 occ_final <- rbind(occ_inside_df, border_points_df)
 ```
 
-```{r plot-fixed-points-null, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5, eval=run_terra}
+```{r plot-fixed-points-null, warning=FALSE, message=FALSE, fig.align='center', fig.width=7.2, fig.height=5.2, eval=run_terra}
 library(tmap)
 
 tm_shape(sa_pol) +
@@ -162,7 +162,7 @@ Given the density of points, it is difficult to see all the differences, but you
 The phylogenetic tree used in this example was retrieved from [VertLife](https://vertlife.org/). The 100 trees obtained from their database were previously transformed into a majority-rule consensus tree using TreeViewer.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center', fig.width=7, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.align='center', fig.width=7, fig.height=7}
 library(ape)
 library(phytools)
 
@@ -196,7 +196,7 @@ raster_sa <- points_to_raster(points = occ_final, res = 1, crs = 4326)
 print(raster_sa)
 ```
 
-```{r plot-raster-sa, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+```{r plot-raster-sa, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7.2, fig.height=5.2}
 library(tmap)
 
 tm_shape(raster_sa$r.raster) +
@@ -227,7 +227,7 @@ This step also acts as a natural filter, helping you control the input data. Onl
 Now you can plot the resulting PD raster using `tmap`, or use `view.vilma` for an interactive visualization.
 
 <br>
-```{r plot-faith-pd-sa, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+```{r plot-faith-pd-sa, warning=FALSE, message=FALSE, fig.align='center', eval=run_terra, fig.width=7.2, fig.height=5.2}
 library(tmap)
 
 tm_shape(pd_sa$rasters$pd.raster) +
@@ -284,7 +284,7 @@ The observed mean PD (25,241.5) is <b>slightly higher</b> than the null expectat
 In other words, under the taxa.label model, the overall PD pattern across South Africa does not show strong evidence of phylogenetic clustering or overdispersion at the global scale.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7.2, fig.height=5.2}
 plot(pd_sa_null)
 ```
 <br>
@@ -322,7 +322,7 @@ print(pd_sa_null)
 The cell-based null model reveals substantial spatial variation in the standardized effect sizes (SES) across South Africa. SES values range from –3.0 to 2.0, indicating that some cells have slightly lower PD than expected under random species–phylogeny assignments, while others show modestly higher-than-expected values.
 
 <br>
-```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+```{r, message=FALSE, warning=FALSE, fig.align='center', eval=run_terra, fig.width=7.2, fig.height=5.2}
 plot(pd_sa_null)
 ```
 <br>
@@ -359,7 +359,7 @@ print(pd_sa_null)
 Under the range sampling model, observed PD is <b>largely consistent</b> with null expectations, with SES values near zero and very few significant cells. This indicates limited evidence of non-random phylogenetic structure after accounting for species range sizes and cell richness.
 
 <br>
-```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7, fig.height=5}
+```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7.2, fig.height=5.2}
 plot(pd_sa_null)
 ```
 <br>
@@ -397,7 +397,7 @@ print(pd_sa_null)
 Under the neighbor sampling model, observed PD values are generally <b>similar</b> to null expectations, with SES values mostly close to zero and only a few significant cells. This suggests that, even when accounting for limited dispersal between adjacent cells, PD patterns show little evidence of strong non-random structure.
 
 <br>
-```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7, fig.height=5}
+```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7.2, fig.height=5.2}
 plot(pd_sa_null)
 ```
 <br>
@@ -435,7 +435,7 @@ print(pd_sa_null)
 Under the regional sampling model with uniform weights, observed PD values show <b>larger</b> departures from null expectations, with many cells exhibiting significant SES values (56 out of 146). This indicates that when community composition is reshuffled without constraints on range size or species frequencies, spatial patterns of PD become highly non-random, suggesting that much of the observed structure is <b>influenced</b> by the identity of species present rather than by simple species availability.
 
 <br>
-```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7, fig.height=5}
+```{r, warning=FALSE, eval=run_terra, message=FALSE, fig.width=7.2, fig.height=5.2}
 plot(pd_sa_null)
 ```
 <br>

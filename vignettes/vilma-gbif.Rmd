@@ -268,7 +268,7 @@ Finally, if you prefer, you can remove single-species cells entirely by using th
 pe_out <- pe.calc(tree = artibeus_tree, dist = raster_out,faith.method = "root")
 print(pe_out)
 ```
-```{r, message=FALSE, fig.align='center', eval=run_terra, fig.width=7, fig.height=5}
+```{r, message=FALSE, fig.align='center', eval=run_terra, fig.width=7.2, fig.height=5.2}
 #view.vilma(pd_out)
 plot(pe_out$rasters$pd.raster)
 view.vilma(pe_out)
