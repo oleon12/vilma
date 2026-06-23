@@ -42,7 +42,7 @@ In `vilma`, null models are explicitly designed for spatial phylogenetic analyse
 <br>
 
 <figure style="text-align: center;">
-  <img src="../inst/app/www/Fig_2.png" width="600" alt="Descriptive caption text" />
+  <img src="figures/Fig_2.png" width="600" alt="Descriptive caption text" />
   <figcaption>Available null models in vilma</figcaption>
 </figure>
 
@@ -233,7 +233,7 @@ library(tmap)
 tm_shape(pd_sa$rasters$pd.raster) +
   tm_raster() +
 tm_shape(sa_pol) +
-  tm_poly
+  tm_polygons(fill = NULL, lwd = 2)
 ```
 <br>
 

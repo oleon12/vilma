@@ -47,7 +47,7 @@ The first step is to identify the directory where the polygon files are stored. 
 
 <figure style="text-align: center; margin: 0 auto;">
 
-<img src="../inst/app/www/Trimeresurus_folder.png" alt="Fig. 1" style="display: block; margin: 0 auto; max-width: 100%; width: 700px;"/>
+<img src="figures/Trimeresurus_folder.png" alt="Fig. 1" style="display: block; margin: 0 auto; max-width: 100%; width: 700px;"/>
 
 <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
 
@@ -121,12 +121,13 @@ Many polygons files will be MULITPOLYGONS, this means that one SHP file can have
 library(sf)
 
 
-
+# Read the polygons
 list_of_sf <- lapply(shp_files, function(x){ geom <- st_read(x, quiet = TRUE) %>% st_union() # Step 1
                                              species_name <- gsub(".shp", "", x)             # Step 2
                                              st_sf( species = species_name, geometry = geom) # Step 3
                                             })
 
+# Check the results
 str(list_of_sf)
 ```
 
@@ -196,7 +197,7 @@ First 10 features:
 st_write(combined_sf, "Trimeresurus_polygons.gpkg")
 ```
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 library(sf)
 
 combined_sf <- read_sf("../inst/extdata/Trimeresurus_polygons.gpkg")
@@ -214,12 +215,17 @@ Using these inputs, `pol2occ` takes the species polygons, converts them into ras
 
 In this example, you will use a resolution of `"1m"`, equivalent to one arc-minute, and you will keep the raster layers in the output.
 
-```{r, message=FALSE, warning=FALSE, eval=FALSE, eval=run_heavy}
+```{r, message=FALSE, warning=FALSE, eval=FALSE, eval=FALSE}
 library(vilma)
 
 trimeresurus_out <- pol2occ(pols = combined_sf, sp_id = "species", res = "1m", return_raster = TRUE )
 
 str(trimeresurus_out, max.level = 1)
+```
+```{}
+List of 2
+ $ occ    :'data.frame':	23142166 obs. of  3 variables:
+ $ rasters:List of 245
 ```
 
 <br>
@@ -230,15 +236,6 @@ These raster layers can be useful for other types of spatial analyses. Therefore
 
 <br>
 
-```{r, eval=run_terra}
-library(tmap)
-
-# Check one of the rasters
-tm_shape(trimeresurus_out$rasters[[1]])+
-  tm_raster()+
-tm_shape(list_of_sf[[1]])+
-  tm_polygons(fill=NULL, lwd = 2)
-```
 
 ```{r, eval=FALSE}
 # Extract the species names
@@ -265,6 +262,11 @@ It is also important to note that the resolution used in `pol2occ` is different 
 
 <br>
 
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+trimeresurus_out <- list(occ = read.csv("../inst/extdata/Trimeresurus_occ.csv"),
+                         rasters = NULL)
+```
+
 ```{r, eval=run_heavy}
 library(vilma)
 
@@ -287,10 +289,9 @@ Before calculating the index, the phylogenetic tree must be loaded and, if neces
 
 <br>
 
-```{r, message=FALSE, warning=FALSE}
+```{r, fig.align='center', fig.width=7, fig.height=7, message=FALSE, warning=FALSE}
 library(ape)
 library(phytools)
-library(ggtree)
 
 # Read the phylogenetic tree
 tree_trim <- read.tree("../inst/extdata/Trimeresurus_tree.tre")
@@ -299,13 +300,7 @@ tree_trim <- read.tree("../inst/extdata/Trimeresurus_tree.tre")
 tree_trim <- midpoint.root(tree_trim)
 
 # Plot the tree
-p <- ggtree(tree_trim) + 
-  geom_treescale(width = 15) +
-  theme_tree2() +
-  geom_tiplab(linewidth = 3)
-
-# Display the plot
-print(p)
+plot(tree_trim)
 ```
 
 <br>

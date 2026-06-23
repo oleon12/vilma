@@ -1,0 +1,407 @@
+# vilma: an R package for spatial phylogenetic diversity analyses with a Shiny interface. ![vilma package logo](reference/figures/Logo_0.png)
+
+------------------------------------------------------------------------
+
+## About vilma (1.0.0)
+
+`vilma` is an R-based platform designed to quantify and visualize
+**spatial phylogenetic diversity** across geographic landscapes. It
+integrates multiple analytical frameworks to examine how evolutionary
+history and ecological processes shape biodiversity through space and
+time.
+
+------------------------------------------------------------------------
+
+### Vilma provides a complete and reproducible workflow to:
+
+- Compute **alpha diversity** indices such as Faith’s PD, MPD, MNTD, PE,
+  Rao’s Q, NRI, and NTI.
+
+- Estimate **beta diversity** metrics, including PhyloSor, UniFrac,
+  Phylobeta weighted and unweighted, betaMPD, and betaMNTD.
+
+- Implement and test **null models** at both regional and local
+  cell-based levels to assess whether observed spatial patterns deviate
+  from random expectations.
+
+- Visualize and export spatially explicit outputs as tables and raster
+  maps for further ecological and evolutionary analyses.
+
+------------------------------------------------------------------------
+
+Developed as part of an ongoing research project at the **Department of
+Mammalogy, American Museum of Natural History**, and the **Department of
+Earth and Environmental Sciences, Rutgers University–Newark**, `vilma`
+provides a flexible framework to investigate phylogenetic structure,
+endemism, and connectivity in ecological and evolutionary studies.
+
+------------------------------------------------------------------------
+
+  
+
+![vilma](reference/figures/vilma_pixel.png)
+
+*Created in loving memory of **Vilma Alvarado**, whose kindness and love
+continue to inspire this work.*
+
+  
+
+------------------------------------------------------------------------
+
+### Installation
+
+**Development version (recommended)** Requires `devtools`:
+
+``` r
+install.packages("devtools")
+devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
+```
+
+  
+
+### Shiny App
+
+Vilma can be used through a **Shiny interface**. This interface was
+built for users with little experience in R or programming in general.
+However, the user must understand all parameters and indices to perform
+an appropriate analysis for their research question. Therefore, we
+always advise users to keep in mind the principle of **GIGO (Garbage In,
+Garbage Out)**. Running the app is very easy: simply open an *R* or
+*RStudio* session and run the following lines of code.
+
+``` r
+library(vilma)
+
+# Launch the analysis app
+run.vilma.app()
+```
+
+  
+
+Vilma is intended to be a pipeline where the user starts by creating a
+raster file and then uses a phylogeny to calculate α-diversity, α-null
+models, and β-diversity. However, the user can skip some steps and run
+only the desired analyses. For the Shiny app, please note that the
+phylogeny (of class *phylo*) must be uploaded on the α-diversity page.
+
+  
+
+### Interactive view
+
+Although the Shiny app is the most remarkable feature for interactivity,
+Vilma also provides interactive map visualizations. For every analysis
+(raster, α-diversity, α-null models, and β), results can be viewed using
+the *view.vilma()* function. This function displays a Leaflet map with
+raster layers. You can toggle between layers using the Layer Control
+button ![Layer control icon](reference/figures/Layer_Icon.png).
+Furthermore, if you move the mouse over any pixel, a pop-up window will
+appear above the Layer Control button showing the value for that
+specific pixel.
+
+  
+
+# Package index
+
+## Package overview
+
+General package documentation.
+
+- [`vilma`](https://oleon12.github.io/vilma/reference/vilma-package.md)
+  [`vilma-package`](https://oleon12.github.io/vilma/reference/vilma-package.md)
+  : vilma: Spatial Phylogenetic Diversity
+
+## Example datasets
+
+Example occurrence, phylogenetic, raster, and polygon datasets included
+with vilma.
+
+- [`Artibeus_occ`](https://oleon12.github.io/vilma/reference/Artibeus_occ.md)
+  :
+
+  Occurrence records for *Artibeus* (example dataset)
+
+- [`artibeus_tree`](https://oleon12.github.io/vilma/reference/artibeus_tree.md)
+  :
+
+  Phylogeny for *Artibeus* species
+
+- [`car_tree`](https://oleon12.github.io/vilma/reference/car_tree.md) :
+  Example carnivore tree
+
+- [`data_sa`](https://oleon12.github.io/vilma/reference/data_sa.md) :
+  Carnivores occurrences from South Africa
+
+- [`example_dist()`](https://oleon12.github.io/vilma/reference/example_dist.md)
+  : Example points for demonstration
+
+- [`example_tree()`](https://oleon12.github.io/vilma/reference/example_tree.md)
+  : Example phylogenetic tree for demonstration
+
+- [`sa_pol`](https://oleon12.github.io/vilma/reference/sa_pol.md) :
+  South Africa polygon
+
+## Create and convert spatial inputs
+
+Functions for converting occurrence points, rasters, and polygons into
+spatial distribution objects.
+
+- [`points_to_raster()`](https://oleon12.github.io/vilma/reference/points_to_raster.md)
+  : Convert Species Occurrence Points to Raster Distribution
+- [`rast2occ()`](https://oleon12.github.io/vilma/reference/rast2occ.md)
+  : Convert binary ENM rasters to occurrence points
+- [`pol2occ()`](https://oleon12.github.io/vilma/reference/pol2occ.md) :
+  Convert polygon ranges to occurrence records and optional raster
+  layers
+- [`return.vilma.dist()`](https://oleon12.github.io/vilma/reference/return.vilma.dist.md)
+  : Convert a VILMA Distribution Matrix to a Data Frame
+- [`return.vilma.dist2()`](https://oleon12.github.io/vilma/reference/return.vilma.dist2.md)
+  : Convert a VILMA Distribution Matrix to a Data Frame
+
+## Alpha phylogenetic diversity
+
+Functions for calculating alpha phylogenetic diversity indices.
+
+- [`faith.pd()`](https://oleon12.github.io/vilma/reference/faith.pd.md)
+  : Faith's Phylogenetic Diversity (PD)
+- [`mpd.calc()`](https://oleon12.github.io/vilma/reference/mpd.calc.md)
+  : Mean Pairwise Distance (MPD) Phylogenetic Diversity Index
+- [`mntd.calc()`](https://oleon12.github.io/vilma/reference/mntd.calc.md)
+  : Mean Nearest Taxon Distance (MNTD) Phylogenetic Diversity Index
+- [`pe.calc()`](https://oleon12.github.io/vilma/reference/pe.calc.md) :
+  Phylogenetic Endemism (PE)
+- [`rao.calc()`](https://oleon12.github.io/vilma/reference/rao.calc.md)
+  : Rao's Q (within-community) phylogenetic diversity
+- [`nri.calc()`](https://oleon12.github.io/vilma/reference/nri.calc.md)
+  : Net Relatedness Index (NRI)
+- [`nti.calc()`](https://oleon12.github.io/vilma/reference/nti.calc.md)
+  : Nearest Taxon Index (NTI)
+- [`pd.taxon()`](https://oleon12.github.io/vilma/reference/pd.taxon.md)
+  : Calculate Faith's PD for Individual Taxa
+
+## Spatial null models
+
+Functions for randomizing communities, calculating null expectations,
+and evaluating standardized phylogenetic diversity patterns.
+
+- [`faith.pd.null()`](https://oleon12.github.io/vilma/reference/faith.pd.null.md)
+  : Null model for Faith's Phylogenetic Diversity (PD)
+- [`mpd.calc.null()`](https://oleon12.github.io/vilma/reference/mpd.calc.null.md)
+  : Null model for Mean Pairwise Distance (MPD) phylogenetic diversity
+- [`mntd.calc.null()`](https://oleon12.github.io/vilma/reference/mntd.calc.null.md)
+  : Null model for Mean Nearest Taxon Distance (MNTD) Phylogenetic
+  Diversity
+- [`pe.calc.null()`](https://oleon12.github.io/vilma/reference/pe.calc.null.md)
+  : Null model for Faith's Phylogenetic Diversity (PD)
+- [`rao.calc.null()`](https://oleon12.github.io/vilma/reference/rao.calc.null.md)
+  : Rao's Q (α) null models for vilma objects
+- [`swap.null()`](https://oleon12.github.io/vilma/reference/swap.null.md)
+  : Randomly Swap Cells in a Presence-Absence Matrix
+
+## Beta phylogenetic diversity
+
+Functions for calculating phylogenetic dissimilarity, turnover,
+nestedness, UniFrac, and beta diversity indices.
+
+- [`beta.mpd()`](https://oleon12.github.io/vilma/reference/beta.mpd.md)
+  : Between-community Mean Pairwise Distance (betaMPD) between
+  communities (cells)
+- [`beta.mntd()`](https://oleon12.github.io/vilma/reference/beta.mntd.md)
+  : Between-community Mean Nearest Taxon Distance (betaMNTD) between
+  communities (cells)
+- [`phylo.beta()`](https://oleon12.github.io/vilma/reference/phylo.beta.md)
+  : Phylogenetic Beta Diversity Partitioning (β_sor, β_sim, β_sne)
+- [`phylosor.calc()`](https://oleon12.github.io/vilma/reference/phylosor.calc.md)
+  : Phylogenetic Sørensen Similarity (PhyloSor) between communities
+  (cells)
+- [`rao.beta()`](https://oleon12.github.io/vilma/reference/rao.beta.md)
+  : Rao Beta (phylogenetic) dissimilarity index
+- [`unifrac.calc()`](https://oleon12.github.io/vilma/reference/unifrac.calc.md)
+  : UniFrac Phylogenetic Dissimilarity between communities (cells)
+
+## Spatial regionalization
+
+Functions for clustering and regionalizing phylogenetic diversity
+patterns.
+
+- [`vilma.regionalize()`](https://oleon12.github.io/vilma/reference/vilma.regionalize.md)
+  : Regionalize cells into phylogenetic regions
+- [`find_kdiss()`](https://oleon12.github.io/vilma/reference/find_kdiss.md)
+  : Select optimal K using explained dissimilarity
+- [`find_knnK()`](https://oleon12.github.io/vilma/reference/find_knnK.md)
+  : Select optimal k for kNN network regionalization
+- [`find_kpam()`](https://oleon12.github.io/vilma/reference/find_kpam.md)
+  : Select optimal k for PAM clustering using silhouette width
+- [`find_ksil()`](https://oleon12.github.io/vilma/reference/find_ksil.md)
+  : Select optimal K using silhouette width
+
+## Environmental niche modeling and spatial correlation
+
+Additional tools for environmental niche modeling and correlation
+analyses.
+
+- [`vilma.ENM()`](https://oleon12.github.io/vilma/reference/vilma.ENM.md)
+  : Fit Vilma ensemble ENMs for multiple species with optional M-area
+  definition
+
+- [`fast.ensemble.enm()`](https://oleon12.github.io/vilma/reference/fast.ensemble.enm.md)
+  : Fast ensemble ecological niche model (ENM) with cross-validated
+  weighting
+
+- [`vilma.cor()`](https://oleon12.github.io/vilma/reference/vilma.cor.md)
+  :
+
+  Correlate phylogenetic diversity with species richness in a `vilma.pd`
+  object
+
+## Visualization
+
+Plotting and interactive mapping methods for vilma objects.
+
+- [`plot(`*`<vilma.beta>`*`)`](https://oleon12.github.io/vilma/reference/plot.vilma.beta.md)
+  :
+
+  Plot method for `vilma.beta` objects
+
+- [`plot(`*`<vilma.cor>`*`)`](https://oleon12.github.io/vilma/reference/plot.vilma.cor.md)
+  : Plot VILMA Correlation Results
+
+- [`plot(`*`<vilma.dist>`*`)`](https://oleon12.github.io/vilma/reference/plot.vilma.dist.md)
+  : Plot VILMA Distribution Rasters
+
+- [`plot(`*`<vilma.null>`*`)`](https://oleon12.github.io/vilma/reference/plot.vilma.null.md)
+  : Plot Results of a VILMA Null Model
+
+- [`plot(`*`<vilma.pd>`*`)`](https://oleon12.github.io/vilma/reference/plot.vilma.pd.md)
+  : Plot Rasters from a VILMA PD Object
+
+- [`plot(`*`<vilma.region>`*`)`](https://oleon12.github.io/vilma/reference/plot.vilma.region.md)
+  : Plot VILMA Regionalization Rasters
+
+- [`view.vilma()`](https://oleon12.github.io/vilma/reference/view.vilma.md)
+  :
+
+  Unified interactive viewer for *Vilma* spatial phylogenetic outputs
+
+- [`view.vilma.beta()`](https://oleon12.github.io/vilma/reference/view.vilma.beta.md)
+  : Interactive viewer for vilma β-diversity rasters
+
+- [`view.vilma.dist()`](https://oleon12.github.io/vilma/reference/view.vilma.dist.md)
+  : Interactive viewer for vilma distributions (richness & abundance)
+
+- [`view.vilma.null()`](https://oleon12.github.io/vilma/reference/view.vilma.null.md)
+  : Interactive viewer for vilma null-model results (SES raster)
+
+- [`view.vilma.pd()`](https://oleon12.github.io/vilma/reference/view.vilma.pd.md)
+  :
+
+  View `vilma.pd` Rasters in an Interactive Leaflet Map
+
+- [`view.vilma.region()`](https://oleon12.github.io/vilma/reference/view.vilma.region.md)
+  :
+
+  View `vilma.region` Rasters in an Interactive Leaflet Map
+
+## Printing methods
+
+Console print methods for vilma objects.
+
+- [`print(`*`<vilma.beta>`*`)`](https://oleon12.github.io/vilma/reference/print.vilma.beta.md)
+  :
+
+  Print summary for a `vilma.beta` object
+
+- [`print(`*`<vilma.dist>`*`)`](https://oleon12.github.io/vilma/reference/print.vilma.dist.md)
+  : Print Summary of a VILMA Distribution Object
+
+- [`print(`*`<vilma.null>`*`)`](https://oleon12.github.io/vilma/reference/print.vilma.null.md)
+  : Print Summary of a VILMA Null Model
+
+- [`print(`*`<vilma.pd>`*`)`](https://oleon12.github.io/vilma/reference/print.vilma.pd.md)
+  : Print Summary of a VILMA Phylogenetic Diversity Object
+
+## Export results
+
+Functions for writing vilma outputs to disk.
+
+- [`write.vilma.beta()`](https://oleon12.github.io/vilma/reference/write.vilma.beta.md)
+  :
+
+  Write a `vilma.beta` Object to Disk
+
+- [`write.vilma.dist()`](https://oleon12.github.io/vilma/reference/write.vilma.dist.md)
+  :
+
+  Write a `vilma.dist` Object to Disk
+
+- [`write.vilma.null()`](https://oleon12.github.io/vilma/reference/write.vilma.null.md)
+  :
+
+  Write a `vilma.null` Object to Disk
+
+- [`write.vilma.pd()`](https://oleon12.github.io/vilma/reference/write.vilma.pd.md)
+  :
+
+  Write a `vilma.pd` Object to Disk
+
+- [`write.vilma.region()`](https://oleon12.github.io/vilma/reference/write.vilma.region.md)
+  :
+
+  Write a `vilma.region` Object to Disk
+
+## Shiny application
+
+Launch the bundled graphical user interface.
+
+- [`run.vilma.app()`](https://oleon12.github.io/vilma/reference/run.vilma.app.md)
+  : Run the Vilma Shiny App
+
+## Internal or developer utilities
+
+Helper functions mainly used internally by vilma.
+
+- [`descendant.matrix()`](https://oleon12.github.io/vilma/reference/descendant.matrix.md)
+  : Build Descendant Matrix (edges × tips) for a Phylogenetic Tree
+- [`find.root.node()`](https://oleon12.github.io/vilma/reference/find.root.node.md)
+  : Find the Root Node of a Rooted Phylogeny
+- [`zzz_imports`](https://oleon12.github.io/vilma/reference/zzz_imports.md)
+  : Internal: central imports for vilma
+
+# Articles
+
+### Getting started
+
+Start here for a general overview of the vilma workflow.
+
+- [vilma: an R package for spatial phylogenetic diversity analyses with
+  a Shiny
+  interface.](https://oleon12.github.io/vilma/articles/vilma.md):
+
+### Preparing spatial input data
+
+Tutorials for transforming occurrence records, rasters, polygons, and
+GBIF downloads into objects that can be used by vilma.
+
+- [Rasters in
+  vilma](https://oleon12.github.io/vilma/articles/rasters-vilma.md):
+- [Polygons in
+  vilma](https://oleon12.github.io/vilma/articles/polygons-vilma.md):
+- [Using vilma with GBIF
+  data](https://oleon12.github.io/vilma/articles/vilma-gbif.md):
+
+### Phylogenetic diversity analyses
+
+Tutorials for alpha diversity, beta diversity, null models, and spatial
+regionalization analyses.
+
+- [Alpha Phylogenetic Diversity
+  Indices](https://oleon12.github.io/vilma/articles/alpha-indices.md):
+- [Null models in
+  vilma](https://oleon12.github.io/vilma/articles/null-models.md):
+- [Beta Phylogenetic Diversity
+  Indices](https://oleon12.github.io/vilma/articles/beta-indices.md):
+
+### Graphical user interface
+
+Learn how to use the bundled Shiny application for interactive analyses.
+
+- [Shiny-App](https://oleon12.github.io/vilma/articles/shiny-app.md):

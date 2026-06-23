@@ -1,79 +1,166 @@
-#' Null model for Mean Pairwise Distance (MPD) Phylogenetic Diversity
+#' Null model for Mean Pairwise Distance (MPD) phylogenetic diversity
+#'
 #' @description
-#' This function implements null models for MPD using different
-#' randomization approaches. It allows testing significance of PD at either 
-#' the global (across all cells) or cell level, with several sampling 
-#' strategies: randomizing taxa labels, species ranges, or neighborhood swaps.
+#' This function implements null models for Mean Pairwise Distance (MPD)
+#' using different randomization approaches. It allows users to test whether
+#' observed MPD values are higher or lower than expected under a selected null
+#' model, either at the global level across all cells or at the cell level.
 #'
-#' @param pd An object of class \code{vilma.pd}, containing observed PD values
-#'   (see \code{mpd.calc()}).
-#' @param tree A rooted phylogenetic tree of class \code{phylo}, with branch lengths.
-#' @param dist An object of class \code{vilma.dist}, representing species distributions
-#'   (see \code{points.to.raster()}).
-#' @param iterations Integer. Number of randomizations to perform (default = 999).
-#' @param method Character. Null model output method:
+#' @param pd An object of class \code{vilma.pd}, containing observed MPD values
+#'   calculated with \code{\link{mpd.calc}}.
+#' @param tree A rooted phylogenetic tree of class \code{phylo}, with branch
+#'   lengths.
+#' @param dist An object of class \code{vilma.dist}, representing species
+#'   distributions across spatial cells. See \code{\link{points_to_raster}},
+#'   \code{\link{rast2occ}}, or \code{\link{pol2occ}}.
+#' @param iterations Integer. Number of randomizations to perform.
+#'   The default is \code{999}.
+#' @param method Character. Null-model output method. Options are:
 #'   \itemize{
-#'     \item \code{"global"} – significance of total PD across all cells.
-#'     \item \code{"cell"} – significance per cell.
+#'     \item \code{"global"}: evaluates the total observed MPD across all cells
+#'     against a null distribution of total MPD values.
+#'     \item \code{"cell"}: evaluates observed MPD independently for each cell
+#'     and returns cell-level standardized effect sizes and p-values.
 #'   }
-#' @param sampling Character. Randomization strategy:
+#' @param sampling Character. Randomization strategy. Options are:
 #'   \itemize{
-#'     \item \code{"taxa.label"} – permutes species labels on the tree.
-#'     \item \code{"range"} – randomizes species ranges using swap algorithms.
-#'     \item \code{"neighbor"} – swaps species occurrences between adjacent cells.
+#'     \item \code{"taxa.label"}: randomly permutes species labels on the
+#'     phylogenetic tree while keeping the spatial distribution fixed.
+#'     \item \code{"range"}: randomizes the species-by-cell matrix using a
+#'     swap algorithm while preserving matrix structure.
+#'     \item \code{"neighbor"}: swaps species occurrences between adjacent
+#'     spatial cells.
+#'     \item \code{"regional"}: samples species from the regional pool while
+#'     preserving observed cell richness.
 #'   }
-#' @param n.directions Character. Neighborhood adjacency definition for the
-#'   \code{"neighbor"} method. Options: \code{"rook"}, \code{"bishop"}, \code{"queen"}
-#'   (default = \code{"queen"}).
-#'
-#' @param regional.weight Weighting of the regional pool for the \code{"regional"} model:
-#'   \code{"uniform"} (equal), \code{"frequency"} (by number of records), or
-#'   \code{"range"} (by number of occupied cells). Defaults to \code{"uniform"}.
+#' @param n.directions Character. Neighborhood adjacency definition used only
+#'   when \code{sampling = "neighbor"}. Options are \code{"rook"},
+#'   \code{"bishop"}, and \code{"queen"}. The default is \code{"queen"}.
+#' @param regional.weight Character. Weighting scheme for the regional species
+#'   pool used only when \code{sampling = "regional"}. Options are:
+#'   \itemize{
+#'     \item \code{"uniform"}: all species have equal sampling probability.
+#'     \item \code{"frequency"}: species are weighted by their number of
+#'     occurrence records.
+#'     \item \code{"range"}: species are weighted by the number of occupied
+#'     cells.
+#'   }
+#'   The default is \code{"uniform"}.
 #'
 #' @details
-#' The function generates a null distribution of PD values based on the chosen 
-#' sampling strategy. For the \code{"global"} method, the observed PD is compared 
-#' against the distribution of total PD values across iterations. For the 
-#' \code{"cell"} method, standardized effect sizes (SES) and p-values are computed 
-#' for each grid cell individually.
+#' The function generates a null distribution of MPD values based on the
+#' selected randomization strategy.
 #'
-#' @return An object of class \code{vilma.null}, with structure depending on \code{method}:
+#' When \code{method = "global"}, the observed MPD values are summed across
+#' all cells and compared with a null distribution generated from the sum of
+#' MPD values across randomized iterations. The function returns the observed
+#' total MPD, the null distribution, a standardized effect size, and a p-value.
+#'
+#' When \code{method = "cell"}, the function compares the observed MPD of each
+#' cell against a cell-specific null distribution. It returns observed MPD,
+#' null mean, null standard deviation, standardized effect size, p-value, and
+#' a raster containing the cell-level SES values.
+#'
+#' For \code{sampling = "taxa.label"}, species labels are randomized on the
+#' phylogeny, while the spatial distribution remains fixed. This approach
+#' evaluates whether the observed association between species identities and
+#' phylogenetic distances differs from random expectations.
+#'
+#' For \code{sampling = "range"}, the species-by-cell matrix is randomized
+#' using a swap procedure. This approach changes species occurrences among
+#' cells while preserving key properties of the incidence matrix.
+#'
+#' For \code{sampling = "neighbor"}, species are swapped among adjacent cells.
+#' The neighborhood structure is defined by \code{n.directions}, allowing rook,
+#' bishop, or queen adjacency. This approach is useful when spatially constrained
+#' randomizations are desired.
+#'
+#' For \code{sampling = "regional"}, species are sampled from the regional
+#' species pool while preserving the observed richness of each cell. Species
+#' can be sampled with equal probability or weighted by frequency or range size.
+#'
+#' @return
+#' An object of class \code{vilma.null}. The returned object depends on the
+#' selected \code{method}.
+#'
+#' For \code{method = "global"}, the object contains:
 #' \itemize{
-#'   \item For \code{global}: a list with observed PD, null distribution, SES, p-value,
-#'         iteration table, and metadata.
-#'   \item For \code{cell}: a list with per-cell values (PD, null mean, null SD, SES, p-value),
-#'         a raster of SES values, iteration table, and metadata.
+#'   \item \code{pd.obs}: observed total MPD across all cells.
+#'   \item \code{null.pd}: null distribution of total MPD values.
+#'   \item \code{SES}: standardized effect size.
+#'   \item \code{Pvalue}: p-value calculated from the null distribution.
+#'   \item \code{Iterations}: number of randomizations.
+#'   \item \code{Iter.table}: table of MPD values for each iteration.
+#'   \item \code{Method}: selected null-model method.
+#' }
+#'
+#' For \code{method = "cell"}, the object contains:
+#' \itemize{
+#'   \item \code{CellValues}: data frame with observed MPD, null mean, null
+#'   standard deviation, SES, and p-value for each cell.
+#'   \item \code{Raster}: raster layer containing cell-level SES values.
+#'   \item \code{Iterations}: number of randomizations.
+#'   \item \code{Iter.table}: table of MPD values for each iteration.
+#'   \item \code{Method}: selected null-model method.
 #' }
 #'
 #' @section Interpretation:
-#' Negative SES indicates **phylogenetic clustering** (lower RaoQ than expected),
-#' positive SES indicates **overdispersion** (higher RaoQ than expected), and
-#' SES near 0 suggests random assembly under the chosen null model.
+#' Negative SES values indicate phylogenetic clustering, meaning that observed
+#' MPD is lower than expected under the selected null model. Positive SES values
+#' indicate phylogenetic overdispersion, meaning that observed MPD is higher
+#' than expected. SES values near zero suggest that observed MPD is close to the
+#' null expectation.
+#'
+#' The interpretation of SES and p-values depends on the selected randomization
+#' strategy. For example, a taxa-label null model tests whether the observed
+#' phylogenetic structure differs from random associations between species names
+#' and the tree, whereas range, neighbor, and regional-pool models evaluate
+#' different assumptions about spatial occurrence structure.
 #'
 #' @references
-#' Gotelli, N. J., & Graves, G. R. (1996). \emph{Null Models in Ecology}. 
+#' Gotelli, N. J., & Graves, G. R. (1996). \emph{Null Models in Ecology}.
 #' Smithsonian Institution Press.
 #'
-#' Gotelli, N. J. (2000). Null model analysis of species co‐occurrence patterns. 
-#' \emph{Ecology}, 81(9), 2606–2621. \doi{10.1890/0012-9658(2000)081[2606:NMAOSC]2.0.CO;2}
+#' Gotelli, N. J. (2000). Null model analysis of species co-occurrence patterns.
+#' \emph{Ecology}, 81(9), 2606--2621.
+#' \doi{10.1890/0012-9658(2000)081[2606:NMAOSC]2.0.CO;2}
 #'
-#' Webb, C. O., Ackerly, D. D., McPeek, M. A., & Donoghue, M. J. (2002). 
-#' Phylogenies and community ecology. \emph{Annual Review of Ecology and Systematics}, 
-#' 33, 475–505. \doi{10.1146/annurev.ecolsys.33.010802.150448}
+#' Webb, C. O., Ackerly, D. D., McPeek, M. A., & Donoghue, M. J. (2002).
+#' Phylogenies and community ecology. \emph{Annual Review of Ecology and
+#' Systematics}, 33, 475--505.
+#' \doi{10.1146/annurev.ecolsys.33.010802.150448}
 #'
 #' @author
 #' Omar Daniel Leon-Alvarado \url{https://leon-alvarado.weebly.com/}
+#'
 #' J. Angel Soto-Centeno \url{https://www.mormoops.com/}
 #'
-#' @seealso \code{\link{mpd.calc}}, \code{\link{points_to_raster}}, 
+#' @seealso
+#' \code{\link{mpd.calc}}, \code{\link{mntd.calc.null}},
+#' \code{\link{faith.pd.null}}, \code{\link{pe.calc.null}},
+#' \code{\link{rao.calc.null}}, \code{\link{swap.null}},
+#' \code{\link{return.vilma.dist}}, \code{\link{return.vilma.dist2}},
+#' \code{\link{view.vilma.null}}, \code{\link{plot.vilma.null}},
+#' \code{\link{write.vilma.null}}
 #'
 #' @examples
 #' \dontrun{
-#' tree <- examplae_tree()
-#' dist <- example_dist()
-#' dist <- points_to_raster(dist)
-#' pd <- mpd.calc(tree dist)
-#' null_model <- mpd.calc.null(pd, tree, dist)
+#' data(example_tree)
+#' data(example_dist)
+#'
+#' pd <- mpd.calc(
+#'   tree = example_tree,
+#'   dist = example_dist
+#' )
+#'
+#' null_model <- mpd.calc.null(
+#'   pd = pd,
+#'   tree = example_tree,
+#'   dist = example_dist,
+#'   iterations = 99,
+#'   method = "global",
+#'   sampling = "taxa.label"
+#' )
 #'
 #' print(null_model)
 #' plot(null_model)
@@ -81,6 +168,7 @@
 #' }
 #'
 #' @export
+
 
 mpd.calc.null <- function(pd, tree, dist, iterations = 999,
                           method = c("global","cell"),

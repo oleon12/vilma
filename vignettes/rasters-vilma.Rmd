@@ -49,7 +49,7 @@ The first step is to identify the directory where the raster files are stored. T
 
 <figure style="text-align: center; margin: 0 auto;">
 
-<img src="../inst/app/www/Trimeresurus_folder_2.png" alt="Fig. 1" style="display: block; margin: 0 auto; max-width: 100%; width: 700px;"/>
+<img src="figures/Trimeresurus_folder_2.png" alt="Fig. 1" style="display: block; margin: 0 auto; max-width: 100%; width: 700px;"/>
 
 <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
 
@@ -182,7 +182,7 @@ It is important to note that the resolution of the input rasters does not need t
 
 <br>
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-trimeresurus_ras <- read.csv("../inst/extdata/Trimeresurus_occ.csv")
+trimeresurus_rast <- read.csv("../inst/extdata/Trimeresurus_occ.csv")
 ```
 
 ```{r, eval=run_heavy}
@@ -207,10 +207,9 @@ Before calculating the index, the phylogenetic tree must be loaded and, if neces
 
 <br>
 
-```{r, message=FALSE, warning=FALSE}
+```{r, fig.align='center', fig.width=7, fig.height=7, message=FALSE, warning=FALSE}
 library(ape)
 library(phytools)
-library(ggtree)
 
 # Read the phylogenetic tree
 tree_trim <- read.tree("../inst/extdata/Trimeresurus_tree.tre")
@@ -219,13 +218,7 @@ tree_trim <- read.tree("../inst/extdata/Trimeresurus_tree.tre")
 tree_trim <- midpoint.root(tree_trim)
 
 # Plot the tree
-p <- ggtree(tree_trim) + 
-  geom_treescale(width = 15) +
-  theme_tree2() +
-  geom_tiplab(linewidth = 3)
-
-# Display the plot
-print(p)
+plot(tree_trim)
 ```
 
 <br>

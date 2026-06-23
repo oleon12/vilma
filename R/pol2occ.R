@@ -114,6 +114,7 @@ pol2occ <- function(pols, sp_id, res = c("30s","1m","2.5m","5m"), return_raster 
   pb <- txtProgressBar(min = 0, max = length(pols_geom) , style = 3)
   
   for(i in seq_along(pols_geom)){
+    
     pol_i <- pols_geom[i]
     r_tmp <- crop(r, y=pol_i)
     r_i <- rasterize(vect(pol_i), r_tmp)
@@ -141,9 +142,15 @@ pol2occ <- function(pols, sp_id, res = c("30s","1m","2.5m","5m"), return_raster 
     
     if(i == 1){
       occ_out <- rasterToPoints(raster(r_i), fun = function(x){x==1})[, c(1,2)]
+      
+      if(inherits(occ_out,"numeric")){occ_out <- t(as.matrix(occ_out))} # Check proper format for single occ
+      
       sp_out <- rep(sp_names[i], length(occ_out[,1]))
     }else{
       occ_t <- rasterToPoints(raster(r_i), fun = function(x){x==1})[, c(1,2)]
+      
+      if(inherits(occ_t,"numeric")){occ_t <- t(as.matrix(occ_t))} # Check proper format for single occ
+      
       occ_out <- rbind(occ_out, occ_t)
       sp_out <- c(sp_out, rep(sp_names[i], length(occ_t[,1])))
     }

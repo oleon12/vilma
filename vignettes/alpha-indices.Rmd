@@ -23,28 +23,25 @@ run_leaflet <- !(ci || checking)
 run_heavy <- !(ci || checking)
 ```
 
-<br>
-[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [J. Angel Soto-Centeno](https://www.mormoops.com/)²
+<br> [Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [J. Angel Soto-Centeno](https://www.mormoops.com/)²
 
 ¹ Department of Earth and Environmental Science, Rutgers University-Newark, NJ, USA.
 
-² Department of Mammalogy, American Museum of Natural History, New York City, NY, USA.
-<br>
+² Department of Mammalogy, American Museum of Natural History, New York City, NY, USA. <br>
 
----
+------------------------------------------------------------------------
 
 <b>Phylogenetic Diversity (PD)</b> indices are a set of metrics that quantify the <b>evolutionary distinctiveness</b> of a species or a group of species using the information contained within a phylogenetic tree. These indices serve as <b><i>valuable complements</i></b> to traditional measures of ecological diversity (such as species richness or abundance). They enable researchers to identify areas or lineages that harbor high evolutionary heritage. In a rapidly changing world where many species are on the brink of extinction, such evolutionary unique groups may play critical roles in overcoming major environmental crises and maintaining the planet's ecological equilibrium.
 
 The <b>vilma package</b> provides a suite of phylogenetic diversity indices, each with its own logic and interpretation. Because different indices answer different biological questions, users must choose the most appropriate ones for their study. Here, you will learn how to calculate these indices using real‑world data from the <b>Primates of Madagascar</b>.
 
----
+------------------------------------------------------------------------
 
 ### 0. The Indices
 
-First, you need to know and understand the basics of each indices available in vilma. At this version (1.0) vilma offers six different PD indices, and the option to calculate species richness. 
+First, you need to know and understand the basics of each indices available in vilma. At this version (1.0) vilma offers six different PD indices, and the option to calculate species richness.
 
 <br>
-
 
 ```{r, warning=FALSE, include=FALSE}
 library(knitr)
@@ -86,6 +83,7 @@ df <- data.frame(
   )
 )
 ```
+
 ```{r, echo=FALSE}
 kable(df, 
       caption = "Table 1: Phylogenetic diversity indices available in the vilma package",
@@ -102,7 +100,6 @@ kable(df,
 ### 1. Data
 
 Now that you know more about PD indices, it is time to proceed with the analyses. The spatial data consist of available occurrence records for all Primates species from Madagascar, obtained from [<b>GBIF</b>](https://doi.org/10.15468/dl.2ah94z). And for the phylogenetic tree, you will use the tree of Primates species from Madagascar available from [VertLife](https://vertlife.org/).
-
 
 First, load all needed libraries:
 
@@ -146,6 +143,7 @@ gbif_occ <- read.delim("../inst/extdata/Primates_Mad_GBIF.csv")
 gbif_occ <- gbif_occ[!is.na(gbif_occ$species), ]
 
 ```
+
 ```{r}
 
 # Exrtract the columns and check thm
@@ -184,6 +182,7 @@ prim_occ <- st_transform(prim_occ, st_crs(ma_pol))
 Now, using the spatial object and the mainland polygon, you will intersect both layers to identify which occurrence records fall **inside** and **outside** the mainland. Once the records have been classified, plot the results using `tmap` to visually inspect their locations.
 
 <br>
+
 ```{r, warning=FALSE, message=FALSE, fig.align='center', fig.width=7, fig.height=5}
 # Extract the first column from the st_intersect result. 
 # This is a boolean vector (TRUE (inside), FALSE (outside))
@@ -205,6 +204,7 @@ tm_shape(occ_inside)+ # Add inside points
 tm_shape(occ_outside)+ # Add outside points
   tm_dots(fill="red")
 ```
+
 <br>
 
 Now, let's fix those outside points. First, you will create a line between each point and the country border using `st_nearest_points`. This line represents the shortest distance between the occurrence and the polygon boundary. Then, using `st_cast`, you will convert each line into two points: the starting point (the original occurrence) and the ending point (the nearest location on the border). Finally, by using a grouping index, you will extract the second point of each line—the endpoint—which corresponds to the corrected coordinate located inside the country boundaries.
@@ -250,6 +250,7 @@ border_points <- cbind(st_drop_geometry(occ_outside), st_coordinates(border_poin
 occ_final <- rbind(occ_inside, border_points)
 
 ```
+
 <br>
 
 Now you finish to fix and clean your points. However, this is a basic step, usually it is recommend a more deep and detailed cleaning, but with this your a ready to go for the next step.
@@ -261,7 +262,6 @@ Now you finish to fix and clean your points. However, this is a basic step, usua
 For phylogenetic diversity indices, you need a **phylogeny** that represents the evolutionary history of the species and allows you to quantify their evolutionary distinctiveness. Therefore, the phylogeny must meet some minimum requirements. The first and most important requirement is that the phylogeny must have **branch lengths**, whether they are calibrated in time or represent genetic/change distances. The type of branch length you use depends on your research question, but remember that each type represents a different biological meaning and may lead to different interpretations. Some indices, such as Faith’s PD, require a **rooted phylogeny**. Although other indices do not necessarily require the tree to be rooted, I strongly recommend always using a rooted phylogeny.
 
 In this step, you will read the tree file. In this case, the file contains a set of 100 trees for the primates of Madagascar, so you will need to calculate a final **consensus tree**. To estimate the branch lengths of the consensus tree, you will use the function `consensus.edges` from the `phytools` package, although `nnls.tree` from the `phangorn` package can also be used. Additionally, you will modify the species names and save them in the phylogeny as `tip.label`. Specifically, you will replace underscores with single spaces so that the species names follow the same format used in the occurrence dataset.
-
 
 <br>
 
@@ -289,6 +289,7 @@ p <- ggtree(prim_tree) +
 # Display the plot
 print(p)
 ```
+
 <br>
 
 ### 2. vilma.dist object
@@ -320,7 +321,6 @@ view.vilma(prim_dist)
 
 Now, you can calculate all alpha phylogenetic diversity indices available in vilma. Each alpha-PD function creates a `vilma.pd` object, which contains the raster results, including the PD values and species richness values, a table with the PD and richness values for each raster cell, and additional information such as the algorithm or method used. Likewise, when using the print function, each index will display a complete summary of the results, and the function view.vilma to display the maps in a interactive view.
 
-
 #### 3.1. Faith's PD index
 
 Faith’s Phylogenetic Diversity, usually called Faith’s PD, measures the **total amount** of evolutionary history represented by the species present in a site, community, or raster cell. This is most famous and common index used, and it requires a rooted phylogeny.
@@ -334,7 +334,8 @@ Because Faith’s PD is based on the minimum spanning tree connecting the specie
 When the index is calculated, check the message generated by the `faith.pd` function. The function will compare the species names in the `vilma.dist` object with the tip labels in the **phylogeny**. It will then select only the **species shared** by both datasets and return summary information about the matching process. This step is important because phylogenetic diversity indices can only be calculated for species that are present in both the occurrence data and the phylogeny.
 
 <br>
-```{r}
+
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, warning=FALSE, message=FALSE, eval = run_heavy}
 # Calcualte Faith's PD using the root
 prim_pd <- faith.pd(tree = prim_tree, dist = prim_dist, method = "root")
 
@@ -351,11 +352,13 @@ print(prim_pd)
 
 view.vilma(prim_pd)
 ```
+
 <br>
 
 One common issue with Faith’s PD is that this index is often strongly **correlated** with species richness. In general, cells with higher species richness tend to have higher PD values because more species usually add more branches to the minimum spanning tree. You can use the table stored in the resulting `vilma.pd` object to evaluate how strongly PD and species richness are correlated in your dataset.
 
 <br>
+
 ```{r, warning=F, fig.align='center', fig.dpi=230}
 
 # Check pearson correlation
@@ -371,6 +374,7 @@ ggplot(data = prim_pd$pd.table)+
   theme_bw()
 
 ```
+
 <br>
 
 As you can see, Faith’s PD is highly correlated with species richness. This means that the index may be capturing mainly the number of species in each cell rather than differences in evolutionary distinctiveness among assemblages. A good alternative is to use indices based on **phylogenetic distance matrices**, such as **Mean Pairwise Distance (MPD)** and **Mean Nearest Taxon Distance (MNTD)**. These indices are less directly dependent on species richness because they summarize the average phylogenetic distance among species, rather than the total amount of branch length accumulated in each cell.
@@ -385,8 +389,7 @@ The logic of MPD is to evaluate how evolutionarily related or distinct the speci
 
 In `vilma`, the function `mpd.calc` calculates the Mean Pairwise Distance (MPD) index. Similar to Faith’s PD, this index requires at least two species per cell, so the function implements the same three options for single-species cells: `exclude`, `root`, and `node`. In addition, MPD can incorporate abundance information when available. However, in this example, abundance will not be used, so the abundance argument will be set to `FALSE`.
 
-
-```{r}
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, warning=FALSE, message=FALSE, eval = run_heavy}
 # Calculate the index using root method
 prim_mpd <- mpd.calc(tree = prim_tree, dist = prim_dist, method = "root", abundance = FALSE)
 
@@ -402,6 +405,7 @@ print(prim_mpd)
 # Check the interactive map
 view.vilma(prim_mpd)
 ```
+
 <br>
 
 #### 3.3. Mean Nearest Taxon Distance (MNTD)
@@ -412,10 +416,11 @@ The logic of MNTD is to evaluate how closely related the species in a cell are n
 
 MNTD is especially useful for detecting **fine-scale phylogenetic structure**. While MPD summarizes the overall evolutionary distance among all species in a cell, MNTD is more sensitive to recent evolutionary relationships because it focuses on the closest relatives. For this reason, MNTD can help identify whether assemblages are composed of closely related species from the same recent lineages or species that are more evolutionary isolated from their nearest relatives.
 
-In vilma, the function `mntd.calc` calculates the Mean Nearest Taxon Distance (MNTD) index. This function uses the same main parameters as `mpd.calc`, including the options for handling single-species cells: `exclude`, `root`, and  `node`. As with MPD, MNTD can also incorporate abundance information when available. However, in this example, abundance will not be used, so the abundance argument will be set to FALSE.
+In vilma, the function `mntd.calc` calculates the Mean Nearest Taxon Distance (MNTD) index. This function uses the same main parameters as `mpd.calc`, including the options for handling single-species cells: `exclude`, `root`, and `node`. As with MPD, MNTD can also incorporate abundance information when available. However, in this example, abundance will not be used, so the abundance argument will be set to FALSE.
 
 <br>
-```{r}
+
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, warning=FALSE, message=FALSE, eval = run_heavy}
 # Calculate the index using root method
 prim_mntd <- mntd.calc(tree = prim_tree, dist = prim_dist, method = "root", abundance = FALSE)
 
@@ -431,11 +436,13 @@ print(prim_mntd)
 # Check the interactive map
 view.vilma(prim_mntd)
 ```
+
 <br>
 
 Now, you can visually compare how these indices differ from each other and how each one is **correlated** with species richness (SR). Of course, every index has its own logic, objective, and **biological interpretation**. However, it is always useful to evaluate the influence of species richness on each index, especially because some phylogenetic diversity metrics may be strongly driven by the number of species present in each cell.
 
 <br>
+
 ```{r,message=FALSE, warning=FALSE, fig.align='center', fig.width=7}
 # Plot the PD data
 pd <- ggplot(data = prim_pd$pd.table)+
@@ -462,6 +469,7 @@ mntd <- ggplot(data = prim_mntd$pd.table)+
 pd+mpd+mntd
 
 ```
+
 <br>
 
 #### 3.4. Phylogenetic Endemism (PE) index
@@ -477,7 +485,8 @@ In vilma, the function `pe.calc` calculates the Phylogenetic Endemism (PE) index
 Because PE depends on PD, the function also includes the methods `exclude`, `root`, and `node` to handle cells with a single species. These options determine how single-species cells are treated during the calculation. Relative PE expresses the **proportion of phylogenetic diversity** in each cell that is geographically restricted. The resulting raster identifies cells that concentrate range-restricted evolutionary history. High PE values indicate areas where evolutionary diversity is both **phylogenetically meaningful** and **geographically restricted**.
 
 <br>
-```{r}
+
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, warning=FALSE, message=FALSE, eval = run_heavy}
 # Calculate the index using root method
 prim_pe <- pe.calc(tree = prim_tree, dist = prim_dist, RPE = TRUE, faith.method = "root")
 
@@ -493,6 +502,7 @@ print(prim_pe)
 # Check the interactive map
 view.vilma(prim_pe)
 ```
+
 <br>
 
 #### 3.5. Rao’s Quadratic Entropy (RaoQ)
@@ -504,7 +514,8 @@ The logic of RaoQ is based on both phylogenetic distance and, when available, sp
 In vilma, RaoQ is calculated with the function `rao.calc`, using a rooted phylogenetic tree. The function also includes the argument `scale01`. If `scale01 = TRUE`, which is the **default**, the phylogenetic distance matrix is divided by its maximum value so that distances range from 0 to 1. Under this scaling, RaoQ values also range approximately from 0 to 1, which makes results easier to interpret and compare. Larger RaoQ values indicate greater within-cell phylogenetic dispersion, while lower values indicate that the assemblage is composed of more closely related species or dominated by few closely related lineages. The function includes the argument `abundance`. If `abundance = FALSE`, which is the **default**, the calculation uses presence–absence data, meaning that all species present in a cell are weighted equally. If `abundance = TRUE`, the function uses the number of records per species within each cell to estimate relative abundances.
 
 <br>
-```{r}
+
+```{r, fig.align='center', fig.dpi=230, echo=FALSE, warning=FALSE, message=FALSE, eval = run_heavy}
 # Calculate the index using root method
 prim_rao <- rao.calc(tree = prim_tree, dist = prim_dist, abundance = FALSE, scale01 = TRUE)
 
@@ -520,6 +531,7 @@ print(prim_rao)
 # Check the interactive map
 view.vilma(prim_rao)
 ```
+
 <br>
 
 #### 3.6. Net Relatedness Index (NRI) and Nearest Taxon Index (NTI)
@@ -537,6 +549,7 @@ Both **NRI** and **NTI** require null-model simulations. In vilma, the number of
 The logic of these indices is that raw **MPD** or **MNTD** values alone do not indicate whether an assemblage is unusually clustered or overdispersed. A cell may have low MPD or MNTD simply because the available species pool is composed of closely related species. By comparing the observed value against a null distribution, NRI and NTI identify whether the **observed** phylogenetic structure is **stronger** or **weaker** than expected by chance. Thus, NRI and NTI are especially useful for detecting non-random phylogenetic patterns in community composition.
 
 <br>
+
 ```{r, fig.align='center', fig.dpi=230, message=FALSE, warning=FALSE, eval=FALSE}
 # Calculate the NTI index using root method
 prim_nti <- nti.calc(tree = prim_tree, dist = prim_dist, mntd.method = "root", abundance = FALSE, iterations = 999, sampling = "taxa.label")
@@ -596,15 +609,17 @@ view.vilma(prim_nri)
 # Check the NRI interactive map
 view.vilma(prim_nri)
 ```
+
 <br>
 
----
+------------------------------------------------------------------------
 
 Now, you have calculated all the alpha phylogenetic diversity indices currently available in `vilma`. The number of available indices may increase over time, but you have already seen that the functions follow a similar and straightforward structure. The most important point is not only to know how to run each function, but also to understand the logic behind each index, when each index should be used, and what type of ecological or evolutionary question each one can help answer.
 
 To better understand the behavior of the indices, you will perform a simple but useful analysis to evaluate how similar the results are among them. In this case, you will create a heatmap showing the pairwise correlations among all alpha phylogenetic diversity indices calculated for the primates of Madagascar. This analysis will help identify which indices produce similar spatial patterns and which ones capture different aspects of phylogenetic diversity.
 
 <br>
+
 ```{r, message=FALSE, warning=FALSE, fig.align='center', fig.width=7, fig.height=7}
 
 # Create the table with the indices values
@@ -635,41 +650,44 @@ ggplot(cor_melt, aes(x = Var2, y = Var1, fill = value)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+
 <br>
 
-The correlation matrix reveals three **main patterns**. First, SR, PD, PE, and RPE form a strongly positive block (r ≥ 0.66–0.97), indicating rich sites harbor deep evolutionary history and endemism. Yet PE and RPE are nearly identical (0.97), making RPE empirically redundant. Second, SR strongly correlates with PD (0.91) but negatively with MNTD (-0.57) while showing no link to MPD (0.10), suggesting habitat filtering adds closely related species without altering overall phylogenetic breadth. Third, standardized effect sizes (NTI/NRI) are decoupled from SR (r ≈ 0.06–0.23) but negatively tied to MPD/MNTD, proving phylogenetic structure depends on species identity rather than richness. In short, your correlation matrix has already told you that **richness**, **structure**, and **evenness** are independent stories in your system. 
+The correlation matrix reveals three **main patterns**. First, SR, PD, PE, and RPE form a strongly positive block (r ≥ 0.66–0.97), indicating rich sites harbor deep evolutionary history and endemism. Yet PE and RPE are nearly identical (0.97), making RPE empirically redundant. Second, SR strongly correlates with PD (0.91) but negatively with MNTD (-0.57) while showing no link to MPD (0.10), suggesting habitat filtering adds closely related species without altering overall phylogenetic breadth. Third, standardized effect sizes (NTI/NRI) are decoupled from SR (r ≈ 0.06–0.23) but negatively tied to MPD/MNTD, proving phylogenetic structure depends on species identity rather than richness. In short, your correlation matrix has already told you that **richness**, **structure**, and **evenness** are independent stories in your system.
 
 With this kind of analysis, you can proceed with a more specific analysis, and it will help you decide which indices to use.
 
----
+------------------------------------------------------------------------
 
 ### 4. Saving results.
 
-Once you have selected the index or indices that you want to keep and use for further analyses, `vilma` allows you to save the alpha phylogenetic diversity results using the function `write.vilma.pd`. This function requires a `vilma.pd` object, a `file` name, which can also include the output directory path, and the `raster.format` argument. The available raster format options are `tif`, `grd`, and 
-`.
+Once you have selected the index or indices that you want to keep and use for further analyses, `vilma` allows you to save the alpha phylogenetic diversity results using the function `write.vilma.pd`. This function requires a `vilma.pd` object, a `file` name, which can also include the output directory path, and the `raster.format` argument. The available raster format options are `tif`, `grd`, and \`.
 
 The function generates different output files. First, it creates a **CSV file** containing the values associated with each raster cell, including species richness, phylogenetic diversity values, and any other index-specific results. Second, it saves the **raster layers** available in the `vilma.pd` object using the raster format specified by the user. Third, it generates a **log file** containing the summary information of the `vilma.pd` object, equivalent to the information displayed when using the print function. Let see this example saving the results of MPD.
 
 <br>
+
 ```{r, eval=FALSE}
 
 # Saving the results as
 write.vilma.pd(vilma.pd = prim_mpd, file = "results/Prim_Madagascar_MPD", raster.format = "tif", overwrite = TRUE)
 
 ```
+
 <br>
 
 The output folder will looks like:
 
 <br>
-```{}
+
+```         
 results/
   ├── Prim_Madagascar_MPD.csv
   ├── Prim_Madagascar_MPD_pd_raster.tif
   └── Prim_Madagascar_MPD_log.txt
 ```
-<br>
 
+<br>
 
 ### 5. Conclusion
 

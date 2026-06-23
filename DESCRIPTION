@@ -67,6 +67,6 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
-URL: https://github.com/oleon12/vilma
+URL: URL: https://oleon12.github.io/vilma/, https://github.com/oleon12/vilma
 BugReports: https://github.com/oleon12/vilma/issues
 Config/roxygen2/version: 8.0.0

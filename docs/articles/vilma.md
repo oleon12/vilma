@@ -1,0 +1,393 @@
+# vilma: an R package for spatial phylogenetic diversity analyses with a Shiny interface.
+
+  
+[Omar Daniel Leon-Alvarado](https://leon-alvarado.weebly.com/)¹²; [J.
+Angel Soto-Centeno](https://www.mormoops.com/)²
+
+¹ Department of Earth and Environmental Science, Rutgers
+University-Newark, NJ, USA.
+
+² Department of Mammalogy, American Museum of Natural History, New York
+City, NY, USA.  
+
+------------------------------------------------------------------------
+
+**Vilma** is an R package for quantifying and visualizing **spatial
+phylogenetic diversity** across geographic landscapes.
+
+It provides a complete workflow to:
+
+- Convert species occurrences into spatial grids
+- Calculate **alpha diversity** indices (Faith’s PD, MPD, MNTD, PE, NRI,
+  NTI, RaoQ)
+- Compute **beta diversity** metrics (PhyloBeta, PhyloSor, UniFrac, Rao
+  β, βMPD, βMNTD)
+- Run **null models** with multiple randomization schemes
+- Make spatial regionalization using the **beta diversity** indices
+- Export results and visualize patterns interactively through a built-in
+  **Shiny app**
+
+Vilma is designed for biogeography, ecology, and conservation
+applications, with special emphasis on **integrative phylogenomics +
+spatial analysis**.
+
+------------------------------------------------------------------------
+
+## Installation
+
+**Development version (recommended)** Requires `devtools`:
+
+``` r
+install.packages("devtools")
+devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
+```
+
+  
+
+## Shiny App
+
+Vilma can be used through a **Shiny interface**. This interface was
+built for users with little experience in R or programming in general.
+However, the user must understand all parameters and indices to perform
+an appropriate analysis for their research question. Therefore, we
+always advise users to keep in mind the principle of **GIGO (Garbage In,
+Garbage Out)**. Running the app is very easy: simply open an *R* or
+*RStudio* session and run the following lines of code.
+
+``` r
+library(vilma)
+
+# Launch the analysis app
+run.vilma.app()
+```
+
+  
+
+Vilma is intended to be a pipeline where the user starts by creating a
+raster file and then uses a phylogeny to calculate α-diversity, α-null
+models, and β-diversity. However, the user can skip some steps and run
+only the desired analyses. For the Shiny app, please note that the
+phylogeny (of class *phylo*) must be uploaded on the α-diversity page.
+
+  
+
+## Interactive view
+
+Although the Shiny app is the most remarkable feature for interactivity,
+Vilma also provides interactive map visualizations. For every analysis
+(raster, α-diversity, α-null models, and β), results can be viewed using
+the
+[`view.vilma()`](https://oleon12.github.io/vilma/reference/view.vilma.md)
+function. This function displays a Leaflet map with raster layers. You
+can toggle between layers using the Layer Control button ![Layer control
+icon](figures/Layer_Icon.png). Furthermore, if you move the mouse over
+any pixel, a pop-up window will appear above the Layer Control button
+showing the value for that specific pixel.
+
+  
+
+## Rasters
+
+The idea of this step is to reduce the time and stress associated with
+creating and manipulating raster files for spatial analysis. Many other
+packages aimed at calculating Phylogenetic Diversity indices use
+community tables. This approach requires several steps to convert
+rasters to tables and then back to rasters again, which can be an
+obstacle for many users. In contrast, the `points_to_raster` function
+requires only a single data frame (or table) with three columns:
+Species, Longitude, and Latitude (decimal degrees). This data is easy to
+gather, especially from sources like GBIF. Users can also set up the
+pixel resolution and CRS. The function return a *vilma.dist* object  
+
+|        Species         | Longitude | Latitude |
+|:----------------------:|:---------:|:--------:|
+|  *Artibeus lituratus*  |  -73.45   |   6.35   |
+|  *Artibeus lituratus*  |  -73.55   |   5.03   |
+| *Artibeus jamaicensis* |  -70.05   |   2.05   |
+|  *Artibeus obscurus*   |  -71.25   |   5.93   |
+
+¹*The column names can be different; the function handles them
+automatically.*  
+²*The columns must follow this exact order: Species, Longitude, and
+Latitude.*
+
+  
+
+``` r
+points_to_raster(points, crs = 4326, ext = NULL, res = 1, doRast = TRUE, symmetrical = FALSE) 
+
+# Example
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+print(raster_out)
+plot(raster_out)
+view.vilma(raster_out)
+```
+
+  
+
+## α-Diversity
+
+  
+
+This is the most basic analysis. Vilma provides seven indices based on
+different approaches (e.g., minimum spanning tree and distance-based).
+The goal is to increase the number of available indices over time. Each
+α-diversity function requires, at a minimum, a vilma.dist object
+(created with points_to_raster) and a rooted tree with branch lengths.
+These functions work with both ultrametric and non-ultrametric trees.
+The result of each function is a `vilma.pd` object containing: a table
+exhibiting the Species Richness, Abundance, and PD values for each cell;
+a set of rasters (the number of which may vary between indices); and the
+original distribution matrix.
+
+  
+
+``` r
+
+# Faith PD
+faith.pd(tree, dist, method = c("root", "node", "exclude"))
+
+# MNTD
+mntd.calc(tree, dist, method = c("root","node","exclude"), abundance = FALSE)
+
+# MPD
+mpd.calc(tree, dist, method = c("root","node","exclude"), abundance = FALSE)
+
+# Phylogenetic Endemisms
+pe.calc(tree, dist, RPE = c(TRUE,FALSE), faith.method = c("node","root","exclude"))
+
+# Rao's Q (PD)
+rao.calc(tree, dist, abundance = FALSE, scale01 = TRUE)
+
+# NRI
+nri_out <- nri.calc(tree, dist, mpd.method = c("root","node","exclude"),
+                    abundance = FALSE, iterations = 999, 
+                    sampling = c("taxa.label","range","neighbor","regional"), 
+                    n.directions = c("rook","bishop","queen"), 
+                    regional.weight = c("uniform","frequency","range"))
+
+#NTI
+nti_out <- nti.calc(tree, dist, mntd.method = c("root","node","exclude"), 
+                     abundance = FALSE, iterations = 999, 
+                     sampling = c("taxa.label","range","neighbor","regional"), 
+                     n.directions = c("rook","bishop","queen"), 
+                     regional.weight = c("uniform","frequency","range"))
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+tree_ex <- example_tree()
+
+mpd_out <- mpd.calc(tree = tree_ex, dist = raster_out, method = "root", abundance = FALSE)
+print(mpd_out)
+plot(mpd_out)
+view.vilma(mpd_out)
+```
+
+  
+
+## Null models (α-Diversity)
+
+  
+
+This is one of vilma’s main features: the implementation of null models
+for α-diversity indices. With the exception of NRI and NTI, all indices
+have their own null models. The null models offer two different
+approaches: `global` and `cell`. When `global` is selected, the function
+calculates the SES and p-value for the entire area, while `cell`
+calculates the SES and p-value for each individual cell. Only the `cell`
+option returns a raster.
+
+The null models feature four different sampling options: `taxa.label`,
+`range`, `neighbor`, and `regional.` For the `neighbor`, the algorithm
+re-samples the points using three methods: `rook`, `bishop`, and
+`queen`. For regional, the species-pool resampling is performed with
+different weights: `uniform`, `frequency`, and `range.`
+
+Null models require a `vilma.pd` object, a phylogenetic tree, and a
+`vilma.dist` object. Each function returns a `vilma.null` object
+containing the associated statistics (SES and p-value) in tables, a
+raster (if the `cell` option was selected), and the original
+distribution matrix.
+
+  
+
+``` r
+faith.pd.null(pd, tree, dist, iterations = 999, method = c("global","cell"), 
+              sampling = c("taxa.label","range","neighbor","regional"), 
+              n.directions = c("rook","bishop","queen"),
+              regional.weight = c("uniform","frequency","range"))
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+tree_ex <- example_tree()
+faith_out <- faith.pd(tree = tree_ex, dist = raster_out, method = "root")
+
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, 
+                            method = "global", sampling = "taxa.label")
+print(faith_null)
+plot(faith_null)
+view.vilma(faith_null)
+
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, 
+                            method = "cell", sampling = "taxa.label")
+print(faith_null)
+plot(faith_null)
+view.vilma(faith_null)
+```
+
+  
+
+## β-Diversity
+
+  
+
+Vilma also implements different β-diversity indices. Like the
+α-diversity indices, these require a phylogenetic tree and a
+`vilma.dist` object. Each function returns a `vilma.beta` object
+containing similarity/dissimilarity matrices, rasters, and associated
+statistics.
+
+Since beta diversity indices produce pair-wise distance matrices, the
+functions calculate the mean similarity/dissimilarity values and perform
+a PCoA and NMDS for dimensional reduction. The resulting rasters
+visualize the mean values, PCoA (axes 1 and 2), and NMDS axes.
+
+  
+
+``` r
+
+# Beta-MNTD
+beta.mntd(tree, dist, mntd.method = c("exclude","root","node"),
+          abundance = FALSE, exclude.conspecific = FALSE, 
+          normalize = FALSE, scale01 = FALSE)
+
+# Beta-MPD
+beta.mpd(tree, dist, mpd.method = c("exclude","root","node"), 
+         abundance = FALSE, exclude.conspecific = FALSE, 
+         normalize = FALSE, scale01=FALSE)
+
+# Phylo Beta
+phylo.beta(tree, dist, method = c("unweighted", "weighted"), normalize = TRUE)
+
+# PhyloSor
+phylosor.calc(tree, dist, method = c("root","node","exclude"), singleton_overlap = FALSE,
+             abundance = FALSE, normalize = TRUE)
+
+# Rao Q' Beta
+rao.beta(tree, dist, abundance = FALSE, scale01 = TRUE)
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+tree_ex <- example_tree()
+
+beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "weighted", normalize = TRUE)
+print(beta_out)
+plot(beta_out)
+view.vilma(beta_out)
+```
+
+  
+
+## Regionalization
+
+  
+
+Vilma provides bioregionalization options using β-diversity indices. The
+function `vilma.regionalize` takes dissimilarity matrices and calculates
+the optimal number of clusters using different methods (**hierarchical
+cluster**, **k-medoids**, and **network-based**). Likewise, the function
+offers k-value optimization to determine the best fit. The function
+returns two raster layers: I) Groups and II) Mean β-values per group.
+
+  
+
+``` r
+
+# Beta-MPD
+bmpd_out <- beta.mpd(tree, dist, mpd.method = c("exclude","root","node"), 
+                    abundance = FALSE, exclude.conspecific = FALSE, 
+                    normalize = FALSE, scale01=FALSE)
+
+# Regionalization
+region_h <- vilma.regionalize(beta = bmpd_out, method = "hclust", hmethod = "ward.D2", optimize = TRUE)
+region_pam <- vilma.regionalize(beta = bmpd_out, method = "pam", optimize = TRUE)
+region_net <- vilma.regionalize(beta = bmpd_out, method = "network", optimize = TRUE, net_kernel = "exp", net_algorithm = "louvain")
+
+# Plot
+plot(region_h)
+view.vilma(region_h)
+
+plot(region_pam)
+view.vilma(region_pam)
+
+plot(region_net)
+view.vilma(region_net)
+```
+
+  
+
+## Save results
+
+  
+
+Vilma provides multiple functions to save all results. Each object type
+(`vilma.dist`, `vilma.pd`, `vilma.null`, and `vilma.beta`) has its own
+dedicated writing function. These functions will save all associated
+tables, rasters, and statistics for each object. For raster files, three
+different formats are available: TIF, GRD, and IMG.
+
+  
+
+``` r
+
+
+# Saving the vilma.dist object
+
+dist_ex <- example_dist()
+raster_out <- points_to_raster(points = dist_ex, res = 5)
+
+write.vilma.dist(vilma.dist = raster_out, file = "raster_dist", 
+                 raster.format = "tif", overwrite = TRUE)
+
+tree_ex <- example_tree()
+
+
+
+# Saving the vilma.pd object
+
+faith_out <- faith.pd(tree = tree_ex, dist = raster_out, method = "root")
+
+write.vilma.pd(vilma.pd = faith_out, file = "raster_faithPD", 
+                 raster.format = "tif", overwrite = TRUE)
+
+
+# Saving the vilma.null object
+
+faith_null <- faith.pd.null(pd = faith_out, tree = tree_ex, dist = raster_out, 
+                            method = "global", sampling = "taxa.label")
+                            
+write.vilma.null(vilma.null = faith_null, file = "raster_faithPD_null", 
+                 raster.format = "tif", overwrite = TRUE)
+
+
+# Saving the vilma.beta object
+
+beta_out <- phylo.beta(tree = tree_ex, dist = raster_out, method = "weighted", normalize = TRUE)
+
+write.vilma.beta(vilma.beta = beta_out, file = "raster_phyloBeta", 
+                 raster.format = "tif", overwrite = TRUE)
+
+# Saving the vilma.region object
+
+region_h <- vilma.regionalize(beta = bmpd_out, method = "hclust", hmethod = "ward.D2", optimize = TRUE)
+
+write.vilma.region(vilma.region = region_h, file ="region_groups",
+                   raster.format = "tif", overwrite = TRUE)
+```
+
+  

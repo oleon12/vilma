@@ -9,3 +9,5 @@ inst/app/.RData
 .Rproj.user
 .httr-oauth
 .quarto
+/doc/
+/Meta/

@@ -1,0 +1,253 @@
+url: "https://oleon12.github.io/vilma/"
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#FFA4A4"
+    secondary: "#FFD1DC"
+    success: "#F28B8B"
+    info: "#FFE6EB"
+    bg: "#FFFFFF"
+    fg: "#333333"
+    link-color: "#0072B2"
+    navbar-bg: "#FFA4A4"
+    navbar-light-color: "#FFFFFF"
+    navbar-light-hover-color: "#333333"
+    border-radius: "0.5rem"
+    btn-border-radius: "0.4rem"
+  includes:
+    in_header: "pkgdown/extra.css"
+
+home:
+  title: "vilma: Spatial Phylogenetic Diversity"
+  description: "An R package for calculating, visualizing, and exporting spatial phylogenetic diversity, null-model, beta-diversity, and regionalization analyses."
+  sidebar:
+    structure:
+      - links
+      - license
+      - citation
+      - authors
+      - tutorials
+    components:
+      tutorials:
+        title: "Tutorials"
+        text: |
+          <ul class="list-unstyled">
+            <li><a href="articles/vilma.html">Get started with vilma</a></li>
+            <li><a href="articles/rasters-vilma.html">Preparing raster data</a></li>
+            <li><a href="articles/polygons-vilma.html">Preparing polygon data</a></li>
+            <li><a href="articles/vilma-gbif.html">Using GBIF data</a></li>
+            <li><a href="articles/alpha-indices.html">Alpha diversity indices</a></li>
+            <li><a href="articles/null-models.html">Null models</a></li>
+            <li><a href="articles/beta-indices.html">Beta diversity indices</a></li>
+            <li><a href="articles/shiny-app.html">Shiny app guide</a></li>
+          </ul>
+
+authors:
+  "Omar Daniel Leon-Alvarado":
+    href: "https://github.com/oleon12"
+  "J. Angel Soto-Centeno":
+    href: "https://www.sotocentenolab.com/"
+
+navbar:
+  structure:
+    left:
+      - intro
+      - reference
+      - articles
+      - tutorials
+      - news
+    right:
+      - search
+      - github
+  components:
+    intro:
+      text: "Get started"
+      href: "articles/vilma.html"
+    reference:
+      text: "Reference"
+      href: "reference/index.html"
+    articles:
+      text: "Articles"
+      menu:
+        - text: "Overview"
+        - text: "Getting started with vilma"
+          href: "articles/vilma.html"
+        - text: "Input data"
+        - text: "Preparing raster data"
+          href: "articles/rasters-vilma.html"
+        - text: "Preparing polygon data"
+          href: "articles/polygons-vilma.html"
+        - text: "Using GBIF data"
+          href: "articles/vilma-gbif.html"
+        - text: "Analyses"
+        - text: "Alpha phylogenetic diversity"
+          href: "articles/alpha-indices.html"
+        - text: "Null models"
+          href: "articles/null-models.html"
+        - text: "Beta phylogenetic diversity"
+          href: "articles/beta-indices.html"
+        - text: "Interface"
+        - text: "Using the Shiny app"
+          href: "articles/shiny-app.html"
+    tutorials:
+      text: "Tutorials"
+      menu:
+        - text: "Input workflows"
+        - text: "Occurrence points to rasters"
+          href: "articles/rasters-vilma.html"
+        - text: "Polygons to occurrence matrices"
+          href: "articles/polygons-vilma.html"
+        - text: "GBIF occurrence records"
+          href: "articles/vilma-gbif.html"
+        - text: "Diversity workflows"
+        - text: "Alpha diversity indices"
+          href: "articles/alpha-indices.html"
+        - text: "Spatial null models"
+          href: "articles/null-models.html"
+        - text: "Beta diversity and regionalization"
+          href: "articles/beta-indices.html"
+        - text: "Graphical workflow"
+        - text: "Shiny application"
+          href: "articles/shiny-app.html"
+    github:
+      icon: "fa-github"
+      href: "https://github.com/oleon12/vilma"
+      aria-label: "GitHub repository"
+
+articles:
+  - title: "Getting started"
+    desc: "Start here for a general overview of the vilma workflow."
+    contents:
+      - vilma
+
+  - title: "Preparing spatial input data"
+    desc: "Tutorials for transforming occurrence records, rasters, polygons, and GBIF downloads into objects that can be used by vilma."
+    contents:
+      - rasters-vilma
+      - polygons-vilma
+      - vilma-gbif
+
+  - title: "Phylogenetic diversity analyses"
+    desc: "Tutorials for alpha diversity, beta diversity, null models, and spatial regionalization analyses."
+    contents:
+      - alpha-indices
+      - null-models
+      - beta-indices
+
+  - title: "Graphical user interface"
+    desc: "Learn how to use the bundled Shiny application for interactive analyses."
+    contents:
+      - shiny-app
+
+reference:
+  - title: "Package overview"
+    desc: "General package documentation."
+    contents:
+      - vilma-package
+
+  - title: "Example datasets"
+    desc: "Example occurrence, phylogenetic, raster, and polygon datasets included with vilma."
+    contents:
+      - Artibeus_occ
+      - artibeus_tree
+      - car_tree
+      - data_sa
+      - example_dist
+      - example_tree
+      - sa_pol
+
+  - title: "Create and convert spatial inputs"
+    desc: "Functions for converting occurrence points, rasters, and polygons into spatial distribution objects."
+    contents:
+      - points_to_raster
+      - rast2occ
+      - pol2occ
+      - return.vilma.dist
+      - return.vilma.dist2
+
+  - title: "Alpha phylogenetic diversity"
+    desc: "Functions for calculating alpha phylogenetic diversity indices."
+    contents:
+      - faith.pd
+      - mpd.calc
+      - mntd.calc
+      - pe.calc
+      - rao.calc
+      - nri.calc
+      - nti.calc
+      - pd.taxon
+
+  - title: "Spatial null models"
+    desc: "Functions for randomizing communities, calculating null expectations, and evaluating standardized phylogenetic diversity patterns."
+    contents:
+      - faith.pd.null
+      - mpd.calc.null
+      - mntd.calc.null
+      - pe.calc.null
+      - rao.calc.null
+      - swap.null
+
+  - title: "Beta phylogenetic diversity"
+    desc: "Functions for calculating phylogenetic dissimilarity, turnover, nestedness, UniFrac, and beta diversity indices."
+    contents:
+      - beta.mpd
+      - beta.mntd
+      - phylo.beta
+      - phylosor.calc
+      - rao.beta
+      - unifrac.calc
+
+  - title: "Spatial regionalization"
+    desc: "Functions for clustering and regionalizing phylogenetic diversity patterns."
+    contents:
+      - vilma.regionalize
+      - find_kdiss
+      - find_knnK
+      - find_kpam
+      - find_ksil
+
+  - title: "Environmental niche modeling and spatial correlation"
+    desc: "Additional tools for environmental niche modeling and correlation analyses."
+    contents:
+      - vilma.ENM
+      - fast.ensemble.enm
+      - vilma.cor
+
+  - title: "Visualization"
+    desc: "Plotting and interactive mapping methods for vilma objects."
+    contents:
+      - starts_with("plot.")
+      - starts_with("view.")
+
+  - title: "Printing methods"
+    desc: "Console print methods for vilma objects."
+    contents:
+      - starts_with("print.")
+
+  - title: "Export results"
+    desc: "Functions for writing vilma outputs to disk."
+    contents:
+      - starts_with("write.")
+
+  - title: "Shiny application"
+    desc: "Launch the bundled graphical user interface."
+    contents:
+      - run.vilma.app
+
+  - title: "Internal or developer utilities"
+    desc: "Helper functions mainly used internally by vilma."
+    contents:
+      - descendant.matrix
+      - find.root.node
+      - zzz_imports
+
+footer:
+  structure:
+    left:
+      - developed_by
+    right:
+      - built_with
+
+development:
+  mode: auto

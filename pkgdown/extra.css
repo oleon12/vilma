@@ -1,0 +1,132 @@
+/* Match pkgdown site to the vilma Shiny app */
+
+.navbar {
+  background-color: #FFA4A4 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.navbar-brand {
+  color: white !important;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+.navbar .nav-link {
+  color: white !important;
+  font-weight: 600;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: #333333 !important;
+}
+
+.navbar .dropdown-menu {
+  border: 1px solid #FFD1DC;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.navbar .dropdown-item:hover {
+  background-color: #FFE6EB;
+  color: #333333;
+}
+
+body {
+  color: #333333;
+  background-color: #FFFFFF;
+}
+
+h1, h2, h3, h4, h5 {
+  color: #444444;
+}
+
+a {
+  color: #0072B2;
+}
+
+a:hover {
+  color: #ff2c95;
+}
+
+.btn-primary {
+  background-color: #FFA4A4;
+  border-color: #FFA4A4;
+  color: white;
+  font-weight: 600;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #ff2c95;
+  border-color: #ff2c95;
+  color: white;
+}
+
+.card,
+.pkgdown-sidebar,
+.sidebar,
+.contents {
+  border-radius: 14px;
+}
+
+.home .contents,
+.article .contents {
+  line-height: 1.6;
+}
+
+.home h1 {
+  font-weight: 800;
+  color: #333333;
+}
+
+.home h2,
+.article h2 {
+  border-bottom: 2px solid #FFD1DC;
+  padding-bottom: 0.3rem;
+}
+
+.home .lead {
+  color: #444444;
+}
+
+aside {
+  background-color: #FFFFFF;
+}
+
+aside h2,
+aside h3 {
+  color: #444444;
+}
+
+aside a {
+  color: #0072B2;
+}
+
+aside a:hover {
+  color: #ff2c95;
+}
+
+pre,
+code {
+  border-radius: 8px;
+}
+
+pre {
+  border: 1px solid #FFD1DC;
+}
+
+table {
+  border-color: #FFD1DC;
+}
+
+thead,
+th {
+  background-color: #FFE6EB;
+}
+
+blockquote {
+  border-left: 4px solid #FFA4A4;
+  background-color: #FFF5F7;
+  padding: 0.8rem 1rem;
+}

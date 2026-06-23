@@ -54,7 +54,7 @@ devtools::install_github("oleon12/vilma", build_vignettes = FALSE)
 ```
 <br>
 
-Once `vilma` has been installed, you can launch the Shiny app directly from R. To do this, load the package with library(vilma) and then run the function run.vilma.app().
+Once `vilma` has been installed, you can launch the Shiny app directly from R. To do this, load the package with `library(vilma)` and then run the function `run.vilma.app()`.
 
 ```{r, eval=FALSE}
 library(vilma)
@@ -70,12 +70,12 @@ Then, you will proceed to the next page, the **About vilma** page (Fig. 1), whic
 
 <br>
 <figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/1.png"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
+  <img src="figures/App_img/1.png"
+       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" alt = "upper1" />
 </figure>
 <figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/2.png"
-       alt="Fig. 1"
+  <img src="figures/App_img/2.png"
+       alt="lower1"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 1.</b> Welcome page (top) and About page (bottom) of the vilma Shiny app.</i>
@@ -89,11 +89,11 @@ This is the last introductory page in the app. The **How to Use vilma** page (Fi
 
 <br>
 <figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/3.png"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
+  <img src="figures/App_img/3.png"
+       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" alt = "upper2"/>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/4.png"
-       alt="Welcome page (Up) and the About page (down) of the vilma Shiny app"
+  <img src="figures/App_img/4.png"
+       alt="lower2"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 2.</b> Upper section of the How to Use page (top) and lower section of the same page with the Continue button (bottom).</i>
@@ -111,11 +111,11 @@ Once the analysis is complete, the resulting raster will be displayed as an inte
 
 <br>
 <figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/5.png"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
+  <img src="figures/App_img/5.png"
+       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" alt="upper3"/>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/6.png"
-       alt="Fig. 3"
+  <img src="figures/App_img/6.png"
+       alt="lower3"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 3.</b> Points to Raster page before running the analysis (top) and after running the analysis (bottom). The interactive map and summary output are displayed in the right panel.</i>
@@ -133,8 +133,8 @@ Each time you select an index, the left panel will automatically update to show 
 
 <br>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/7a.png"
-       alt="Fig. 4"
+  <img src="figures/App_img/7a.png"
+       alt="Img4"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 4.</b> Alpha Phylogenetic Diversity page before running the analysis. The close-up shows the panel where users can select one of the indices available in `vilma`.</i>
@@ -146,8 +146,8 @@ You can see that the output is similar to the previous page, and this structure 
 
 <br>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/9.png"
-       alt="Fig. 5"
+  <img src="figures/App_img/9.png"
+       alt="Img5"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 5.</b> Alpha Phylogenetic Diversity page after running the analysis, showing the resulting map and summary output.</i>
@@ -165,11 +165,11 @@ Once all required parameters have been selected, click the **Run analysis** butt
 
 <br>
 <figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/10.png"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
+  <img src="figures/App_img/10.png"
+       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" alt="upper6"/>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/11.png"
-       alt="Fig. 6"
+  <img src="figures/App_img/11.png"
+       alt="lower6"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 6.</b> Null Model page before running any analysis (top) and the same page showing the waiting message while the index is being calculated (bottom).</i>
@@ -185,8 +185,8 @@ When you are ready with the null-model analysis, click the **Next** button to co
 
 <br>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/12.png"
-       alt="Fig. 7"
+  <img src="figures/App_img/12.png"
+       alt="Img7"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 7.</b> Null Model page after the analysis is complete, showing the resulting map and summary output.</i>
@@ -203,11 +203,11 @@ To start the calculation, click the **Run analysis** button. Once the results ar
 
 <br>
 <figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/14.png"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
+  <img src="figures/App_img/14.png"
+       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" alt="upper8"/>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/15.png"
-       alt="Fig. 8"
+  <img src="figures/App_img/15.png"
+       alt="lower8"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 8.</b> Beta Diversity page before running any analysis (top), showing the box where users can select a specific index, and the same page after running the analysis (bottom), showing the resulting maps and summary output.</i>
@@ -228,11 +228,11 @@ Finally, you can export the R code used during the session as an R script. This 
 
 <br>
 <figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/16.png"
-       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
+  <img src="figures/App_img/16.png"
+       style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" alt="upper9"/>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/17a.png"
-       alt="Fig. 9"
+  <img src="figures/App_img/17a.png"
+       alt="lower9"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 9.</b> Overview of the Write/Export page (top), showing the numbered steps for saving all information generated during the session: 1) create or select the output folder, 2) write files to the folder, and 3) export the session code.</i>
@@ -247,8 +247,8 @@ Because of this saving structure, it is recommended to save the results of diffe
 
 <br>
 </figure><figure style="text-align: center; margin: 0 auto;">
-  <img src="../inst/app/www/App_img/18.png"
-       alt="Fig. 10"
+  <img src="figures/App_img/18.png"
+       alt="Img10"
        style="display: block; margin: 0 auto; max-width: 100%; width: 700px;" />
   <figcaption style="text-align: center; margin-top: 6px; font-size: 0.85em;">
     <i><b>Figure 10.</b> Files saved by the app, including raster layers, log files, tables (.csv), and the R script generated from the session.</i>

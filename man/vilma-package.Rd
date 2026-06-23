@@ -12,6 +12,7 @@ and null models. Includes a Shiny app in inst/app.
 \seealso{
 Useful links:
 \itemize{
+  \item URL: \url{https://oleon12.github.io/vilma/}
   \item \url{https://github.com/oleon12/vilma}
   \item Report bugs at \url{https://github.com/oleon12/vilma/issues}
 }
